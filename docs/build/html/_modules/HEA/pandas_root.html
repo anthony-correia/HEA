@@ -1,0 +1,410 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>HEA.pandas_root &mdash; HEA 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../HEA.config.html">HEA.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../HEA.fit.html">HEA.fit package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../HEA.plot.html">HEA.plot package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../HEA.tools.html">HEA.tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HEA</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>HEA.pandas_root</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for HEA.pandas_root</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Handle root files with Pandas</span>
+
+<span class="sd">* Load a root file into a Pandas dataframe</span>
+<span class="sd">* Apply cuts the a Pandas dataframe</span>
+<span class="sd">* Save a Pandas dataframe into a root file</span>
+<span class="sd">* Get the needed branches to load from a root file</span>
+<span class="sd">* Act on the branches of a dataframe with functions</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">root_pandas</span> <span class="kn">import</span> <span class="n">read_root</span>
+
+<span class="kn">from</span> <span class="nn">HEA.tools.da</span> <span class="kn">import</span> <span class="n">el_to_list</span>
+<span class="kn">from</span> <span class="nn">HEA.tools.dir</span> <span class="kn">import</span> <span class="n">create_directory</span>
+<span class="kn">from</span> <span class="nn">HEA.config</span> <span class="kn">import</span> <span class="n">loc</span>
+<span class="kn">from</span> <span class="nn">HEA.definition</span> <span class="kn">import</span> <span class="n">definition_functions</span>
+
+<span class="kn">from</span> <span class="nn">HEA</span> <span class="kn">import</span> <span class="n">RVariable</span>
+
+<div class="viewcode-block" id="assert_needed_variables"><a class="viewcode-back" href="../../index.html#HEA.pandas_root.assert_needed_variables">[docs]</a><span class="k">def</span> <span class="nf">assert_needed_variables</span><span class="p">(</span><span class="n">needed_variables</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; assert that all needed variables are in a dataframe</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    needed_variables: str or list of str</span>
+<span class="sd">        list of the variables that will be checked to be in a pandas dataframe</span>
+<span class="sd">    df: pandas.Dataframe</span>
+<span class="sd">     Dataframe that should contain all the needed variables</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if all the variables in ``needed_variables`` are in the dataframe ``df``</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">needed_variables</span> <span class="o">=</span> <span class="n">el_to_list</span><span class="p">(</span><span class="n">needed_variables</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">needed_variable</span> <span class="ow">in</span> <span class="n">needed_variables</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">needed_variable</span> <span class="ow">in</span> <span class="n">df</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">needed_variable</span><span class="si">}</span><span class="s2"> is not in the pandas dataframe&quot;</span></div>
+
+<div class="viewcode-block" id="show_cut"><a class="viewcode-back" href="../../index.html#HEA.pandas_root.show_cut">[docs]</a><span class="k">def</span> <span class="nf">show_cut</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">cut</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Perform a cut on a Pandas dataframe and print the number of cut-out events</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame</span>
+<span class="sd">        Dataframe that will be cut</span>
+<span class="sd">    cut : str</span>
+<span class="sd">        Performed cut</span>
+<span class="sd">    verbose: Bool</span>
+<span class="sd">        if True, print the number of cut-out events</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">n_events</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">cut</span><span class="p">)</span>
+    <span class="n">n_cut_events</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cut</span><span class="si">}</span><span class="s2"> cut has removed </span><span class="si">{</span><span class="n">n_events</span> <span class="o">-</span> <span class="n">n_cut_events</span><span class="si">}</span><span class="s2"> over </span><span class="si">{</span><span class="n">n_events</span><span class="si">}</span><span class="s2"> events&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">df</span></div>
+    
+
+<div class="viewcode-block" id="load_dataframe"><a class="viewcode-back" href="../../index.html#HEA.pandas_root.load_dataframe">[docs]</a><span class="k">def</span> <span class="nf">load_dataframe</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">tree_name</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;read_root&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; load dataframe from a root file (also print the path of the root file)</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path      : str</span>
+<span class="sd">        location of the root file</span>
+<span class="sd">    tree_name : str</span>
+<span class="sd">        name of the tree where the data to be loaded is</span>
+<span class="sd">    columns   : list</span>
+<span class="sd">        columns of the root files that are loaded</span>
+<span class="sd">    method    : str</span>
+<span class="sd">        method used to load the data: ``&#39;read_root&#39;`` or ``&#39;uproot&#39;``</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame</span>
+<span class="sd">        loaded pandas dataframe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loading &quot;</span> <span class="o">+</span> <span class="n">path</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;read_root&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">read_root</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">tree_name</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+    
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;uproot&#39;</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">uproot4</span> <span class="c1"># not imported by default...</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">uproot4</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">)[</span><span class="n">tree_name</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">arrays</span><span class="p">(</span><span class="nb">vars</span><span class="p">,</span> <span class="n">library</span> <span class="o">=</span> <span class="s2">&quot;pd&quot;</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">file</span>
+        
+        <span class="k">return</span> <span class="n">df</span></div>
+    
+<div class="viewcode-block" id="load_saved_root"><a class="viewcode-back" href="../../index.html#HEA.pandas_root.load_saved_root">[docs]</a><span class="k">def</span> <span class="nf">load_saved_root</span><span class="p">(</span><span class="n">name_data</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">folder_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">tree_name</span> <span class="o">=</span> <span class="s1">&#39;DecayTree&#39;</span><span class="p">,</span> <span class="n">cut_BDT</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;read_root&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name_data  : str, name of the root file</span>
+<span class="sd">    vars       : list of str,</span>
+<span class="sd">        list of the desired variables</span>
+<span class="sd">    method     : str,</span>
+<span class="sd">        method to retrieve the data (``&#39;read_root&#39;`` or ``&#39;uproot&#39;``) (read_root is faster)</span>
+<span class="sd">    cut_BDT    : str or float or None</span>
+<span class="sd">        if not ``None``, the root file with the BDT cut ``BDT &gt; cut_BDT`` should have a name finishing by ``&quot;_BDT{cutBDT}&quot;``.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.Dataframe </span>
+<span class="sd">        loaded, with the desired variables</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">text_cut_BDT</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">cut_BDT</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;_BDT</span><span class="si">{</span><span class="n">cut_BDT</span><span class="si">}</span><span class="s1">&#39;</span>
+    
+    <span class="n">complete_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;out&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/root/</span><span class="si">{</span><span class="n">folder_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name_data</span><span class="si">}{</span><span class="n">text_cut_BDT</span><span class="si">}</span><span class="s2">.root&quot;</span>
+    
+    <span class="k">return</span> <span class="n">load_dataframe</span><span class="p">(</span><span class="n">complete_path</span><span class="p">,</span> <span class="n">tree_name</span><span class="p">,</span> <span class="nb">vars</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save_root"><a class="viewcode-back" href="../../index.html#HEA.pandas_root.save_root">[docs]</a><span class="k">def</span> <span class="nf">save_root</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">name_key</span><span class="p">,</span> <span class="n">folder_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; save the dataframe in a .root file</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df        : pandas.DataFrame</span>
+<span class="sd">        dataframe to save</span>
+<span class="sd">    file_name : str</span>
+<span class="sd">        name of the root file that will be saved</span>
+<span class="sd">    name_key  : str</span>
+<span class="sd">        name of the tree where the file will be saved</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">loc</span><span class="p">[</span><span class="s1">&#39;out&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;root/&#39;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">create_directory</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">folder_name</span><span class="p">)</span>
+    <span class="n">path</span><span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">.root&quot;</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Root file saved in </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">to_root</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">name_key</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="get_dataframe_from_raw_branches_functions"><a class="viewcode-back" href="../../index.html#HEA.pandas_root.get_dataframe_from_raw_branches_functions">[docs]</a><span class="k">def</span> <span class="nf">get_dataframe_from_raw_branches_functions</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">raw_branches_functions</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;new&#39;</span><span class="p">,</span> <span class="n">functions</span><span class="o">=</span><span class="n">definition_functions</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; From a list of variables with possibly the functions that will be applied to the variable afterwards, add the variables which a function is applied to, to a pandas dataframe.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_branches_functions :  list</span>
+<span class="sd">        list of </span>
+<span class="sd">        </span>
+<span class="sd">            - variable</span>
+<span class="sd">            - tuple ``(variable, function)``, where ``function`` is the name of the function applied to the variable</span>
+<span class="sd">            - tuple ``(variables, function)``, where ``variables`` is a tuple of variables, inputs of the function</span>
+<span class="sd">    </span>
+<span class="sd">    df                  : Pandas dataframe</span>
+<span class="sd">        original dataframe</span>
+<span class="sd">    mode                : str</span>
+<span class="sd">        3 modes:</span>
+<span class="sd">        </span>
+<span class="sd">                - &#39;add&#39;: add the variables to the dataframe (in place)</span>
+<span class="sd">                - &#39;new&#39;: create a new dataframe with the new variables only</span>
+<span class="sd">                - &#39;both&#39; : do both</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.Dataframe </span>
+<span class="sd">        Dataframe with the variables specified in ``raw_branches_functions``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">new_df_required</span> <span class="o">=</span> <span class="p">(</span><span class="n">mode</span><span class="o">==</span><span class="s1">&#39;new&#39;</span> <span class="ow">or</span> <span class="n">mode</span><span class="o">==</span><span class="s1">&#39;both&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">new_df_required</span><span class="p">:</span>
+        <span class="n">new_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    
+    <span class="k">for</span> <span class="n">raw_branch_function</span> <span class="ow">in</span> <span class="n">raw_branches_functions</span><span class="p">:</span>
+        <span class="c1"># Retrieve the name of the variable and the function applied to it</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_branch_function</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">raw_branch</span> <span class="o">=</span> <span class="n">raw_branch_function</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">name_function</span> <span class="o">=</span> <span class="n">raw_branch_function</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">raw_branch</span> <span class="o">=</span> <span class="n">raw_branch_function</span>     
+            <span class="n">name_function</span> <span class="o">=</span> <span class="kc">None</span>
+        
+            <span class="k">assert</span> <span class="n">raw_branch</span> <span class="ow">in</span> <span class="n">df</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;The branch </span><span class="si">{</span><span class="n">raw_branch</span><span class="si">}</span><span class="s2"> is not in the Pandas dataframe&quot;</span>
+        
+        
+        <span class="k">if</span> <span class="n">name_function</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">new_df_required</span><span class="p">:</span>
+            <span class="n">new_df</span><span class="p">[</span><span class="n">raw_branch</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">raw_branch</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        
+        <span class="k">if</span> <span class="n">name_function</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_branch</span> <span class="o">=</span> <span class="n">RVariable</span><span class="o">.</span><span class="n">get_branch_from_raw_branch_name_function</span><span class="p">(</span><span class="n">raw_branch</span><span class="p">,</span> <span class="n">name_function</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_branch</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_branch</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">df</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">raw_branch</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">raw_branch</span><span class="p">]</span>
+            
+            <span class="n">new_data</span> <span class="o">=</span> <span class="n">functions</span><span class="p">[</span><span class="n">name_function</span><span class="p">](</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+            
+            <span class="k">if</span> <span class="n">new_df_required</span><span class="p">:</span>
+                <span class="n">new_df</span><span class="p">[</span><span class="n">new_branch</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_data</span>
+            
+            <span class="k">if</span> <span class="n">mode</span><span class="o">==</span><span class="s1">&#39;add&#39;</span> <span class="ow">or</span> <span class="n">mode</span><span class="o">==</span><span class="s1">&#39;both&#39;</span><span class="p">:</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">new_branch</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_data</span>
+    
+    <span class="k">if</span> <span class="n">new_df_required</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">new_df</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Anthony Correia.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

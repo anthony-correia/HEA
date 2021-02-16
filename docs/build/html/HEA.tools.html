@@ -1,0 +1,534 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>HEA.tools package &mdash; HEA 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="HEA.plot package" href="HEA.plot.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="HEA.config.html">HEA.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="HEA.fit.html">HEA.fit package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="HEA.plot.html">HEA.plot package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">HEA.tools package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-HEA.tools">Package contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-HEA.tools.assertion">HEA.tools.assertion module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-HEA.tools.da">HEA.tools.da module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-HEA.tools.dir">HEA.tools.dir module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-HEA.tools.serial">HEA.tools.serial module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-HEA.tools.string">HEA.tools.string module</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HEA</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>HEA.tools package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/HEA.tools.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="hea-tools-package">
+<h1>HEA.tools package<a class="headerlink" href="#hea-tools-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-HEA.tools">
+<span id="package-contents"></span><h2>Package contents<a class="headerlink" href="#module-HEA.tools" title="Permalink to this headline">¶</a></h2>
+<p>Package with tool functions used within the library HEA.</p>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-HEA.tools.assertion">
+<span id="hea-tools-assertion-module"></span><h2>HEA.tools.assertion module<a class="headerlink" href="#module-HEA.tools.assertion" title="Permalink to this headline">¶</a></h2>
+<p><strong>Module with functions to assert a statement</strong>:</p>
+<ul class="simple">
+<li><p>assert that a python object is a list or tuple</p></li>
+<li><p>some assertion function (used internally)</p></li>
+</ul>
+<dl class="py function">
+<dt id="HEA.tools.assertion.is_list_tuple">
+<code class="sig-prename descclassname">HEA.tools.assertion.</code><code class="sig-name descname">is_list_tuple</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">L</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/tools/assertion.html#is_list_tuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.tools.assertion.is_list_tuple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that <code class="docutils literal notranslate"><span class="pre">L</span></code> is a <code class="docutils literal notranslate"><span class="pre">list</span></code> or a <code class="docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<dl class="simple">
+<dt>L<span class="classifier">python object</span></dt><dd><p>potential <code class="docutils literal notranslate"><span class="pre">list</span></code> or <code class="docutils literal notranslate"><span class="pre">tuple</span></code></p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bool:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if <code class="docutils literal notranslate"><span class="pre">L</span></code> is a <code class="docutils literal notranslate"><span class="pre">list</span></code> or a <code class="docutils literal notranslate"><span class="pre">tuple</span></code>, else <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-HEA.tools.da">
+<span id="hea-tools-da-module"></span><h2>HEA.tools.da module<a class="headerlink" href="#module-HEA.tools.da" title="Permalink to this headline">¶</a></h2>
+<p><strong>Data handling</strong>: function to manipulate lists and dictionnary</p>
+<ul class="simple">
+<li><p>Transform an element into a list</p></li>
+<li><p>Check if a list is included in another</p></li>
+<li><p>Add a key-value couple to a dictionnary if the key is not in the dictionnary</p></li>
+</ul>
+<ul class="simple">
+<li><p>…</p></li>
+</ul>
+<dl class="py function">
+<dt id="HEA.tools.da.add_in_dic">
+<code class="sig-prename descclassname">HEA.tools.da.</code><code class="sig-name descname">add_in_dic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">dic</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/tools/da.html#add_in_dic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.tools.da.add_in_dic" title="Permalink to this definition">¶</a></dt>
+<dd><p>if a <code class="docutils literal notranslate"><span class="pre">key</span></code> is not in the dictionnary <code class="docutils literal notranslate"><span class="pre">dic</span></code>, add it with value specified by <code class="docutils literal notranslate"><span class="pre">default</span></code>. In place.</p>
+<dl class="simple">
+<dt>key<span class="classifier">immutable python object</span></dt><dd><p>new key of the dictionnary</p>
+</dd>
+<dt>dic<span class="classifier">dict</span></dt><dd><p>dictionary that might contain the <code class="docutils literal notranslate"><span class="pre">key</span></code></p>
+</dd>
+<dt>default<span class="classifier">python object</span></dt><dd><p>default value of the <code class="docutils literal notranslate"><span class="pre">key</span></code> is not in the <code class="docutils literal notranslate"><span class="pre">dic</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.tools.da.el_to_list">
+<code class="sig-prename descclassname">HEA.tools.da.</code><code class="sig-name descname">el_to_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">el</span></em>, <em class="sig-param"><span class="n">len_list</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/tools/da.html#el_to_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.tools.da.el_to_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn a single non-list element <code class="docutils literal notranslate"><span class="pre">el</span></code> into a list of size <code class="docutils literal notranslate"><span class="pre">len_list</span></code></p>
+<dl class="simple">
+<dt>el<span class="classifier">python object</span></dt><dd><p>element</p>
+</dd>
+<dt>len_list<span class="classifier">int</span></dt><dd><p>length of the list to create</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>transformed_el<span class="classifier">python object</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">el</span></code> is a <code class="docutils literal notranslate"><span class="pre">list</span></code>, <code class="docutils literal notranslate"><span class="pre">el</span></code>. Else, list of size <code class="docutils literal notranslate"><span class="pre">len_list</span></code>: <code class="docutils literal notranslate"><span class="pre">[el,</span> <span class="pre">el,</span> <span class="pre">...]</span></code></p>
+</dd>
+</dl>
+<p>A function taking two variables might have arguments that need to be a 2-list, whose elements correspond to the two variables. This function allows for the user to specify only a common element that will be converted into a 2-list.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.tools.da.flatten_2Dlist">
+<code class="sig-prename descclassname">HEA.tools.da.</code><code class="sig-name descname">flatten_2Dlist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">L2</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/tools/da.html#flatten_2Dlist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.tools.da.flatten_2Dlist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flatten a n-dimensional list into a (n-1)-dimensional list (if it is indeed a list of dimension greater than or equal to 2)</p>
+<p>L2 : python object</p>
+<dl class="simple">
+<dt>python object or 2D list</dt><dd><p>Flatten (n-1)-dimensional list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.tools.da.get_element_list">
+<code class="sig-prename descclassname">HEA.tools.da.</code><code class="sig-name descname">get_element_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">L</span></em>, <em class="sig-param"><span class="n">index</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/tools/da.html#get_element_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.tools.da.get_element_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an element of a list/tuple.
+If <code class="docutils literal notranslate"><span class="pre">L</span></code> is not a list, returns it directly.</p>
+<dl class="simple">
+<dt>L<span class="classifier">python object</span></dt><dd><p>potential list</p>
+</dd>
+<dt>index<span class="classifier">int</span></dt><dd><p>index of the list to get</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>python object</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">list_candidate</span></code> is a list its element if index <code class="docutils literal notranslate"><span class="pre">index</span></code>.
+Else, returns <code class="docutils literal notranslate"><span class="pre">list_candidate</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.tools.da.list_included">
+<code class="sig-prename descclassname">HEA.tools.da.</code><code class="sig-name descname">list_included</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">L1</span></em>, <em class="sig-param"><span class="n">L2</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/tools/da.html#list_included"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.tools.da.list_included" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether the list <code class="docutils literal notranslate"><span class="pre">L1</span></code> included in the list <code class="docutils literal notranslate"><span class="pre">L2</span></code></p>
+<dl class="simple">
+<dt>L1: list</dt><dd><p>potential sub-list</p>
+</dd>
+<dt>L2: list</dt><dd><p>potential larger list</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>L1_included_L2: bool</dt><dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if <code class="docutils literal notranslate"><span class="pre">L1</span></code> included in <code class="docutils literal notranslate"><span class="pre">L2</span></code>, else <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.tools.da.show_dictionnary">
+<code class="sig-prename descclassname">HEA.tools.da.</code><code class="sig-name descname">show_dictionnary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dic</span></em>, <em class="sig-param"><span class="n">name_dic</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/tools/da.html#show_dictionnary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.tools.da.show_dictionnary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the dictionnary elements with line break</p>
+<dl class="simple">
+<dt>dic: dict</dt><dd><p>dictionnary to show</p>
+</dd>
+<dt>name_dic: str or None</dt><dd><p>name of the dictionnary</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-HEA.tools.dir">
+<span id="hea-tools-dir-module"></span><h2>HEA.tools.dir module<a class="headerlink" href="#module-HEA.tools.dir" title="Permalink to this headline">¶</a></h2>
+<p>Module to create directories</p>
+<dl class="py function">
+<dt id="HEA.tools.dir.create_directory">
+<code class="sig-prename descclassname">HEA.tools.dir.</code><code class="sig-name descname">create_directory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">directory</span></em>, <em class="sig-param"><span class="n">name_folder</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/tools/dir.html#create_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.tools.dir.create_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a folder in <code class="docutils literal notranslate"><span class="pre">{directory}/{name_folder}</span></code></p>
+<dl class="simple">
+<dt>directory<span class="classifier">str</span></dt><dd><p>name of the directory where to create the folder</p>
+</dd>
+<dt>name_folder<span class="classifier">str</span></dt><dd><p>name of the folder to create</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>path: str</dt><dd><p><code class="docutils literal notranslate"><span class="pre">{directory}/{name_folder}</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.tools.dir.try_makedirs">
+<code class="sig-prename descclassname">HEA.tools.dir.</code><code class="sig-name descname">try_makedirs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/tools/dir.html#try_makedirs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.tools.dir.try_makedirs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create all the necessary directories of a path</p>
+<dl class="simple">
+<dt>path<span class="classifier">str</span></dt><dd><p>path</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-HEA.tools.serial">
+<span id="hea-tools-serial-module"></span><h2>HEA.tools.serial module<a class="headerlink" href="#module-HEA.tools.serial" title="Permalink to this headline">¶</a></h2>
+<p><strong>Serialisation</strong> into JSON and pickle files</p>
+<dl class="py function">
+<dt id="HEA.tools.serial.dump_json">
+<code class="sig-prename descclassname">HEA.tools.serial.</code><code class="sig-name descname">dump_json</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">file_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">library</span><span class="o">=</span><span class="default_value">'json'</span></em>, <em class="sig-param"><span class="n">byte_write</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">params</span></em><span class="sig-paren">)</span><a class="headerlink" href="#HEA.tools.serial.dump_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the data in a file in <code class="docutils literal notranslate"><span class="pre">{loc['out']}/{type_data}/</span></code></p>
+<dl class="simple">
+<dt>data<span class="classifier">python object</span></dt><dd><p>element to be saved (can be a list)
+if type_data is ‘json’, must be a dictionnary</p>
+</dd>
+<dt>file_name<span class="classifier">str</span></dt><dd><p>name of the pickle file</p>
+</dd>
+<dt>folder_name<span class="classifier">str</span></dt><dd><p>name of folder where the json file is
+(if None, there is no folder)</p>
+</dd>
+<dt>library<span class="classifier">‘json’ or ‘pickle’</span></dt><dd><p>library used to save the file</p>
+</dd>
+<dt>byte_write: bool</dt><dd><p>Write in byte mode</p>
+</dd>
+<dt>params<span class="classifier">dict</span></dt><dd><p>parameters passed to the dump function of the corresponding serial library.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.tools.serial.dump_pickle">
+<code class="sig-prename descclassname">HEA.tools.serial.</code><code class="sig-name descname">dump_pickle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">file_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">library</span><span class="o">=</span><span class="default_value">'pickle'</span></em>, <em class="sig-param"><span class="n">byte_write</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">params</span></em><span class="sig-paren">)</span><a class="headerlink" href="#HEA.tools.serial.dump_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump a pickle file in <code class="docutils literal notranslate"><span class="pre">{loc['pickle']}/</span></code> (in byte mode)</p>
+<dl class="simple">
+<dt>data<span class="classifier">python object</span></dt><dd><p>element to be saved (can be a list)</p>
+</dd>
+<dt>file_name<span class="classifier">str</span></dt><dd><p>name of the pickle file</p>
+</dd>
+<dt>folder_name<span class="classifier">str</span></dt><dd><p>name of folder where the pickle file is saved
+(if None, there is no folder)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.tools.serial.get_latex_column_table">
+<code class="sig-prename descclassname">HEA.tools.serial.</code><code class="sig-name descname">get_latex_column_table</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">L</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/tools/serial.html#get_latex_column_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.tools.serial.get_latex_column_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a sub latex column table from a list</p>
+<dl class="simple">
+<dt>L<span class="classifier">list</span></dt><dd><p>List whose each element is a cellule of the sub latex column table</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>latex_table<span class="classifier">str</span></dt><dd><p>latex column table</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.tools.serial.retrieve_json">
+<code class="sig-prename descclassname">HEA.tools.serial.</code><code class="sig-name descname">retrieve_json</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_name</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">library</span><span class="o">=</span><span class="default_value">'json'</span></em>, <em class="sig-param"><span class="n">byte_read</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#HEA.tools.serial.retrieve_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the content of a json file</p>
+<dl class="simple">
+<dt>file_name<span class="classifier">str</span></dt><dd><p>name of the file</p>
+</dd>
+<dt>folder_name<span class="classifier">str</span></dt><dd><p>name of folder where the json file is (if <code class="docutils literal notranslate"><span class="pre">None</span></code>, there is no folder)</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>dict</dt><dd><p>dict stored in the json file
+in <code class="docutils literal notranslate"><span class="pre">{loc['json']}/{folder_name}/{name_data}.json</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.tools.serial.retrieve_pickle">
+<code class="sig-prename descclassname">HEA.tools.serial.</code><code class="sig-name descname">retrieve_pickle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_name</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">library</span><span class="o">=</span><span class="default_value">'pickle'</span></em>, <em class="sig-param"><span class="n">byte_read</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#HEA.tools.serial.retrieve_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the content of a pickle file</p>
+<dl class="simple">
+<dt>file_name<span class="classifier">str</span></dt><dd><p>name of the file</p>
+</dd>
+<dt>folder_name<span class="classifier">str</span></dt><dd><p>name of folder where the pickle file is (if <code class="docutils literal notranslate"><span class="pre">None</span></code>, there is no folder)</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Python object or dic</dt><dd><p>python object stored in a pickle file
+in <code class="docutils literal notranslate"><span class="pre">{loc['pickle']}/{folder_name}/{name_data}.pickle</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-HEA.tools.string">
+<span id="hea-tools-string-module"></span><h2>HEA.tools.string module<a class="headerlink" href="#module-HEA.tools.string" title="Permalink to this headline">¶</a></h2>
+<p>Module to manipulate strings.</p>
+<dl class="py function">
+<dt id="HEA.tools.string.add_text">
+<code class="sig-prename descclassname">HEA.tools.string.</code><code class="sig-name descname">add_text</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text1</span></em>, <em class="sig-param"><span class="n">text2</span></em>, <em class="sig-param"><span class="n">sep</span><span class="o">=</span><span class="default_value">' '</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/tools/string.html#add_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.tools.string.add_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>concatenate 2 texts with sep between them, unless one of them is None</p>
+<dl class="simple">
+<dt>text1<span class="classifier">str</span></dt><dd><p>text at the beginning</p>
+</dd>
+<dt>text2<span class="classifier">str</span></dt><dd><p>text at the end</p>
+</dd>
+<dt>sep<span class="classifier">str</span></dt><dd><p>separator between <code class="docutils literal notranslate"><span class="pre">text1</span></code> and <code class="docutils literal notranslate"><span class="pre">text2</span></code></p>
+</dd>
+<dt>default<span class="classifier">str or None</span></dt><dd><p>default value to return if both <code class="docutils literal notranslate"><span class="pre">text1</span></code> and <code class="docutils literal notranslate"><span class="pre">text2</span></code> are <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>str</dt><dd><p><code class="docutils literal notranslate"><span class="pre">'{text1}_{text2}'</span></code> if they are both not <code class="docutils literal notranslate"><span class="pre">None</span></code>. 
+Else, return <code class="docutils literal notranslate"><span class="pre">text1</span></code>, or <code class="docutils literal notranslate"><span class="pre">text2</span></code>, 
+or <code class="docutils literal notranslate"><span class="pre">default</span></code> is they are both <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.tools.string.list_into_string">
+<code class="sig-prename descclassname">HEA.tools.string.</code><code class="sig-name descname">list_into_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">L</span></em>, <em class="sig-param"><span class="n">sep</span><span class="o">=</span><span class="default_value">'_'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/tools/string.html#list_into_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.tools.string.list_into_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a list into a string of elements seperated by sep</p>
+<dl class="simple">
+<dt>L<span class="classifier">list</span></dt><dd><p>list</p>
+</dd>
+<dt>sep<span class="classifier">str</span></dt><dd><p>separator used to separate each element of the list</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>str </dt><dd><p>string with all the elements separated by the argument <code class="docutils literal notranslate"><span class="pre">sep</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.tools.string.string_between_brackets">
+<code class="sig-prename descclassname">HEA.tools.string.</code><code class="sig-name descname">string_between_brackets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em>, <em class="sig-param"><span class="n">bracket</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/tools/string.html#string_between_brackets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.tools.string.string_between_brackets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the correct text for the label of plots</p>
+<dl class="simple">
+<dt>text<span class="classifier">str</span></dt><dd><p>Text that might be put into brackets</p>
+</dd>
+<dt>bracket<span class="classifier">‘(‘, ‘[‘ or None</span></dt><dd><p>string of bracket around text</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'('</span></code>  : parenthetis</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'['</span></code>  : bracket</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> : no brackets</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>str</dt><dd><p>string with</p>
+<ul class="simple">
+<li><p>a space before it</p></li>
+<li><p>between the brackets specified by <code class="docutils literal notranslate"><span class="pre">bracket</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="HEA.plot.html" class="btn btn-neutral float-left" title="HEA.plot package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Anthony Correia.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

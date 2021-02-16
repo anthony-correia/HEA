@@ -1,0 +1,1172 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>HEA.plot.histogram &mdash; HEA 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.config.html">HEA.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.fit.html">HEA.fit package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.plot.html">HEA.plot package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.tools.html">HEA.tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">HEA</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>HEA.plot.histogram</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for HEA.plot.histogram</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* Plot histograms</span>
+<span class="sd">* Plot 2D histograms</span>
+<span class="sd">* Plot scatter plots</span>
+<span class="sd">* Plot histograms of the quotient of 2 branches</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span>
+<span class="kn">from</span> <span class="nn">pandas.core.series</span> <span class="kn">import</span> <span class="n">Series</span>
+
+
+<span class="kn">from</span> <span class="nn">matplotlib.colors</span> <span class="kn">import</span> <span class="n">LogNorm</span> <span class="c1">#matplotlib.colors.LogNorm()</span>
+
+<span class="kn">import</span> <span class="nn">HEA.plot.tools</span> <span class="k">as</span> <span class="nn">pt</span>
+<span class="kn">from</span> <span class="nn">HEA.tools.da</span> <span class="kn">import</span> <span class="n">add_in_dic</span><span class="p">,</span> <span class="n">el_to_list</span>
+
+<span class="kn">from</span> <span class="nn">HEA.config</span> <span class="kn">import</span> <span class="n">default_fontsize</span>
+<span class="kn">from</span> <span class="nn">HEA.tools</span> <span class="kn">import</span> <span class="n">string</span>
+
+<span class="c1">#Gives us nice LaTeX fonts in the plots</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">rc</span><span class="p">,</span> <span class="n">rcParams</span>
+<span class="n">rc</span><span class="p">(</span><span class="s1">&#39;font&#39;</span><span class="p">,</span><span class="o">**</span><span class="p">{</span><span class="s1">&#39;family&#39;</span><span class="p">:</span><span class="s1">&#39;serif&#39;</span><span class="p">,</span><span class="s1">&#39;serif&#39;</span><span class="p">:[</span><span class="s1">&#39;Roman&#39;</span><span class="p">]})</span>
+<span class="n">rc</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="n">usetex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.unicode_minus&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+
+<span class="c1">#################################################################################################</span>
+<span class="c1">################################ subfunctions for plotting ######################################</span>
+<span class="c1">################################################################################################# </span>
+
+<div class="viewcode-block" id="get_bin_width"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.get_bin_width">[docs]</a><span class="k">def</span> <span class="nf">get_bin_width</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;return bin width</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    low : Float</span>
+<span class="sd">        low value of the range</span>
+<span class="sd">    high : Float</span>
+<span class="sd">        high value of the range</span>
+<span class="sd">    n_bins : Int</span>
+<span class="sd">        number of bins in the given range</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Float</span>
+<span class="sd">        Width of the bins</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">((</span><span class="n">high</span><span class="o">-</span><span class="n">low</span><span class="p">)</span><span class="o">/</span><span class="n">n_bins</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_count_err"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.get_count_err">[docs]</a><span class="k">def</span> <span class="nf">get_count_err</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; get counts and error for each bin</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data          : pandas.Series</span>
+<span class="sd">        data to plot</span>
+<span class="sd">    n_bins        : int</span>
+<span class="sd">        number of bins</span>
+<span class="sd">    low           : float</span>
+<span class="sd">        low limit of the distribution</span>
+<span class="sd">    high          : float</span>
+<span class="sd">        high limit of the distribution  </span>
+<span class="sd">    weights       : pandas.Series, numpy.array</span>
+<span class="sd">        weights of each element in data</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    counts  : np.array</span>
+<span class="sd">        number of counts in each bin</span>
+<span class="sd">    edges   : np.array</span>
+<span class="sd">        Edges of the bins</span>
+<span class="sd">    centres : np.array</span>
+<span class="sd">        Centres of the bins</span>
+<span class="sd">    err     : np.array</span>
+<span class="sd">        Errors in the count, for each bin</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">counts</span><span class="p">,</span> <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">range</span> <span class="o">=</span> <span class="p">(</span><span class="n">low</span><span class="p">,</span><span class="n">high</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">n_bins</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+    <span class="n">centres</span> <span class="o">=</span> <span class="p">(</span><span class="n">edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span><span class="o">/</span><span class="mf">2.</span>    
+    <span class="n">err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">counts</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">centres</span><span class="p">,</span> <span class="n">err</span></div>
+
+<div class="viewcode-block" id="plot_hist_alone"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.plot_hist_alone">[docs]</a><span class="k">def</span> <span class="nf">plot_hist_alone</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> 
+                    <span class="n">color</span><span class="p">,</span> <span class="n">bar_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
+                    <span class="n">density</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                    <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_ncounts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                    <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span> 
+                    <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;  Plot histogram</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    * If ``bar_mode``: Points with error bars</span>
+<span class="sd">    * Else: histogram with bars</span>
+<span class="sd">    </span>
+<span class="sd">    ax            : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot</span>
+<span class="sd">    data          : pandas.Series</span>
+<span class="sd">        data to plot</span>
+<span class="sd">    n_bins        : int</span>
+<span class="sd">        number of bins</span>
+<span class="sd">    low           : float</span>
+<span class="sd">        low limit of the distribution</span>
+<span class="sd">    high          : float</span>
+<span class="sd">        high limit of the distribution</span>
+<span class="sd">    color         : str</span>
+<span class="sd">        color of the distribution</span>
+<span class="sd">    bar_mode     : bool</span>
+<span class="sd">    </span>
+<span class="sd">        * if ``True``, plot with bars</span>
+<span class="sd">        * else, plot with points and error bars</span>
+<span class="sd">        </span>
+<span class="sd">    alpha         : float between 0 and 1</span>
+<span class="sd">        transparency of the bar histogram</span>
+<span class="sd">    density       : bool</span>
+<span class="sd">        if ``True``, divide the numbers of counts in the histogram by the total number of counts</span>
+<span class="sd">    label         : str</span>
+<span class="sd">        label of the histogram</span>
+<span class="sd">    show_ncounts : bool</span>
+<span class="sd">        if True, show the number of counts in each dataset of ``dfs``</span>
+<span class="sd">    weights       : pandas.Series, numpy.array</span>
+<span class="sd">        weights of each element in data    </span>
+<span class="sd">    orientation  : &#39;vertical&#39; or &#39;horizontal&#39;</span>
+<span class="sd">        orientation of the histogram</span>
+<span class="sd">    **params     : dict</span>
+<span class="sd">        parameters passed to the ``ax.bar``, or ``ax.barh`` or ``ax.errorbar`` functions</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    counts  : np.array</span>
+<span class="sd">        number of counts in each bin</span>
+<span class="sd">    edges   : np.array</span>
+<span class="sd">        Edges of the bins</span>
+<span class="sd">    centres : np.array</span>
+<span class="sd">        Centres of the bins</span>
+<span class="sd">    err     : np.array</span>
+<span class="sd">        Errors in the count, for each bin</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">counts</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">centres</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">get_count_err</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+    <span class="n">bin_width</span> <span class="o">=</span> <span class="n">get_bin_width</span><span class="p">(</span><span class="n">low</span><span class="p">,</span><span class="n">high</span><span class="p">,</span><span class="n">n_bins</span><span class="p">)</span>
+    <span class="n">n_candidates</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    
+    <span class="k">if</span> <span class="n">show_ncounts</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">+=</span> <span class="s2">&quot;: &quot;</span>
+        <span class="n">label</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">n_candidates</span><span class="si">}</span><span class="s2"> events&quot;</span>
+        
+    <span class="k">if</span> <span class="n">density</span><span class="p">:</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">counts</span><span class="o">/</span><span class="p">(</span><span class="n">n_candidates</span><span class="o">*</span><span class="n">bin_width</span><span class="p">)</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="n">err</span><span class="o">/</span><span class="p">(</span><span class="n">n_candidates</span><span class="o">*</span><span class="n">bin_width</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">bar_mode</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">orientation</span><span class="o">==</span><span class="s1">&#39;vertical&#39;</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">centres</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> <span class="n">centres</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">centres</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+                  <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span><span class="n">counts</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">orientation</span><span class="o">==</span><span class="s1">&#39;horizontal&#39;</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">centres</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> <span class="n">centres</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">centres</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+                  <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">orientation</span><span class="o">==</span><span class="s1">&#39;vertical&#39;</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">centres</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">err</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span> 
+        <span class="k">elif</span> <span class="n">orientation</span><span class="o">==</span><span class="s1">&#39;horizontal&#39;</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">centres</span><span class="p">,</span> <span class="n">xerr</span><span class="o">=</span><span class="n">err</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span> 
+    <span class="k">if</span> <span class="n">orientation</span><span class="o">==</span><span class="s1">&#39;vertical&#39;</span><span class="p">:</span>     
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">low</span><span class="p">,</span><span class="n">high</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">orientation</span><span class="o">==</span><span class="s1">&#39;horizontal&#39;</span><span class="p">:</span>     
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">low</span><span class="p">,</span><span class="n">high</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">counts</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">centres</span><span class="p">,</span> <span class="n">err</span></div>
+
+
+<span class="c1">### Set labels -------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="set_label_candidates_hist"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.set_label_candidates_hist">[docs]</a><span class="k">def</span> <span class="nf">set_label_candidates_hist</span> <span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">bin_width</span><span class="p">,</span> <span class="n">pre_label</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                               <span class="n">fontsize</span><span class="o">=</span><span class="n">default_fontsize</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; set the typical y-label of a 1D histogram</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax            : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot the label</span>
+<span class="sd">    bin_width     : float</span>
+<span class="sd">        bin width of the histogram</span>
+<span class="sd">    pre_label     : str</span>
+<span class="sd">        Label to put before showing the width of the bins (e.g., &quot;Number of candidates&quot;, &quot;proportion of candidates&quot;)</span>
+<span class="sd">    unit          : str</span>
+<span class="sd">        unit of the branch that was plotted</span>
+<span class="sd">    fontsize      : float</span>
+<span class="sd">        fontsize of the label</span>
+<span class="sd">    axis          : ``&#39;x&#39;`` or ``&#39;y&#39;`` or ``&#39;both&#39;``</span>
+<span class="sd">        axis where to set the label</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    
+    <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pre_label</span><span class="si">}</span><span class="s2"> / (</span><span class="si">{</span><span class="n">bin_width</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}{</span><span class="n">pt</span><span class="o">.</span><span class="n">_unit_between_brackets</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span> <span class="n">show_bracket</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+    <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;x&#39;</span> <span class="ow">or</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;both&#39;</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span> <span class="ow">or</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;both&#39;</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span></div>
+
+        
+    
+<div class="viewcode-block" id="set_label_hist"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.set_label_hist">[docs]</a><span class="k">def</span> <span class="nf">set_label_hist</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">bin_width</span><span class="p">,</span> 
+                   <span class="n">density</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                   <span class="n">fontsize</span><span class="o">=</span><span class="n">default_fontsize</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">],</span>
+                   <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Set the xlabel and ylabel of a 1D histogram</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------    </span>
+<span class="sd">    ax            : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to show the label</span>
+<span class="sd">    latex_branch  : str</span>
+<span class="sd">        latex name of the branch that was plotted</span>
+<span class="sd">    unit          : str</span>
+<span class="sd">        unit of the branch that was plotted</span>
+<span class="sd">    bin_width     : float</span>
+<span class="sd">        bin width of the histogram</span>
+<span class="sd">    density       : bool</span>
+<span class="sd">        If ``True``, the ylabel will be &quot;Proportion of candidates&quot; instead of &quot;candidates&#39;</span>
+<span class="sd">    data_name     : str or None</span>
+<span class="sd">        Name of the data, in case in needs to be specified in the label of the axis between parentheses</span>
+<span class="sd">    fontsize      : float</span>
+<span class="sd">        fontsize of the labels</span>
+<span class="sd">    orientation  : &#39;vertical&#39; or &#39;horizontal&#39;</span>
+<span class="sd">        orientation of the histogram</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">axis</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">orientation</span><span class="o">==</span><span class="s1">&#39;vertical&#39;</span><span class="p">:</span>
+        <span class="n">axis</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span>
+        <span class="n">axis</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;y&#39;</span>
+    <span class="k">elif</span> <span class="n">orientation</span><span class="o">==</span><span class="s1">&#39;horizontal&#39;</span><span class="p">:</span>
+        <span class="n">axis</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;y&#39;</span>
+        <span class="n">axis</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span>
+    
+    
+    <span class="c1">#Set the x label</span>
+    <span class="n">fontsize_x</span> <span class="o">=</span> <span class="n">fontsize</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">latex_branch</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>
+        <span class="n">fontsize_x</span> <span class="o">-=</span> <span class="mi">7</span>
+    <span class="n">pt</span><span class="o">.</span><span class="n">set_label_branch</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> 
+                       <span class="n">data_name</span><span class="o">=</span><span class="n">data_name</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">])</span>
+    
+    <span class="n">pre_label</span> <span class="o">=</span> <span class="s2">&quot;Proportion of candidates&quot;</span> <span class="k">if</span> <span class="n">density</span> <span class="k">else</span> <span class="s2">&quot;Candidates&quot;</span>
+    
+    
+    <span class="n">set_label_candidates_hist</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">bin_width</span><span class="p">,</span> <span class="n">pre_label</span><span class="o">=</span><span class="n">pre_label</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> 
+                              <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="set_label_2Dhist"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.set_label_2Dhist">[docs]</a><span class="k">def</span> <span class="nf">set_label_2Dhist</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">latex_branches</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span>
+                     <span class="n">fontsize</span><span class="o">=</span><span class="n">default_fontsize</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot; Set the xlabel and ylabel of a 2D histogram</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax            : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot</span>
+<span class="sd">    latex_branches : [str, str]</span>
+<span class="sd">        latex names of the branches that were plotted</span>
+<span class="sd">    units         : [str, str]</span>
+<span class="sd">        units of the branches that were plotted </span>
+<span class="sd">    fontsize       : float</span>
+<span class="sd">        fontsize of the label</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+        
+    <span class="n">pt</span><span class="o">.</span><span class="n">set_label_branch</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">latex_branches</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">units</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+    <span class="n">pt</span><span class="o">.</span><span class="n">set_label_branch</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">latex_branches</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">units</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="set_label_divided_hist"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.set_label_divided_hist">[docs]</a><span class="k">def</span> <span class="nf">set_label_divided_hist</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">bin_width</span><span class="p">,</span> <span class="n">names_data</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">default_fontsize</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Set the xlabel and ylabel of a &quot;divided&quot; histogram</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax            : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot</span>
+<span class="sd">    latex_branches : [str, str]</span>
+<span class="sd">        latex names of the branches that were plotted</span>
+<span class="sd">    unit          : str</span>
+<span class="sd">        unit of the quantity that was plotted</span>
+<span class="sd">    bin_width     : float</span>
+<span class="sd">        bin width of the histogram</span>
+<span class="sd">    names_data    : [str, str]</span>
+<span class="sd">        list of the 2 names of the data (for which a common branch was divided)</span>
+<span class="sd">    fontsize      : float</span>
+<span class="sd">        fontsize of the label</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1">#Set the x label</span>
+    <span class="n">pt</span><span class="o">.</span><span class="n">set_label_branch</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> 
+                       <span class="n">data_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+        
+    <span class="n">pre_label</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;candidates[</span><span class="si">%s</span><span class="s2">] / candidates[</span><span class="si">%s</span><span class="s2">] </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">%</span><span class="p">(</span><span class="n">names_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">names_data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="n">set_label_candidates_hist</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">bin_width</span><span class="p">,</span> <span class="n">pre_label</span><span class="o">=</span><span class="n">pre_label</span><span class="p">,</span> 
+                              <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">)</span></div>
+  
+
+    
+
+<span class="c1">#################################################################################################</span>
+<span class="c1">################################# Main plotting function ########################################</span>
+<span class="c1">################################################################################################# </span>
+
+
+<div class="viewcode-block" id="end_plot_function"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.end_plot_function">[docs]</a><span class="k">def</span> <span class="nf">end_plot_function</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">save_fig</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fig_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">folder_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default_fig_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; tight the layout and save the file or just return the ``matplotlib.figure.Figure`` and ``matplotlib.axes.Axes``</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">        Figure of the plot</span>
+<span class="sd">    fig_name : str</span>
+<span class="sd">        name of the file that will be saved</span>
+<span class="sd">    folder_name : str</span>
+<span class="sd">        name of the folder where the figure will be saved</span>
+<span class="sd">    default_fig_name : str</span>
+<span class="sd">        name of the figure that will be saved, in the case ``fig_name`` is ``None``</span>
+<span class="sd">    ax : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the plot</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">        Figure of the plot (only if ``axis_mode`` is ``False``)</span>
+<span class="sd">    ax : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the plot (only if ``axis_mode`` is ``False``)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    
+    <span class="k">if</span> <span class="n">save_fig</span> <span class="ow">and</span> <span class="n">fig</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pt</span><span class="o">.</span><span class="n">save_fig</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">fig_name</span><span class="o">=</span><span class="n">fig_name</span><span class="p">,</span> <span class="n">folder_name</span><span class="o">=</span><span class="n">folder_name</span><span class="p">,</span> <span class="n">default_fig_name</span><span class="o">=</span><span class="n">default_fig_name</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+    
+<div class="viewcode-block" id="get_fig_ax"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.get_fig_ax">[docs]</a><span class="k">def</span> <span class="nf">get_fig_ax</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Return a figure and an axis in the case where ``ax`` is ``None``</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax            : matplotlib.axes.Axes</span>
+<span class="sd">        default axis</span>
+<span class="sd">    orientation  : &#39;vertical&#39; or &#39;horizontal&#39;</span>
+<span class="sd">        orientation of the plot:</span>
+<span class="sd">        </span>
+<span class="sd">        * ``&#39;vertical&#39;``: figure size is (8, 6)</span>
+<span class="sd">        * ``&#39;horizontal&#39;``: figure size is (6, 8)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">        Figure of the plot (only if ``ax`` was None)</span>
+<span class="sd">    ax : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the plot (only if ``axis_mode`` is ``False``)   </span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">orientation</span><span class="o">==</span><span class="s1">&#39;vertical&#39;</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">orientation</span><span class="o">==</span><span class="s1">&#39;horizontal&#39;</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">save_fig</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+    
+    
+<div class="viewcode-block" id="plot_hist"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.plot_hist">[docs]</a><span class="k">def</span> <span class="nf">plot_hist</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">latex_branch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">low</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">bar_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span>
+              <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">pos_text_LHC</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">fig_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">folder_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+              <span class="n">fontsize_label</span><span class="o">=</span><span class="n">default_fontsize</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">],</span>
+              <span class="n">save_fig</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+              <span class="n">factor_ymax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+              <span class="n">show_leg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loc_leg</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">,</span> 
+              <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Save the histogram(s) of branch of the data given in ``dfs``</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dfs             : dict(str:pandas.Dataframe)</span>
+<span class="sd">        Dictionnary {name of the dataframe : pandas dataframe}</span>
+<span class="sd">    branch          : str</span>
+<span class="sd">        name of the branch in the dataframe</span>
+<span class="sd">    latex_branch    : str</span>
+<span class="sd">        Latex name of the branch (for the labels of the plot)</span>
+<span class="sd">    unit            : str</span>
+<span class="sd">        Unit of the physical quantity</span>
+<span class="sd">    weights         : numpy.array</span>
+<span class="sd">        weights passed to plt.hist </span>
+<span class="sd">    low             : float</span>
+<span class="sd">        low value of the distribution</span>
+<span class="sd">    high            : float</span>
+<span class="sd">        high value of the distribution</span>
+<span class="sd">    n_bins          : int</span>
+<span class="sd">        Desired number of bins of the histogram</span>
+<span class="sd">    colors          : str or list(str)</span>
+<span class="sd">        color(s) used for the histogram(s)</span>
+<span class="sd">    alpha           : str or list(str)</span>
+<span class="sd">        transparancy(ies) of the histograms</span>
+<span class="sd">    bar_mode       : bool</span>
+<span class="sd">        if True, plot with bars, else, plot with points and error bars</span>
+<span class="sd">    density         : bool</span>
+<span class="sd">        if True, divide the numbers of counts in the histogram by the total number of counts</span>
+<span class="sd">    orientation     : &#39;vertical&#39; or &#39;horizontal&#39;</span>
+<span class="sd">        orientation of the histogram</span>
+<span class="sd">    title           : str</span>
+<span class="sd">        title of the figure to show at the top of the figure</span>
+<span class="sd">    pos_text_LHC    : dict, list or str</span>
+<span class="sd">        passed to :py:func:`HEA.plot.tools.set_text_LHCb` as the ``pos`` argument.</span>
+<span class="sd">    fig_name       : str</span>
+<span class="sd">        name of the saved figure</span>
+<span class="sd">    folder_name     : str</span>
+<span class="sd">        name of the folder where to save the figure</span>
+<span class="sd">    fontsize_label  : float</span>
+<span class="sd">        fontsize of the label</span>
+<span class="sd">    save_fig        : bool</span>
+<span class="sd">        specifies if the figure is saved</span>
+<span class="sd">    factor_ymax     : float</span>
+<span class="sd">        multiplicative factor of ymax</span>
+<span class="sd">    ax            : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot</span>
+<span class="sd">    show_leg        : bool</span>
+<span class="sd">        True if the legend needs to be shown</span>
+<span class="sd">    loc_leg         : str</span>
+<span class="sd">        location of the legend    </span>
+<span class="sd">    **params       : dict</span>
+<span class="sd">        passed to :py:func:`plot_hist_alone`</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">        Figure of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    ax : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span><span class="nb">dict</span><span class="p">):</span>
+        <span class="n">dfs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;&quot;</span> <span class="p">:</span> <span class="n">dfs</span><span class="p">}</span>
+    
+    <span class="k">if</span> <span class="n">density</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">density</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dfs</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span> <span class="c1"># if there are more than 2 histograms</span>
+      
+    
+    
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">get_fig_ax</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">orientation</span><span class="p">)</span>
+    
+    
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span><span class="nb">dict</span><span class="p">):</span>
+        <span class="n">data_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dfs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    
+    <span class="k">if</span> <span class="n">latex_branch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">latex_branch</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">_latex_format</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
+        
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_label</span><span class="p">)</span>
+    
+    <span class="c1">#First loop to determine the low and high value</span>
+    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">_redefine_low_high</span><span class="p">(</span><span class="n">low</span><span class="p">,</span><span class="n">high</span><span class="p">,[</span><span class="n">df</span><span class="p">[</span><span class="n">branch</span><span class="p">]</span> <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">dfs</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+    <span class="n">bin_width</span> <span class="o">=</span> <span class="n">get_bin_width</span><span class="p">(</span><span class="n">low</span><span class="p">,</span><span class="n">high</span><span class="p">,</span><span class="n">n_bins</span><span class="p">)</span>
+    
+    <span class="c1"># colors</span>
+    <span class="k">if</span> <span class="n">colors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="s1">&#39;g&#39;</span><span class="p">,</span><span class="s1">&#39;k&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">colors</span><span class="p">,</span><span class="nb">list</span><span class="p">):</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">colors</span><span class="p">]</span>
+    
+    
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">el_to_list</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">dfs</span><span class="p">))</span>
+    <span class="n">alpha</span>   <span class="o">=</span> <span class="n">el_to_list</span><span class="p">(</span><span class="n">alpha</span>  <span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">dfs</span><span class="p">))</span>
+    
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">data_name</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">alpha</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">alpha</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dfs</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">plot_hist_alone</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">branch</span><span class="p">],</span> <span class="n">n_bins</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">bar_mode</span><span class="p">,</span> 
+                                  <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">data_name</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                                  <span class="n">orientation</span><span class="o">=</span><span class="n">orientation</span><span class="p">,</span>
+                                  <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+              
+              
+    <span class="c1">#Some plot style stuff</span>
+    <span class="k">if</span> <span class="n">factor_ymax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">factor_ymax</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mf">0.15</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_names</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="n">show_leg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">show_leg</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dfs</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span>
+        
+    <span class="n">set_label_hist</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">bin_width</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_label</span><span class="p">,</span> 
+                   <span class="n">orientation</span><span class="o">=</span><span class="n">orientation</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">orientation</span><span class="o">==</span><span class="s1">&#39;vertical&#39;</span><span class="p">:</span>
+        <span class="n">axis_y</span> <span class="o">=</span> <span class="s1">&#39;y&#39;</span>
+    <span class="k">elif</span> <span class="n">orientation</span><span class="o">==</span><span class="s1">&#39;horizontal&#39;</span><span class="p">:</span>
+        <span class="n">axis_y</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span>
+    <span class="n">pt</span><span class="o">.</span><span class="n">fix_plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">factor_ymax</span><span class="o">=</span><span class="n">factor_ymax</span><span class="p">,</span> <span class="n">show_leg</span><span class="o">=</span><span class="n">show_leg</span><span class="p">,</span> <span class="n">pos_text_LHC</span><span class="o">=</span><span class="n">pos_text_LHC</span><span class="p">,</span> <span class="n">loc_leg</span><span class="o">=</span><span class="n">loc_leg</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis_y</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">end_plot_function</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">save_fig</span><span class="o">=</span><span class="n">save_fig</span><span class="p">,</span> <span class="n">fig_name</span><span class="o">=</span><span class="n">fig_name</span><span class="p">,</span> <span class="n">folder_name</span><span class="o">=</span><span class="n">folder_name</span><span class="p">,</span>
+                      <span class="n">default_fig_name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">branch</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">string</span><span class="o">.</span><span class="n">list_into_string</span><span class="p">(</span><span class="n">data_names</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> 
+                      <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="plot_hist_var"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.plot_hist_var">[docs]</a><span class="k">def</span> <span class="nf">plot_hist_var</span> <span class="p">(</span><span class="n">datas</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">latex_branch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; plot the histogram(s) of data</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    datas      : pandas.Series or list(pandas.Series)</span>
+<span class="sd">        dataset or list of datasets (a dataset is an array of float)</span>
+<span class="sd">    branch     : str</span>
+<span class="sd">        name of the branch, used to cook the name of the figure that will be saved</span>
+<span class="sd">    latex_branch    : str</span>
+<span class="sd">        Latex name of the branch (for the labels of the plot)</span>
+<span class="sd">    unit            : str</span>
+<span class="sd">        Unit of the physical quantity</span>
+<span class="sd">    data_names : str or list(str)</span>
+<span class="sd">        name of the datasets</span>
+<span class="sd">    **kwargs   : dict</span>
+<span class="sd">        passed to plot_hist</span>
+<span class="sd">   </span>
+<span class="sd">   Returns</span>
+<span class="sd">   -------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">        Figure of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    ax : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    
+    <span class="c1"># data into list of data</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Series</span><span class="p">):</span>
+        <span class="n">datas</span> <span class="o">=</span> <span class="p">[</span><span class="n">datas</span><span class="p">]</span>
+        
+    <span class="n">data_names</span> <span class="o">=</span> <span class="n">el_to_list</span><span class="p">(</span><span class="n">data_names</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">datas</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_names</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">datas</span><span class="p">)</span>
+    
+    <span class="n">dfs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">datas</span><span class="p">,</span> <span class="n">data_names</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">()</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">branch</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">dfs</span><span class="p">[</span><span class="n">data_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
+    
+    <span class="k">return</span> <span class="n">plot_hist</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">latex_branch</span><span class="o">=</span><span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>   </div>
+
+<div class="viewcode-block" id="plot_divide"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.plot_divide">[docs]</a><span class="k">def</span> <span class="nf">plot_divide</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> 
+                <span class="n">fig_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">folder_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                <span class="n">save_fig</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">pos_text_LHC</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; plot the (histogram of the dataframe 1 of branch)/(histogram of the dataframe 1 of branch) after normalisation</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    </span>
+<span class="sd">    dfs             : dict(str:pandas.Dataframe)</span>
+<span class="sd">        Dictionnary {name of the dataframe : pandas dataframe}</span>
+<span class="sd">    branch          : str</span>
+<span class="sd">        name of the branch in the dataframe</span>
+<span class="sd">    latex_branch    : str</span>
+<span class="sd">        Latex name of the branch (for the labels of the plot)</span>
+<span class="sd">    unit            : str</span>
+<span class="sd">        Unit of the physical quantity</span>
+<span class="sd">    low             : float</span>
+<span class="sd">        low value of the distribution</span>
+<span class="sd">    high            : float</span>
+<span class="sd">        high value of the distribution</span>
+<span class="sd">    n_bins          : int</span>
+<span class="sd">        Desired number of bins of the histogram</span>
+<span class="sd">    fig_name       : str</span>
+<span class="sd">        name of the saved figure</span>
+<span class="sd">    folder_name     : str</span>
+<span class="sd">        name of the folder where to save the figure</span>
+<span class="sd">    save_fig        : bool</span>
+<span class="sd">        specifies if the figure is saved</span>
+<span class="sd">    ax            : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot</span>
+<span class="sd">    pos_text_LHC    : dict, list or str</span>
+<span class="sd">        passed to :py:func:`HEA.plot.tools.set_text_LHCb` as the ``pos`` argument.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">        Figure of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    ax : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+       
+    
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">get_fig_ax</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">data_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dfs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    
+    
+    <span class="c1"># Compute the number of bins</span>
+    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">_redefine_low_high</span><span class="p">(</span><span class="n">low</span><span class="p">,</span><span class="n">high</span><span class="p">,[</span><span class="n">df</span><span class="p">[</span><span class="n">branch</span><span class="p">]</span> <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">dfs</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+    <span class="n">bin_width</span> <span class="o">=</span> <span class="n">get_bin_width</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span><span class="n">n_bins</span><span class="p">)</span>
+    
+    <span class="c1"># Make the histogram, and get the bin centres and error on the counts in each bin</span>
+    <span class="n">list_dfs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dfs</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">names_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dfs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    
+    <span class="n">counts1</span><span class="p">,</span> <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">list_dfs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">branch</span><span class="p">],</span> <span class="n">n_bins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="n">low</span><span class="p">,</span><span class="n">high</span><span class="p">))</span>
+    <span class="n">counts2</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">list_dfs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">branch</span><span class="p">],</span> <span class="n">n_bins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="n">low</span><span class="p">,</span><span class="n">high</span><span class="p">))</span>
+    <span class="n">bin_centres</span> <span class="o">=</span> <span class="p">(</span><span class="n">bin_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">bin_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span><span class="o">/</span><span class="mf">2.</span>
+    
+    <span class="n">err1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">counts1</span><span class="p">)</span>
+    <span class="n">err2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">counts2</span><span class="p">)</span>
+    
+    <span class="c1">#division</span>
+    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span> 
+        <span class="n">division</span> <span class="o">=</span> <span class="n">counts1</span><span class="o">*</span><span class="n">counts2</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="p">(</span><span class="n">counts2</span><span class="o">*</span><span class="n">counts1</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> 
+    <span class="n">err</span> <span class="o">=</span> <span class="n">division</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">err1</span><span class="o">/</span><span class="n">counts1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">err2</span><span class="o">/</span><span class="n">counts2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">bin_centres</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">err</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">low</span><span class="p">,</span><span class="n">high</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span><span class="mf">1.</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="n">marker</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    
+    
+    <span class="c1"># Labels</span>
+    <span class="n">set_label_divided_hist</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">bin_width</span><span class="p">,</span> <span class="n">names_data</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>    
+
+    <span class="c1"># Set lower and upper range of the x and y axes</span>
+    <span class="n">pt</span><span class="o">.</span><span class="n">fix_plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">factor_ymax</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">show_leg</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fontsize_ticks</span><span class="o">=</span><span class="mf">20.</span><span class="p">,</span> <span class="n">ymin_to0</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pos_text_LHC</span><span class="o">=</span><span class="n">pos_text_LHC</span><span class="p">)</span>
+    
+    <span class="c1"># Save</span>
+    <span class="k">return</span> <span class="n">end_plot_function</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">save_fig</span><span class="o">=</span><span class="n">save_fig</span><span class="p">,</span> <span class="n">fig_name</span><span class="o">=</span><span class="n">fig_name</span><span class="p">,</span> <span class="n">folder_name</span><span class="o">=</span><span class="n">folder_name</span><span class="p">,</span>
+                      <span class="n">default_fig_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">branch</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="s1">&#39;d&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">string</span><span class="o">.</span><span class="n">list_into_string</span><span class="p">(</span><span class="n">data_names</span><span class="p">,</span><span class="s1">&#39;_d_&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> 
+                      <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_hist2d"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.plot_hist2d">[docs]</a><span class="k">def</span> <span class="nf">plot_hist2d</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">branches</span><span class="p">,</span> <span class="n">latex_branches</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> 
+                <span class="n">low</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> 
+                <span class="n">log_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                <span class="n">fig_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">folder_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">data_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">save_fig</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">pos_text_LHC</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;  Plot a 2D histogram of 2 branches.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df                : pandas.Dataframe</span>
+<span class="sd">        Dataframe that contains the 2 branches to plot</span>
+<span class="sd">    branches          : [str, str]</span>
+<span class="sd">        names of the two branches</span>
+<span class="sd">    latex_branches    : [str, str]</span>
+<span class="sd">        latex names of the two branches</span>
+<span class="sd">    units             : str or [str, str]</span>
+<span class="sd">        Common unit or list of two units of the two branches</span>
+<span class="sd">    n_bins            : int or [int, int]</span>
+<span class="sd">        number of bins</span>
+<span class="sd">    log_scale         : bool</span>
+<span class="sd">        if true, the colorbar is in logscale</span>
+<span class="sd">    low               : float or [float, float]</span>
+<span class="sd">        low  value(s) of the branches</span>
+<span class="sd">    high              : float or [float, float] </span>
+<span class="sd">        high value(s) of the branches</span>
+<span class="sd">    title             : str</span>
+<span class="sd">        title of the figure</span>
+<span class="sd">    fig_name       : str</span>
+<span class="sd">        name of the saved figure</span>
+<span class="sd">    folder_name     : str</span>
+<span class="sd">        name of the folder where to save the figure</span>
+<span class="sd">    data_name         : str</span>
+<span class="sd">        name of the data, this is used to define the name of the figure,</span>
+<span class="sd">        in the case ``fig_name`` is not defined.</span>
+<span class="sd">    save_fig        : bool</span>
+<span class="sd">        specifies if the figure is saved</span>
+<span class="sd">    ax            : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot</span>
+<span class="sd">    pos_text_LHC    : dict, list or str</span>
+<span class="sd">        passed to :py:func:`HEA.plot.tools.set_text_LHCb` as the ``pos`` argument.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">        Figure of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    ax : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    
+    <span class="c1">## low, high and units into a list of size 2</span>
+    <span class="n">low</span> <span class="o">=</span> <span class="n">el_to_list</span><span class="p">(</span><span class="n">low</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">high</span> <span class="o">=</span> <span class="n">el_to_list</span><span class="p">(</span><span class="n">high</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="n">units</span> <span class="o">=</span> <span class="n">el_to_list</span><span class="p">(</span><span class="n">units</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <span class="n">low</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">high</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">_redefine_low_high</span><span class="p">(</span><span class="n">low</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">high</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="n">branches</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+    
+    <span class="c1">## Plotting</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">get_fig_ax</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    
+    <span class="n">title</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="n">data_name</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">log_scale</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">h</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">hist2d</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">branches</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">df</span><span class="p">[</span><span class="n">branches</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> 
+                             <span class="nb">range</span> <span class="o">=</span> <span class="p">[[</span><span class="n">low</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">high</span><span class="p">[</span><span class="mi">0</span><span class="p">]],[</span><span class="n">low</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">high</span><span class="p">[</span><span class="mi">1</span><span class="p">]]],</span><span class="n">bins</span> <span class="o">=</span> <span class="n">n_bins</span><span class="p">,</span><span class="n">norm</span><span class="o">=</span><span class="n">LogNorm</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">h</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">hist2d</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">branches</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">df</span><span class="p">[</span><span class="n">branches</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> 
+                             <span class="nb">range</span> <span class="o">=</span> <span class="p">[[</span><span class="n">low</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">high</span><span class="p">[</span><span class="mi">0</span><span class="p">]],[</span><span class="n">low</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">high</span><span class="p">[</span><span class="mi">1</span><span class="p">]]],</span><span class="n">bins</span> <span class="o">=</span> <span class="n">n_bins</span><span class="p">)</span>
+    
+    <span class="c1">## Label, color bar</span>
+    <span class="n">pt</span><span class="o">.</span><span class="n">set_label_ticks</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">pt</span><span class="o">.</span><span class="n">set_text_LHCb</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">pos_text_LHC</span><span class="p">)</span>
+    
+    <span class="n">set_label_2Dhist</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">latex_branches</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+    <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">end_plot_function</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">save_fig</span><span class="o">=</span><span class="n">save_fig</span><span class="p">,</span> <span class="n">fig_name</span><span class="o">=</span><span class="n">fig_name</span><span class="p">,</span> <span class="n">folder_name</span><span class="o">=</span><span class="n">folder_name</span><span class="p">,</span>
+                      <span class="n">default_fig_name</span><span class="o">=</span><span class="n">string</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">list_into_string</span><span class="p">(</span><span class="n">branches</span><span class="p">,</span><span class="s1">&#39;_vs_&#39;</span><span class="p">),</span><span class="n">data_name</span><span class="p">,</span><span class="s1">&#39;_&#39;</span><span class="p">),</span> 
+                      <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="plot_scatter2d"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.plot_scatter2d">[docs]</a><span class="k">def</span> <span class="nf">plot_scatter2d</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">branches</span><span class="p">,</span> <span class="n">latex_branches</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> 
+                   <span class="n">low</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> 
+                   <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">],</span>
+                   <span class="n">data_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                   <span class="n">fig_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">folder_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                   <span class="n">fontsize_label</span><span class="o">=</span><span class="n">default_fontsize</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">],</span>
+                   <span class="n">save_fig</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">get_sc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">pos_text_LHC</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;  Plot a 2D histogram of 2 branches.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dfs               : pandas.Dataframe or list(pandas.Dataframe)</span>
+<span class="sd">        Dataset or list of datasets.</span>
+<span class="sd">    branches          : [str, str]</span>
+<span class="sd">        names of the two branches</span>
+<span class="sd">    latex_branches    : [str, str]</span>
+<span class="sd">        latex names of the two branches</span>
+<span class="sd">    units             : str or [str, str]</span>
+<span class="sd">        Common unit or list of two units of the two branches</span>
+<span class="sd">    n_bins            : int or [int, int]</span>
+<span class="sd">        number of bins</span>
+<span class="sd">    log_scale         : bool</span>
+<span class="sd">        if true, the colorbar is in logscale</span>
+<span class="sd">    low               : float or [float, float]</span>
+<span class="sd">        low  value(s) of the branches</span>
+<span class="sd">    high              : float or [float, float] </span>
+<span class="sd">        high value(s) of the branches</span>
+<span class="sd">    data_name         : str</span>
+<span class="sd">        name of the data, this is used to define the name of the figure,</span>
+<span class="sd">        in the case ``fig_name`` is not defined, and define the legend if there is more than 1 dataframe.</span>
+<span class="sd">    colors            : str or list(str)</span>
+<span class="sd">        color(s) used for the histogram(s)</span>
+<span class="sd">    title             : str</span>
+<span class="sd">        title of the figure</span>
+<span class="sd">    fig_name          : str</span>
+<span class="sd">        name of the saved figure</span>
+<span class="sd">    folder_name       : str</span>
+<span class="sd">        name of the folder where to save the figure</span>
+<span class="sd">    fontsize_label    : float</span>
+<span class="sd">        fontsize of the label of the axes</span>
+<span class="sd">    save_fig          : bool</span>
+<span class="sd">        specifies if the figure is saved</span>
+<span class="sd">    ax            : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot</span>
+<span class="sd">    get_sc            : bool</span>
+<span class="sd">        if True: get the scatter plot</span>
+<span class="sd">    pos_text_LHC    : dict, list or str</span>
+<span class="sd">        passed to :py:func:`HEA.plot.tools.set_text_LHCb` as the ``pos`` argument.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">        Figure of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    ax : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    scs : matplotlib.PathCollection or list(matplotlib.PathCollection)</span>
+<span class="sd">        scatter plot or list of scatter plots (only if ``get_sc`` is ``True``)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1">## low, high and units into a list of size 2</span>
+    <span class="n">low</span> <span class="o">=</span> <span class="n">el_to_list</span><span class="p">(</span><span class="n">low</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">high</span> <span class="o">=</span> <span class="n">el_to_list</span><span class="p">(</span><span class="n">high</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="n">units</span> <span class="o">=</span> <span class="n">el_to_list</span><span class="p">(</span><span class="n">units</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">save_fig</span><span class="o">=</span><span class="kc">False</span>
+        
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">get_fig_ax</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+        
+    <span class="n">title</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+    
+    <span class="n">scs</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">dfs</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="p">(</span><span class="n">data_name</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">scs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">branches</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">df</span><span class="p">[</span><span class="n">branches</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> 
+                   <span class="n">c</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">data_name</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">scs</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">scs</span> <span class="o">=</span> <span class="n">scs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">low</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">high</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">low</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">high</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+
+    
+    <span class="c1">## Label, color bar</span>
+    <span class="n">pt</span><span class="o">.</span><span class="n">set_label_ticks</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">pt</span><span class="o">.</span><span class="n">set_text_LHCb</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">pos_text_LHC</span><span class="p">)</span>
+    
+    <span class="n">set_label_2Dhist</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">latex_branches</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_label</span><span class="p">)</span>
+    
+    <span class="c1">## Save the data</span>
+    <span class="k">if</span> <span class="n">save_fig</span><span class="p">:</span>
+        <span class="n">pt</span><span class="o">.</span><span class="n">save_fig</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">fig_name</span><span class="p">,</span> <span class="n">folder_name</span><span class="p">,</span> 
+                     <span class="n">string</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">list_into_string</span><span class="p">(</span><span class="n">branches</span><span class="p">,</span><span class="s1">&#39;_vs_&#39;</span><span class="p">),</span> 
+                                 <span class="n">string</span><span class="o">.</span><span class="n">list_into_string</span><span class="p">(</span><span class="n">data_name</span><span class="p">,</span><span class="s1">&#39;_&#39;</span><span class="p">),</span><span class="s1">&#39;_&#39;</span><span class="p">))</span>
+    
+    <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">get_sc</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">scs</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">get_sc</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">scs</span></div>
+
+<span class="c1">#################################################################################################</span>
+<span class="c1">##################################### Automatic label plots #####################################</span>
+<span class="c1">#################################################################################################         </span>
+
+
+    
+<div class="viewcode-block" id="plot_hist_auto"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.plot_hist_auto">[docs]</a><span class="k">def</span> <span class="nf">plot_hist_auto</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">cut_BDT</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Retrieve the latex name of the branch and unit.</span>
+<span class="sd">    Then, plot histogram with :py:func:`plot_hist`.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    </span>
+<span class="sd">    dfs             : dict(str:pandas.Dataframe)</span>
+<span class="sd">        Dictionnary {name of the dataframe : pandas dataframe}</span>
+<span class="sd">    cut_BDT         : float or str</span>
+<span class="sd">        ``BDT &gt; cut_BDT`` cut. Used in the name of saved figure.</span>
+<span class="sd">    branch          : str</span>
+<span class="sd">        branch (for instance: ``&#39;B0_M&#39;``), which should be in the dataframe(s)</span>
+<span class="sd">    **kwargs        : dict</span>
+<span class="sd">        arguments passed in :py:func:`plot_hist` (except ``branch``, ``latex_branch`` and ``unit``)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">        Figure of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    ax : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1">## Retrieve particle name, and branch name and unit.</span>
+<span class="c1">#     particle, var = retrieve_particle_branch(branch)</span>
+    
+<span class="c1">#     name_var = branches_params[var][&#39;name&#39;]</span>
+<span class="c1">#     unit = branches_params[var][&#39;unit&#39;]</span>
+<span class="c1">#     name_particle = particle_names[particle]</span>
+    
+    <span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">get_latex_branches_units</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
+    <span class="n">data_names</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">list_into_string</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">dfs</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+    
+    <span class="n">add_in_dic</span><span class="p">(</span><span class="s1">&#39;fig_name&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">add_in_dic</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;fig_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">_get_fig_name_given_BDT_cut</span><span class="p">(</span><span class="n">fig_name</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;fig_name&#39;</span><span class="p">],</span> <span class="n">cut_BDT</span><span class="o">=</span><span class="n">cut_BDT</span><span class="p">,</span> 
+                                                        <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">data_name</span><span class="o">=</span><span class="n">data_names</span><span class="p">)</span>
+    <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">_get_title_given_BDT_cut</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">],</span> <span class="n">cut_BDT</span><span class="o">=</span><span class="n">cut_BDT</span><span class="p">)</span>
+
+    <span class="c1"># Name of the folder = list of the names of the data</span>
+    <span class="n">pt</span><span class="o">.</span><span class="n">_set_folder_name_from_data_name</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">data_names</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">plot_hist</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_divide_auto"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.plot_divide_auto">[docs]</a><span class="k">def</span> <span class="nf">plot_divide_auto</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span> 
+    <span class="sd">&quot;&quot;&quot;Retrieve the latex name of the branch and unit. Set the folder name to the name of the datasets.</span>
+<span class="sd">    Then, plot a &quot;divide&quot; histogram with :py:func:`plot_divide`.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    </span>
+<span class="sd">    dfs             : dict(str:pandas.Dataframe)</span>
+<span class="sd">        Dictionnary {name of the dataframe : pandas dataframe}</span>
+<span class="sd">    branch          : str</span>
+<span class="sd">        name of the branch in the dataframe</span>
+<span class="sd">    kwargs          : dict</span>
+<span class="sd">        arguments passed in :py:func:`plot_divide` (except ``branch``, ``latex_branch`` and ``unit``)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">        Figure of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    ax : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">get_latex_branches_units</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
+    <span class="n">pt</span><span class="o">.</span><span class="n">_set_folder_name_from_data_name</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">dfs</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        
+    <span class="k">return</span> <span class="n">plot_divide</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+    
+
+
+    
+<div class="viewcode-block" id="plot_hist2d_auto"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.plot_hist2d_auto">[docs]</a><span class="k">def</span> <span class="nf">plot_hist2d_auto</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">branches</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;  Retrieve the latex name of the branch and unit.</span>
+<span class="sd">    Then, plot a 2d histogram with :py:func:`plot_hist2d`.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df        : pandas.Dataframe</span>
+<span class="sd">        Dataframe that contains the branches</span>
+<span class="sd">    branches  : [str, str]</span>
+<span class="sd">        names of the two branches</span>
+<span class="sd">    **kwargs  : dict</span>
+<span class="sd">        arguments passed in :py:func:`plot_hist_2D` (except ``branches``, ``latex_branches`` and ``units``)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">        Figure of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    ax : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">latex_branches</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">get_latex_branches_units</span><span class="p">(</span><span class="n">branches</span><span class="p">)</span>
+    <span class="n">add_in_dic</span><span class="p">(</span><span class="s1">&#39;data_name&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">pt</span><span class="o">.</span><span class="n">_set_folder_name_from_data_name</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;data_name&#39;</span><span class="p">])</span>
+    
+    <span class="k">return</span> <span class="n">plot_hist2d</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">branches</span><span class="p">,</span> <span class="n">latex_branches</span><span class="o">=</span><span class="n">latex_branches</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="plot_scatter2d_auto"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.histogram.plot_scatter2d_auto">[docs]</a><span class="k">def</span> <span class="nf">plot_scatter2d_auto</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">branches</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Retrieve the latex name of the branch and unit.</span>
+<span class="sd">    Then, plot a scatter plot with :py:func:`plot_scatter2d`.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dfs               : pandas.Dataframe or list(pandas.Dataframe)</span>
+<span class="sd">        Dataset or list of datasets.</span>
+<span class="sd">    branches          : [str, str]</span>
+<span class="sd">    **kwargs  : dict</span>
+<span class="sd">        arguments passed in :py:func:`plot_scatter2d_auto` (except ``branches``, ``latex_branches`` and ``units``)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">        Figure of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    ax : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the plot (only if ``ax`` is not specified)</span>
+<span class="sd">    scs : matplotlib.PathCollection or list(matplotlib.PathCollection)</span>
+<span class="sd">        scatter plot or list of scatter plots (only if get_sc is True)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">pt</span><span class="o">.</span><span class="n">_set_folder_name_from_data_name</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">dfs</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+    
+    <span class="n">latex_branches</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">get_latex_branches_units</span><span class="p">(</span><span class="n">branches</span><span class="p">)</span>  
+    <span class="k">return</span> <span class="n">plot_scatter2d</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">branches</span><span class="p">,</span> <span class="n">latex_branches</span><span class="o">=</span><span class="n">latex_branches</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Anthony Correia.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

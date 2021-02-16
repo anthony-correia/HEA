@@ -1,0 +1,1187 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Welcome to HEA’s documentation! &mdash; HEA 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="HEA.config package" href="HEA.config.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#">
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="HEA.config.html">HEA.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="HEA.fit.html">HEA.fit package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="HEA.plot.html">HEA.plot package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="HEA.tools.html">HEA.tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">HEA</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Welcome to HEA’s documentation!</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="welcome-to-hea-s-documentation">
+<h1>Welcome to HEA’s documentation!<a class="headerlink" href="#welcome-to-hea-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-HEA">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-HEA" title="Permalink to this headline">¶</a></h2>
+<p>HEA (High Energy Analysis) is a personal package to ease analyses of LHCb data:</p>
+<ul class="simple">
+<li><p>Load root files with <a class="reference internal" href="#module-HEA.pandas_root" title="HEA.pandas_root"><code class="xref py py-mod docutils literal notranslate"><span class="pre">HEA.pandas_root</span></code></a></p></li>
+<li><p>Produce plots with : <a class="reference internal" href="HEA.plot.html#module-HEA.plot" title="HEA.plot"><code class="xref py py-mod docutils literal notranslate"><span class="pre">HEA.plot</span></code></a></p></li>
+<li><p>Perform fits with <a class="reference internal" href="HEA.fit.html#module-HEA.fit" title="HEA.fit"><code class="xref py py-mod docutils literal notranslate"><span class="pre">HEA.fit</span></code></a></p></li>
+<li><p>Train a Boosted Decision Tree with <a class="reference internal" href="HEA.fit.html#module-HEA.fit" title="HEA.fit"><code class="xref py py-mod docutils literal notranslate"><span class="pre">HEA.fit</span></code></a></p></li>
+<li><p>Some tools are also available in <a class="reference internal" href="HEA.tools.html#module-HEA.tools" title="HEA.tools"><code class="xref py py-mod docutils literal notranslate"><span class="pre">HEA.tools</span></code></a>. They are rather used within this package.</p></li>
+</ul>
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="HEA.config.html">HEA.config package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="HEA.config.html#module-HEA.config">Package contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.config.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.config.html#module-HEA.config.config">HEA.config.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.config.html#module-HEA.config.create_config">HEA.config.create_config module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="HEA.fit.html">HEA.fit package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="HEA.fit.html#module-HEA.fit">Package contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.fit.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.fit.html#module-HEA.fit.PDF">HEA.fit.PDF module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.fit.html#module-HEA.fit.fit">HEA.fit.fit module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.fit.html#module-HEA.fit.params">HEA.fit.params module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="HEA.plot.html">HEA.plot package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="HEA.plot.html#module-HEA.plot">Package contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.plot.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.plot.html#module-HEA.plot.fit">HEA.plot.fit module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.plot.html#module-HEA.plot.histogram">HEA.plot.histogram module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.plot.html#module-HEA.plot.line">HEA.plot.line module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.plot.html#module-HEA.plot.tools">HEA.plot.tools module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="HEA.tools.html">HEA.tools package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="HEA.tools.html#module-HEA.tools">Package contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.tools.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.tools.html#module-HEA.tools.assertion">HEA.tools.assertion module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.tools.html#module-HEA.tools.da">HEA.tools.da module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.tools.html#module-HEA.tools.dir">HEA.tools.dir module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.tools.html#module-HEA.tools.serial">HEA.tools.serial module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HEA.tools.html#module-HEA.tools.string">HEA.tools.string module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-HEA.BDT">
+<span id="hea-bdt-module"></span><h2>HEA.BDT module<a class="headerlink" href="#module-HEA.BDT" title="Permalink to this headline">¶</a></h2>
+<p>Module for BDT:</p>
+<ul class="simple">
+<li><p>Plot the distributions of the chosen variables in signal and background (super-imposed)</p></li>
+<li><p>Prepare the signal and background sample (merge them, create a ‘y’ variable for learning, …)</p></li>
+<li><p>Train the BDT with the specified classifier (adaboost or gradientboosting)</p></li>
+<li><p>Plot the result of the tests (ROC curve, overtraining check with KS test)</p></li>
+<li><p>Apply the BDT to the data and save the result</p></li>
+</ul>
+<dl class="py function">
+<dt id="HEA.BDT.BDT">
+<code class="sig-prename descclassname">HEA.BDT.</code><code class="sig-name descname">BDT</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X_train</span></em>, <em class="sig-param"><span class="n">y_train</span></em>, <em class="sig-param"><span class="n">classifier</span><span class="o">=</span><span class="default_value">'adaboost'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">hyperparams</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/BDT.html#BDT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.BDT.BDT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the BDT and return the result</p>
+<dl class="simple">
+<dt>X<span class="classifier">numpy ndarray</span></dt><dd><p>array with signal and background concatenated,
+The columns of X correspond to the variable the BDT will be trained with</p>
+</dd>
+<dt>y<span class="classifier">numpy array</span></dt><dd><p>array with 1 if the concatened event is signal, 0 if it is background</p>
+</dd>
+<dt>classifier<span class="classifier">str </span></dt><dd><p>Used classifier</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'adaboost'</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'gradientboosting'</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'xgboost'</span></code> (experimental)</p></li>
+</ul>
+</dd>
+<dt>hyperparameters<span class="classifier">dict</span></dt><dd><p>used hyperparameters.
+Default:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">n_estimators</span> <span class="pre">=</span> <span class="pre">800</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">learning_rate</span> <span class="pre">=</span> <span class="pre">0.1</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>xgb.XGBClassifier</dt><dd><p>trained XGboost classifier, if <code class="docutils literal notranslate"><span class="pre">classifier</span> <span class="pre">==</span> <span class="pre">'xgboost'</span></code></p>
+</dd>
+<dt>sklearn.ensemble.AdaBoostClassifier</dt><dd><p>trained adaboost classifier, if <code class="docutils literal notranslate"><span class="pre">classifier</span> <span class="pre">==</span> <span class="pre">'adaboost'</span></code></p>
+</dd>
+<dt>sklearn.ensemble.GradientBoostingClassifier</dt><dd><p>trained gradient boosting classifier, if <code class="docutils literal notranslate"><span class="pre">classifier</span> <span class="pre">==</span> <span class="pre">'gradientboosting'</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.BDT.apply_BDT">
+<code class="sig-prename descclassname">HEA.BDT.</code><code class="sig-name descname">apply_BDT</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df_tot</span></em>, <em class="sig-param"><span class="n">df_train</span></em>, <em class="sig-param"><span class="n">bdt</span></em>, <em class="sig-param"><span class="n">BDT_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">save_BDT</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">kind_data</span><span class="o">=</span><span class="default_value">'common'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/BDT.html#apply_BDT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.BDT.apply_BDT" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li><p>Apply the BDT to the dataframe <code class="docutils literal notranslate"><span class="pre">df_train</span></code> which contains only the training variable.</p></li>
+<li><p>Add the BDT output as a new variable in <code class="docutils literal notranslate"><span class="pre">df_tot</span></code>.</p></li>
+<li><p>Save <code class="docutils literal notranslate"><span class="pre">df_tot</span></code> in a root file <code class="docutils literal notranslate"><span class="pre">{loc['root']}/{kind_data}_{</span> <span class="pre">BDT_name}.root</span></code> (branch <code class="docutils literal notranslate"><span class="pre">'DecayTree'</span></code>)</p></li>
+<li><p>In addition,  save the BDT output in a separated root file <code class="docutils literal notranslate"><span class="pre">{loc['root']t/BDT_{BDT_name}.root</span></code> (branch <code class="docutils literal notranslate"><span class="pre">'BDT'</span></code>)</p></li>
+<li><p>if <code class="docutils literal notranslate"><span class="pre">save_BDT</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, save the BDT in a root file <code class="docutils literal notranslate"><span class="pre">{loc['pickle']}/bdt_{BDT_name}.pickle</span></code></p></li>
+</ul>
+<dl class="simple">
+<dt>df_tot<span class="classifier">pandas.Dataframe </span></dt><dd><p>dataframe that will be saved together with the BDT output</p>
+</dd>
+<dt>df_train<span class="classifier">pandas.Dataframe </span></dt><dd><p>dataframe with only the variables that have been used for the training</p>
+</dd>
+<dt>bdt<span class="classifier">sklearn.ensemble.AdaBoostClassifier or sklearn.ensemble.GradientBoostingClassifier</span></dt><dd><p>trained BDT classifier</p>
+</dd>
+<dt>BDT_name<span class="classifier">str</span></dt><dd><p>name of the BDT, used for the name of the saved files</p>
+</dd>
+<dt>save_BDT<span class="classifier">bool</span></dt><dd><p>if True, save the BDT in a pickle file</p>
+</dd>
+<dt>kind_data<span class="classifier">str</span></dt><dd><p>name of the data where the BDT is applied to (e.g., <code class="docutils literal notranslate"><span class="pre">'MC'</span></code>, <code class="docutils literal notranslate"><span class="pre">'common'</span></code>, …)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.BDT.bg_sig">
+<code class="sig-prename descclassname">HEA.BDT.</code><code class="sig-name descname">bg_sig</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/BDT.html#bg_sig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.BDT.bg_sig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the mask to get the background and the signal (in this order)</p>
+<dl class="simple">
+<dt>y<span class="classifier">numpy.array</span></dt><dd><p>array with 1 for the signal events, and 0 for background events</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>signal: numpy.array</dt><dd><p>array with <code class="docutils literal notranslate"><span class="pre">True</span></code> if signal event, else <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt>background: numpy.array</dt><dd><p>array with <code class="docutils literal notranslate"><span class="pre">True</span></code> if background event, else <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.BDT.classification_report_print">
+<code class="sig-prename descclassname">HEA.BDT.</code><code class="sig-name descname">classification_report_print</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X_test</span></em>, <em class="sig-param"><span class="n">y_test</span></em>, <em class="sig-param"><span class="n">bdt</span></em>, <em class="sig-param"><span class="n">BDT_name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/BDT.html#classification_report_print"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.BDT.classification_report_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the bdt training with the testing sample.    Print and save the report in <code class="docutils literal notranslate"><span class="pre">{loc['tables']}/BDT/{BDT_name}/classification_report.txt</span></code>.</p>
+<dl class="simple">
+<dt>X_text<span class="classifier">numpy.ndarray</span></dt><dd><p>Array with signal and MC data concatenated and shuffled for test</p>
+</dd>
+<dt>y_test<span class="classifier">numpy.array</span></dt><dd><p>Array with 1 for the signal events, and 0 for background events (shuffled) for test</p>
+</dd>
+<dt>bdt<span class="classifier">sklearn.ensemble.AdaBoostClassifier or sklearn.ensemble.GradientBoostingClassifier</span></dt><dd><p>trained classifier</p>
+</dd>
+<dt>BDT_name<span class="classifier">str</span></dt><dd><p>name of the BDT, used for the path of the saved txt file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.BDT.compare_train_test">
+<code class="sig-prename descclassname">HEA.BDT.</code><code class="sig-name descname">compare_train_test</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bdt</span></em>, <em class="sig-param"><span class="n">X_train</span></em>, <em class="sig-param"><span class="n">y_train</span></em>, <em class="sig-param"><span class="n">X_test</span></em>, <em class="sig-param"><span class="n">y_test</span></em>, <em class="sig-param"><span class="n">bins</span><span class="o">=</span><span class="default_value">30</span></em>, <em class="sig-param"><span class="n">BDT_name</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">colors</span><span class="o">=</span><span class="default_value">['red', 'green']</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/BDT.html#compare_train_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.BDT.compare_train_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot and save the overtraining plot in <code class="docutils literal notranslate"><span class="pre">{loc['plots']}/BDT/{folder_name}/overtraining_{BDT_name}.pdf</span></code></p>
+<dl class="simple">
+<dt>bdt<span class="classifier">sklearn.ensemble.AdaBoostClassifier or sklearn.ensemble.GradientBoostingClassifier</span></dt><dd><p>trained BDT classifier</p>
+</dd>
+<dt>X_train<span class="classifier">numpy.ndarray</span></dt><dd><p>Array with signal and MC data concatenated and shuffled for training</p>
+</dd>
+<dt>y_train<span class="classifier">numpy.array</span></dt><dd><p>Array with 1 for the signal events, and 0 for background events (shuffled) for training</p>
+</dd>
+<dt>X_text<span class="classifier">numpy.ndarray</span></dt><dd><p>Array with signal and MC data concatenated and shuffled for test</p>
+</dd>
+<dt>y_test<span class="classifier">numpy.array</span></dt><dd><p>Array with 1 for the signal events, and 0 for background events (shuffled) for test</p>
+</dd>
+<dt>bins<span class="classifier">int</span></dt><dd><p>number of bins of the plotted histograms</p>
+</dd>
+<dt>BDT_name<span class="classifier">str</span></dt><dd><p>name of the BDT, used for the folder where the figure is saved</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the plot</p>
+</dd>
+<dt>s_2samp_sig<span class="classifier">float</span></dt><dd><p>Kolmogorov-Smirnov statistic for the signal distributions</p>
+</dd>
+<dt>ks_2samp_bkg<span class="classifier">float</span></dt><dd><p>Kolmogorov-Smirnov statistic for the background distributions</p>
+</dd>
+<dt>pvalue_2samp_sig<span class="classifier">float</span></dt><dd><p>p-value of the Kolmogorov-Smirnov test for the signal distributions</p>
+</dd>
+<dt>pvalue_2samp_bkg<span class="classifier">float</span></dt><dd><p>p-value of the Kolmogorov-Smirnov test for the background distributions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.BDT.concatenate">
+<code class="sig-prename descclassname">HEA.BDT.</code><code class="sig-name descname">concatenate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dfa_tot_sig</span></em>, <em class="sig-param"><span class="n">dfa_tot_bkg</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/BDT.html#concatenate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.BDT.concatenate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenate the signal and background dataframes 
+and create a new variable <code class="docutils literal notranslate"><span class="pre">y</span></code>, 
+which is 1 if the candidate is signal,
+or 0 if it is background.</p>
+<dl class="simple">
+<dt>dfa_tot_sig<span class="classifier">pandas.Dataframe</span></dt><dd><p>Signal dataframe</p>
+</dd>
+<dt>dfa_tot_bkg<span class="classifier">pandas.Dataframe</span></dt><dd><p>Background dataframe</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>X<span class="classifier">numpy.ndarray </span></dt><dd><p>Array with signal and MC data concatenated</p>
+</dd>
+<dt>y<span class="classifier">numpy.array</span></dt><dd><p>new variable: array with 1 for the signal events, and 0 for background events</p>
+</dd>
+<dt>df<span class="classifier">pandas.Dataframe </span></dt><dd><p>signal and background dataframes concatenated with with the new column <code class="docutils literal notranslate"><span class="pre">'y'</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.BDT.correlations">
+<code class="sig-prename descclassname">HEA.BDT.</code><code class="sig-name descname">correlations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">fig_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">title</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/BDT.html#correlations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.BDT.correlations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate pairwise correlation between features of the dataframe data 
+and save the figure in <code class="docutils literal notranslate"><span class="pre">{loc['plot']}/BDT/{folder_name}/corr_matrix_{fig_name}</span></code></p>
+<dl class="simple">
+<dt>data<span class="classifier">pandas.Dataframe</span></dt><dd><p>dataset</p>
+</dd>
+<dt>fig_name<span class="classifier">str</span></dt><dd><p>name of the saved file</p>
+</dd>
+<dt>folder_name<span class="classifier">str</span></dt><dd><p>name of the folder where to save the plot</p>
+</dd>
+<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>kwds<span class="classifier">dict</span></dt><dd><p>other plotting keyword arguments, to be passed to <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame.corr()</span></code></p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the plot</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.BDT.get_train_test">
+<code class="sig-prename descclassname">HEA.BDT.</code><code class="sig-name descname">get_train_test</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">test_size</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">random_state</span><span class="o">=</span><span class="default_value">15</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/BDT.html#get_train_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.BDT.get_train_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the train and test arrays</p>
+<dl class="simple">
+<dt>X<span class="classifier">numpy.ndarray </span></dt><dd><p>Array with signal and MC data concatenated</p>
+</dd>
+<dt>y<span class="classifier">numpy.array</span></dt><dd><p>Array with 1 for the signal events, and 0 for background events</p>
+</dd>
+<dt>test_size: float between 0 and 1</dt><dd><p>size of the test sample relatively to the full datasample</p>
+</dd>
+<dt>random_state: float</dt><dd><p>random state</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>X_train<span class="classifier">numpy.ndarray</span></dt><dd><p>Array with signal and MC data concatenated and shuffled for training</p>
+</dd>
+<dt>X_text<span class="classifier">numpy.ndarray</span></dt><dd><p>Array with signal and MC data concatenated and shuffled for test</p>
+</dd>
+<dt>y_train<span class="classifier">numpy.array</span></dt><dd><p>Array with 1 for the signal events, and 0 for background events (shuffled) for training</p>
+</dd>
+<dt>y_test<span class="classifier">numpy.array</span></dt><dd><p>Array with 1 for the signal events, and 0 for background events (shuffled) for test</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.BDT.get_train_test_df">
+<code class="sig-prename descclassname">HEA.BDT.</code><code class="sig-name descname">get_train_test_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">test_size</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">random_state</span><span class="o">=</span><span class="default_value">15</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/BDT.html#get_train_test_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.BDT.get_train_test_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the train and test pandas dataframes</p>
+<dl class="simple">
+<dt>df<span class="classifier">pandas.Dataframe</span></dt><dd><p>dataframe</p>
+</dd>
+<dt>test_size: float between 0 and 1</dt><dd><p>size of the test sample relatively to the full datasample</p>
+</dd>
+<dt>random_state: float</dt><dd><p>random state</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>df_train<span class="classifier">pandas.Dataframe</span></dt><dd><p>dataframe using for training</p>
+</dd>
+<dt>df_test<span class="classifier">pandas.Dataframe</span></dt><dd><p>dataframe using for test</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.BDT.plot_roc">
+<code class="sig-prename descclassname">HEA.BDT.</code><code class="sig-name descname">plot_roc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X_test</span></em>, <em class="sig-param"><span class="n">y_test</span></em>, <em class="sig-param"><span class="n">bdt</span></em>, <em class="sig-param"><span class="n">BDT_name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/BDT.html#plot_roc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.BDT.plot_roc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot and save the roc curve in <code class="docutils literal notranslate"><span class="pre">{loc['plots']}/BDT/{BDT_name}/ROC.pdf</span></code></p>
+<dl class="simple">
+<dt>X_test<span class="classifier">numpy.ndarray</span></dt><dd><p>signal and background concatenated, testing sample</p>
+</dd>
+<dt>y_test<span class="classifier">numpy.array</span></dt><dd><p>signal and background concatenated, testing sample,
+0 if the events is background, 1 if it is signal</p>
+</dd>
+<dt>bdt<span class="classifier">sklearn.ensemble.AdaBoostClassifier or sklearn.ensemble.GradientBoostingClassifier</span></dt><dd><p>trained BDT</p>
+</dd>
+<dt>BDT_name<span class="classifier">str</span></dt><dd><p>name of the BDT, used for the name of the saved plot</p>
+</dd>
+<dt>folder_name<span class="classifier">str</span></dt><dd><p>name of the folder where to save the BDT</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the plot</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.BDT.signal_background">
+<code class="sig-prename descclassname">HEA.BDT.</code><code class="sig-name descname">signal_background</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data1</span></em>, <em class="sig-param"><span class="n">data2</span></em>, <em class="sig-param"><span class="n">column</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">range_column</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">grid</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">xlabelsize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ylabelsize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sharex</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">sharey</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">figsize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">layout</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_bins</span><span class="o">=</span><span class="default_value">40</span></em>, <em class="sig-param"><span class="n">fig_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">colors</span><span class="o">=</span><span class="default_value">['red', 'green']</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/BDT.html#signal_background"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.BDT.signal_background" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw histogram of the DataFrame’s series comparing the distribution
+in <code class="docutils literal notranslate"><span class="pre">data1</span></code> to <code class="docutils literal notranslate"><span class="pre">data2</span></code> and save the result in 
+<code class="docutils literal notranslate"><span class="pre">{loc['plot']}/BDT/{folder_name}/1D_hist_{fig_name}</span></code></p>
+<dl class="simple">
+<dt>data1<span class="classifier">pandas.Dataframe</span></dt><dd><p>First dataset</p>
+</dd>
+<dt>data2<span class="classifier">pandas.Dataframe</span></dt><dd><p>Second dataset</p>
+</dd>
+<dt>column<span class="classifier">str or list(str)</span></dt><dd><p>If passed, will be used to limit data to a subset of columns</p>
+</dd>
+<dt>grid<span class="classifier">bool</span></dt><dd><p>Whether to show axis grid lines</p>
+</dd>
+<dt>xlabelsize<span class="classifier">int</span></dt><dd><p>if specified changes the x-axis label size</p>
+</dd>
+<dt>ylabelsize<span class="classifier">int</span></dt><dd><p>if specified changes the y-axis label size</p>
+</dd>
+</dl>
+<p>ax           : matplotlib.axes.Axes
+sharex       : bool</p>
+<blockquote>
+<div><p>if True, the X axis will be shared amongst all subplots.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>sharey<span class="classifier">bool</span></dt><dd><p>if True, the Y axis will be shared amongst all subplots.</p>
+</dd>
+<dt>figsize<span class="classifier">tuple</span></dt><dd><p>the size of the figure to create in inches by default</p>
+</dd>
+<dt>bins<span class="classifier">int,</span></dt><dd><p>number of histogram bins to be used</p>
+</dd>
+<dt>fig_name<span class="classifier">str</span></dt><dd><p>name of the saved file</p>
+</dd>
+<dt>folder_name<span class="classifier">str</span></dt><dd><p>name of the folder where to save the plot</p>
+</dd>
+<dt>colors<span class="classifier">[str, str]</span></dt><dd><p>colors used for the two datasets</p>
+</dd>
+<dt><a href="#id3"><span class="problematic" id="id4">**</span></a>kwds<span class="classifier">dict</span></dt><dd><p>other plotting keyword arguments, to be passed to the <cite>ax.hist()</cite> function</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the plot</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-HEA.definition">
+<span id="hea-definition-module"></span><h2>HEA.definition module<a class="headerlink" href="#module-HEA.definition" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><dl class="simple">
+<dt>Global variables</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">definition_functions</span></code>: dict <code class="docutils literal notranslate"><span class="pre">{{name_function}:</span> <span class="pre">function}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">latex_function</span></code>: dict <code class="docutils literal notranslate"><span class="pre">{name_function}:</span> <span class="pre">function</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">latex</span> <span class="pre">representation</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Class <code class="docutils literal notranslate"><span class="pre">RVariable</span></code> to concoct the latex name of the branches, particles and physical quantities, from the python file <code class="docutils literal notranslate"><span class="pre">loc['definition']</span></code> that contains</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">definition_quantities</span></code>: dict(dict) <a href="#id5"><span class="problematic" id="id6">``</span></a>{quantity: {‘latex’: latex_quantity, ‘unit’: unit}}</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">latex_particles</span></code>: dict <code class="docutils literal notranslate"><span class="pre">{particle:</span> <span class="pre">latex_particle}</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Functions to get branches and raw branches from <code class="docutils literal notranslate"><span class="pre">raw_branches_functions</span></code> (<em>list(str or (str, str) or (tuple, str)</em>), list of</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>branches</p></li>
+<li><p>tuple <code class="docutils literal notranslate"><span class="pre">(raw_branch,</span> <span class="pre">name_function)</span></code>, where <code class="docutils literal notranslate"><span class="pre">name_function</span></code> is the name of the function applied to the branch</p></li>
+<li><p>tuple <code class="docutils literal notranslate"><span class="pre">(raw_branch,</span> <span class="pre">name_function)</span></code>, where <code class="docutils literal notranslate"><span class="pre">raw_branches</span></code> is a tuple of raw branches and <code class="docutils literal notranslate"><span class="pre">name_function</span></code> is the name of the function applied to the raw branches.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<dl class="py class">
+<dt id="HEA.definition.RVariable">
+<em class="property">class </em><code class="sig-prename descclassname">HEA.definition.</code><code class="sig-name descname">RVariable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">raw_quantity</span></em>, <em class="sig-param"><span class="n">particle</span></em>, <em class="sig-param"><span class="n">name_function</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/definition.html#RVariable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.definition.RVariable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Variable of candidates.</p>
+<dl>
+<dt>raw_quantity<span class="classifier">str</span></dt><dd><p>A physical quantity (e.g., <code class="docutils literal notranslate"><span class="pre">'M'</span></code> the invariant mass, …)  or list of physical quantities</p>
+</dd>
+<dt>particle<span class="classifier">str or list(str) or tuple(str)</span></dt><dd><p>A particle (e.g., ‘B0’ for the B0 meson) or a list of particles.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">particle</span></code> is a list, <code class="docutils literal notranslate"><span class="pre">quantity</span></code> must be a list of same length</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">quantity</span></code> is a list and <code class="docutils literal notranslate"><span class="pre">particle</span></code> is a str, then each physical quantity refers to the same <code class="docutils literal notranslate"><span class="pre">particle</span></code></p></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt>name_function<span class="classifier">str</span></dt><dd><p>Name of the functions (as defined in the dictionnary <code class="docutils literal notranslate"><span class="pre">definition_functions</span></code>) that can be applied to the quantity(es)</p>
+</dd>
+</dl>
+<p>The class <code class="docutils literal notranslate"><span class="pre">RVariable</span></code> allows to concoct the latex name of the branches, particles and physical quantities, from the python file <code class="docutils literal notranslate"><span class="pre">loc['definition']</span></code> that contains</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">definition_quantities</span></code>: dict(dict) <a href="#id7"><span class="problematic" id="id8">``</span></a>{quantity: {‘latex’: latex_quantity, ‘unit’: unit}}</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">latex_particles</span></code>: dict <code class="docutils literal notranslate"><span class="pre">{particle:</span> <span class="pre">latex_particle}</span></code></p></li>
+</ul>
+<p>The particle <cite>particle</cite> must be one of the keys of dictionnary  <code class="docutils literal notranslate"><span class="pre">latex_particles</span></code> in <code class="docutils literal notranslate"><span class="pre">loc['definition']</span></code>. That is how they are identified.</p>
+<p>Then, the RVariable corresponds to:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Branch <em>BDT</em>:</dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">raw_quantity</span></code>  : <code class="docutils literal notranslate"><span class="pre">'BDT'</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">particle</span></code>      : <code class="docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name_function</span></code> : <code class="docutils literal notranslate"><span class="pre">None</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Branch mass of the <span class="math notranslate nohighlight">\(B^{0}\)</span> meson </dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">raw_quantity</span></code>  : <code class="docutils literal notranslate"><span class="pre">'M'</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">particle</span></code>      : <code class="docutils literal notranslate"><span class="pre">'B0'</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name_function</span></code> : <code class="docutils literal notranslate"><span class="pre">None</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><span class="math notranslate nohighlight">\(\text{ln}(1-x)\)</span> of the DIRA angle of the own primary vertex of the <span class="math notranslate nohighlight">\(D^{*}\)</span> meson</dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">raw_quantity</span></code>  : <code class="docutils literal notranslate"><span class="pre">'DIRA_OWNPV'</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">particle</span></code>      : <code class="docutils literal notranslate"><span class="pre">'Dst'</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name_function</span></code> : <code class="docutils literal notranslate"><span class="pre">'ln(1-x)'</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><span class="math notranslate nohighlight">\(\chi^2\)</span> of the end vertex divided by the number of d.o.f. of the corresponding fit, for the <span class="math notranslate nohighlight">\(3\pi\)</span> mesonic system.</dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">raw_quantity</span></code>  : <code class="docutils literal notranslate"><span class="pre">('ENDVERTEX_CHI2',</span> <span class="pre">'ENDVERTEX_NDOF')</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">particle</span></code>      : <code class="docutils literal notranslate"><span class="pre">'tau'</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name_function</span></code> : <code class="docutils literal notranslate"><span class="pre">'x/y'</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><span class="math notranslate nohighlight">\(p_T\)</span> of <span class="math notranslate nohighlight">\(\pi_0\)</span> divided by the <span class="math notranslate nohighlight">\(p_T\)</span> of <span class="math notranslate nohighlight">\(pi_1\)</span></dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">raw_quantity</span></code>  : <code class="docutils literal notranslate"><span class="pre">('pT',</span> <span class="pre">'pT')</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">particle</span></code>      : <code class="docutils literal notranslate"><span class="pre">('tau_pi0',</span> <span class="pre">`tau_pi1`)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name_function</span></code> : <code class="docutils literal notranslate"><span class="pre">'x/y'</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="py method">
+<dt id="HEA.definition.RVariable.branch">
+<em class="property">property </em><code class="sig-name descname">branch</code><a class="headerlink" href="#HEA.definition.RVariable.branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>str, the name of the branch used in the pandas dataframe</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">{raw_branch}</span></code> if there is one raw branch and no function</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{raw_branch}:{name_function}</span></code> if there is one raw quantity and a function</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{raw_branch[0]},{raw_branch[1]}:{name_function}</span></code> if there is two raw variables and a function</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.from_branch">
+<em class="property">static </em><code class="sig-name descname">from_branch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">branch</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/definition.html#RVariable.from_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.definition.RVariable.from_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a RVariable from a branch</p>
+<p>branch: branch name</p>
+<dl class="simple">
+<dt>RVariable:</dt><dd><p>RVariable with branch given by the argument</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.function">
+<em class="property">property </em><code class="sig-name descname">function</code><a class="headerlink" href="#HEA.definition.RVariable.function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function whose name is <code class="docutils literal notranslate"><span class="pre">name_function</span></code>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the function is the identity.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.get_branch_from_raw_branch_name_function">
+<em class="property">static </em><code class="sig-name descname">get_branch_from_raw_branch_name_function</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">raw_branch</span></em>, <em class="sig-param"><span class="n">name_function</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/definition.html#RVariable.get_branch_from_raw_branch_name_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.definition.RVariable.get_branch_from_raw_branch_name_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the raw name of the branch used in this library</p>
+<dl class="simple">
+<dt>raw_branch<span class="classifier">str or tuple(str)</span></dt><dd><p>name of a branch or tuple of name of branches</p>
+</dd>
+<dt>name_function<span class="classifier">str or None</span></dt><dd><p>name of the function</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">_get_name_var</span><span class="p">(</span><span class="s1">&#39;branch&#39;</span><span class="p">,</span> <span class="s1">&#39;function&#39;</span><span class="p">)</span>
+<span class="go">&#39;branch:function&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_get_name_var</span><span class="p">([</span><span class="s1">&#39;branch1&#39;</span><span class="p">,</span> <span class="s1">&#39;branch2&#39;</span><span class="p">],</span> <span class="s1">&#39;function&#39;</span><span class="p">)</span>
+<span class="go">&#39;branch1,branch2:function&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_get_name_var</span><span class="p">(</span><span class="s1">&#39;branch&#39;</span><span class="p">)</span>
+<span class="go">&#39;branch&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.get_latex_branch_unit_from_branch">
+<em class="property">static </em><code class="sig-name descname">get_latex_branch_unit_from_branch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">branch</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/definition.html#RVariable.get_latex_branch_unit_from_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.definition.RVariable.get_latex_branch_unit_from_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the latex name and the unit associated with a branch.</p>
+<dl class="simple">
+<dt>branch<span class="classifier">str</span></dt><dd><p>branch whose latex name is needed to be got</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>latex_branch: str</dt><dd><p>latex name of the branch</p>
+</dd>
+<dt>unit<span class="classifier">str</span></dt><dd><p>unit of the branch</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.get_latex_particle">
+<em class="property">static </em><code class="sig-name descname">get_latex_particle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">particle</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/definition.html#RVariable.get_latex_particle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.definition.RVariable.get_latex_particle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the latex label of a particle from its raw name</p>
+<dl class="simple">
+<dt>particle: str or tuple(str) or None</dt><dd><p>particle or list of particles</p>
+</dd>
+</dl>
+<p>latex_particle: str or tuple(str) or None</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>latex name of the particle(s) if specified in <code class="docutils literal notranslate"><span class="pre">latex_particles</span></code></p></li>
+<li><p>else, <code class="docutils literal notranslate"><span class="pre">particle</span></code></p></li>
+<li><p>if a list of particle is provided, returns a tuple</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.get_latex_raw_branch">
+<em class="property">static </em><code class="sig-name descname">get_latex_raw_branch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">latex_particle</span></em>, <em class="sig-param"><span class="n">latex_raw_quantity</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/definition.html#RVariable.get_latex_raw_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.definition.RVariable.get_latex_raw_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the latex name of the raw branches (i.e., quantity and particle), without including the function in the label</p>
+<dl class="simple">
+<dt>latex_particle: str or list(str)</dt><dd><p>latex name of particle or list of latex names of particles</p>
+</dd>
+<dt>latex_raw_quantity: str or list(str)</dt><dd><p>latex name of a raw quantity or list of latex names of raw quantities</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>latex_raw_branch: str or tuple(str)</dt><dd><ul class="simple">
+<li><p>if <code class="docutils literal notranslate"><span class="pre">self.raw_branch</span></code> is one branch, returns <code class="docutils literal notranslate"><span class="pre">&quot;{self.latex_quantity}({self.latex_particle})&quot;</span></code> or just <code class="docutils literal notranslate"><span class="pre">self.latex_quantity</span></code> if no the rVariable has no particle.</p></li>
+<li><p>if <code class="docutils literal notranslate"><span class="pre">self.latex_quantity</span></code> is a tuple of quantities, returns a tuple of latex names of variables.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.get_latex_raw_quantity">
+<em class="property">static </em><code class="sig-name descname">get_latex_raw_quantity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">raw_quantity</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/definition.html#RVariable.get_latex_raw_quantity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.definition.RVariable.get_latex_raw_quantity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the latex label of a raw quantity</p>
+<dl class="simple">
+<dt>raw_quantity: str or tuple(str)</dt><dd><p>raw quantity or list of raw quantities</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>latex_raw_quantity: str or tuple(str) or None</dt><dd><ul class="simple">
+<li><p>latex name of the raw quantitie(s) if specified in <code class="docutils literal notranslate"><span class="pre">definition_quantities</span></code></p></li>
+<li><p>else, <code class="docutils literal notranslate"><span class="pre">raw_quantity</span></code></p></li>
+<li><p>if a list of raw quantities is provided, returns a tuple of their latex names</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.get_latex_raw_variable_unit_from_particle_raw_quantity">
+<em class="property">static </em><code class="sig-name descname">get_latex_raw_variable_unit_from_particle_raw_quantity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">particle</span></em>, <em class="sig-param"><span class="n">raw_quantity</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/definition.html#RVariable.get_latex_raw_variable_unit_from_particle_raw_quantity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.definition.RVariable.get_latex_raw_variable_unit_from_particle_raw_quantity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the latex label of the particle, the variable and its unit, from the couple <code class="docutils literal notranslate"><span class="pre">(particle,</span> <span class="pre">raw_quantity)</span></code></p>
+<dl class="simple">
+<dt>particle<span class="classifier">str or None</span></dt><dd><p>name of the particle</p>
+</dd>
+<dt>raw_quantity<span class="classifier">str or None</span></dt><dd><p>name of the raw quantity</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>latex_particle<span class="classifier">str</span></dt><dd><p>Latex label of the particle (is returned only if get_particle is <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p>
+</dd>
+<dt>latex_raw_variable<span class="classifier">str</span></dt><dd><p>Latex label of the raw variable</p>
+</dd>
+<dt>unit<span class="classifier">str</span></dt><dd><p>unit of the raw quantity</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.get_particle_raw_quantity_from_raw_branch">
+<em class="property">static </em><code class="sig-name descname">get_particle_raw_quantity_from_raw_branch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">raw_branch</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/definition.html#RVariable.get_particle_raw_quantity_from_raw_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.definition.RVariable.get_particle_raw_quantity_from_raw_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the name of the particle and of the raw physical quantity from the raw branch name</p>
+<dl class="simple">
+<dt>branch<span class="classifier">str</span></dt><dd><p>name of the branch (for instance: <code class="docutils literal notranslate"><span class="pre">'B0_M'</span></code>)
+(cannot be a tuple in this function!)</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>particle<span class="classifier">str</span></dt><dd><p>name of the particle (<code class="docutils literal notranslate"><span class="pre">'B0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'tau'</span></code>, …), key in the dictionnary latex_particles</p>
+</dd>
+<dt>raw_quantity<span class="classifier">str</span></dt><dd><p>name of the raw physical quantity (<code class="docutils literal notranslate"><span class="pre">'P'</span></code>, <code class="docutils literal notranslate"><span class="pre">'M'</span></code>, …)</p>
+</dd>
+</dl>
+<p>the particle is in the dictionnary latex_particles in <code class="docutils literal notranslate"><span class="pre">{loc['project']}/definition.py</span></code></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_particle_raw_quantity_from_branch</span><span class="p">(</span><span class="s1">&#39;B0_M&#39;</span><span class="p">)</span>
+<span class="go">(&#39;B0&#39;, &#39;M&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_particle_raw_quantity_from_branch</span><span class="p">(</span><span class="s1">&#39;BDT&#39;</span><span class="p">)</span>
+<span class="go">(None, &#39;BDT&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.get_particle_raw_quantity_name_function_from_branch">
+<em class="property">static </em><code class="sig-name descname">get_particle_raw_quantity_name_function_from_branch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">branch</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/definition.html#RVariable.get_particle_raw_quantity_name_function_from_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.definition.RVariable.get_particle_raw_quantity_name_function_from_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the particle, the raw quantity and the function from the name branch</p>
+<dl class="simple">
+<dt>branch<span class="classifier">str</span></dt><dd><p>branch name</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>particle<span class="classifier">str</span></dt><dd><p>Particle name (e.g., <code class="docutils literal notranslate"><span class="pre">'B0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Dst'</span></code>, …)</p>
+</dd>
+<dt>raw_quantity<span class="classifier">str or tuple(str)</span></dt><dd><p>name of the raw quantity or tuple of raw quantities (e.g., <code class="docutils literal notranslate"><span class="pre">'M'</span></code>, <code class="docutils literal notranslate"><span class="pre">'BDT'</span></code>, …)</p>
+</dd>
+<dt>name_function<span class="classifier">str</span></dt><dd><p>name of the function applied to the data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.get_raw_branch">
+<em class="property">static </em><code class="sig-name descname">get_raw_branch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">particle</span></em>, <em class="sig-param"><span class="n">raw_variable</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/definition.html#RVariable.get_raw_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.definition.RVariable.get_raw_branch" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><dl class="simple">
+<dt>particle: str or tuple(str) or None</dt><dd><p>particle or list of particles</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>raw_variable: str</dt><dd><p>name of the raw variable</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>raw_branch: str or tuple(str)</dt><dd><p>Name of the raw branch or tuple of the names of the raw branches</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">{raw_quantity}</span></code> if there is one raw quantity, zero particle</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">raw_variable</span> <span class="pre">=</span> <span class="pre">{particle}_{raw_quantity}</span></code> if there is one raw quantity, one particle</p></li>
+<li><p>Tuple of <code class="docutils literal notranslate"><span class="pre">tuple({raw_variable[0]},{raw_variable[1]})</span></code> if there is two raw variables</p></li>
+<li><p>…</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.latex_branch">
+<em class="property">property </em><code class="sig-name descname">latex_branch</code><a class="headerlink" href="#HEA.definition.RVariable.latex_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Full latex name of the variable</p>
+<ol class="arabic">
+<li><p>If there is no function specified, the latex name of the variable is merely <code class="docutils literal notranslate"><span class="pre">self.latex_raw_branch</span></code></p></li>
+<li><p>The latex name might be provided in the <code class="docutils literal notranslate"><span class="pre">definition_quantities</span></code> dictionnary with the key <code class="docutils literal notranslate"><span class="pre">self.branch</span></code></p></li>
+<li><p>If there is one particle for several quantities, specify the name of the particle just at the very end. Then, <code class="docutils literal notranslate"><span class="pre">latex_branch</span></code> is <code class="docutils literal notranslate"><span class="pre">{latex_quantity}({latex_particle})</span></code></p></li>
+<li><p>If there is the same number of particles and quantities, specify the particle for each variable</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>If there is a function, if the dictionnary <code class="docutils literal notranslate"><span class="pre">latex_functions</span></code> contains the name of the function, it means that another way to specify the application of the function to the variable is provided, it has to be used in preference. For instance, we have chosen to show the division function with the <code class="docutils literal notranslate"><span class="pre">\frac{}{}</span></code> latex operator.</p></li>
+<li><p>If the dictionnary does not contain a label for the function: if there is only one variable the name of the variable is <code class="docutils literal notranslate"><span class="pre">&quot;{name_function}</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">{latex_raw_branch}&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;{name_function}</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">{latex_raw_branch[0]}</span> <span class="pre">and</span> <span class="pre">{latex_raw_branch[1]}&quot;</span></code> if there are more than one variable.</p></li>
+</ol>
+</div></blockquote>
+</li>
+</ol>
+<p>(These steps are done with <code class="docutils literal notranslate"><span class="pre">self.__get_latex_variable(variable,</span> <span class="pre">latex_raw_variable,</span> <span class="pre">name_function)</span></code>)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.latex_particle">
+<em class="property">property </em><code class="sig-name descname">latex_particle</code><a class="headerlink" href="#HEA.definition.RVariable.latex_particle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Latex name of the particle, taken from the <cite>latex_particles</cite> dictionnary in <cite>loc[‘definition’]</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.latex_quantity">
+<em class="property">property </em><code class="sig-name descname">latex_quantity</code><a class="headerlink" href="#HEA.definition.RVariable.latex_quantity" title="Permalink to this definition">¶</a></dt>
+<dd><p>str</p>
+<ol class="arabic">
+<li><p>If there are more than 1 particle, it is <cite>None</cite>. The latex name of the quantity is not well defined in this case!</p></li>
+<li><p>if there is no function (i.e., the function is the identity), it is the <code class="docutils literal notranslate"><span class="pre">latex_quantity_without_function</span></code> argument</p></li>
+<li><p>if there is a function:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>The latex name might be provided in the <code class="docutils literal notranslate"><span class="pre">definition_quantities</span></code> dictionnary with the key <code class="docutils literal notranslate"><span class="pre">self.quantity</span></code> (if not <code class="docutils literal notranslate"><span class="pre">None</span></code>)</p></li>
+<li><p>If there is a function, if the dictionnary <code class="docutils literal notranslate"><span class="pre">latex_functions</span></code> contains the name of the function, it means that another way to specify the application of the function to the variable is provided, it has to be used in preference. For instance, we have chosen to show the division function with the <code class="docutils literal notranslate"><span class="pre">\frac{}{}</span></code> latex operator.</p></li>
+<li><p>If the latex name is not provided in this dictionnary, the latex name is just <code class="docutils literal notranslate"><span class="pre">&quot;{name_function}</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">{latex_raw_quantity}&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;{name_function}</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">{latex_raw_quantity[0]}</span> <span class="pre">and</span> <span class="pre">the</span> <span class="pre">{latex_raw_quantity[1]}&quot;</span></code> if there are more than 1 quantity</p></li>
+</ol>
+</div></blockquote>
+</li>
+</ol>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.latex_raw_branch">
+<em class="property">property </em><code class="sig-name descname">latex_raw_branch</code><a class="headerlink" href="#HEA.definition.RVariable.latex_raw_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the latex name of the branches, without including the function in the label</p>
+<dl class="simple">
+<dt>latex_raw_branch: str or tuple(str)</dt><dd><ul class="simple">
+<li><p>if <code class="docutils literal notranslate"><span class="pre">self.raw_branch</span></code> is one branch, returns <code class="docutils literal notranslate"><span class="pre">&quot;{self.latex_raw_quantity}({self.latex_particle})&quot;</span></code> or just <code class="docutils literal notranslate"><span class="pre">self.latex_quantity</span></code> if no the rVariable has no particle.</p></li>
+<li><p>if <code class="docutils literal notranslate"><span class="pre">self.latex_quantity</span></code> is a tuple of quantities, returns a tuple of latex names of variables.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.latex_raw_quantity">
+<em class="property">property </em><code class="sig-name descname">latex_raw_quantity</code><a class="headerlink" href="#HEA.definition.RVariable.latex_raw_quantity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Latex name of the raw quantity, taken from the <cite>definition_quantities</cite> dictionnary.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.quantity">
+<em class="property">property </em><code class="sig-name descname">quantity</code><a class="headerlink" href="#HEA.definition.RVariable.quantity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combined physical quantity, with the function applied to it. Only defined if there is zero or one particle.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">{raw_quantity}</span></code> if there is one raw branch and no function</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{raw_quantity}:{name_function}</span></code> if there is one raw quantity and a function</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{raw_quantity[0]},{raw_quantity[1]}:{name_function}</span></code> if there are two raw variables and a function</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.raw_branch">
+<em class="property">property </em><code class="sig-name descname">raw_branch</code><a class="headerlink" href="#HEA.definition.RVariable.raw_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>str, the name of the branch that could be found in a root file</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">{raw_quantity}</span></code> if there is one raw quantity, zero particle</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">raw_variable</span> <span class="pre">=</span> <span class="pre">{particle}_{raw_quantity}</span></code> if there is one raw quantity, one particle</p></li>
+<li><p>Tuple of <code class="docutils literal notranslate"><span class="pre">tuple({raw_variable[0]},{raw_variable[1]})</span></code> if there is two raw variables</p></li>
+<li><p>…</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.set_latex_upper_case">
+<em class="property">static </em><code class="sig-name descname">set_latex_upper_case</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">string</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/definition.html#RVariable.set_latex_upper_case"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.definition.RVariable.set_latex_upper_case" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>string: str</dt><dd><p>string that will be processed</p>
+</dd>
+</dl>
+<dl>
+<dt>str</dt><dd><p>string with a upper case for the first letter if</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>the first character is not <code class="docutils literal notranslate"><span class="pre">$</span></code> (latex)</p></li>
+<li><p>the second character is not an upper case (to take into account names such as <code class="docutils literal notranslate"><span class="pre">sPlot</span></code></p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="HEA.definition.RVariable.unit">
+<em class="property">property </em><code class="sig-name descname">unit</code><a class="headerlink" href="#HEA.definition.RVariable.unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>unit of the physical quantity</p>
+<p>Check in the <code class="docutils literal notranslate"><span class="pre">definition_quantities</span></code> dictionnary with <code class="docutils literal notranslate"><span class="pre">self.quantity</span></code> or <code class="docutils literal notranslate"><span class="pre">self.branch</span></code> as a key
+If their is nothing, just return <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.definition.get_branches_from_raw_branches_functions">
+<code class="sig-prename descclassname">HEA.definition.</code><code class="sig-name descname">get_branches_from_raw_branches_functions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">raw_branches_functions</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/definition.html#get_branches_from_raw_branches_functions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.definition.get_branches_from_raw_branches_functions" title="Permalink to this definition">¶</a></dt>
+<dd><p>From a list of raw branches with the functions that will be applied to each quantity afterwards,
+returns the list of the branches</p>
+<dl>
+<dt>raw_quantities_functions<span class="classifier">list(str or (str, str) or (tuple, str)</span></dt><dd><p>list of</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>branches</p></li>
+<li><p>tuple <code class="docutils literal notranslate"><span class="pre">(raw_branch,</span> <span class="pre">name_function)</span></code>, where <code class="docutils literal notranslate"><span class="pre">name_function</span></code> is the name of the function applied to the branch</p></li>
+<li><p>tuple <code class="docutils literal notranslate"><span class="pre">(raw_branch,</span> <span class="pre">name_function)</span></code>, where <code class="docutils literal notranslate"><span class="pre">raw_branches</span></code> is a tuple of raw branches and <code class="docutils literal notranslate"><span class="pre">name_function</span></code> is the name of the function applied to the raw branches.</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+<dl class="simple">
+<dt>branches: list </dt><dd><p>list of all the branches</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.definition.get_raw_branches_from_raw_branches_functions">
+<code class="sig-prename descclassname">HEA.definition.</code><code class="sig-name descname">get_raw_branches_from_raw_branches_functions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">raw_branches_functions</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/definition.html#get_raw_branches_from_raw_branches_functions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.definition.get_raw_branches_from_raw_branches_functions" title="Permalink to this definition">¶</a></dt>
+<dd><p>From a list of raw branches with the functions that will be applied to each quantity afterwards,
+returns the list of the needed branches that need to be loaded from a root file.</p>
+<dl>
+<dt>raw_quantities_functions<span class="classifier">list(str or (str, str) or (tuple, str)</span></dt><dd><p>list of</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>branches</p></li>
+<li><p>tuple <code class="docutils literal notranslate"><span class="pre">(raw_branch,</span> <span class="pre">name_function)</span></code>, where <code class="docutils literal notranslate"><span class="pre">name_function</span></code> is the name of the function applied to the branch</p></li>
+<li><p>tuple <code class="docutils literal notranslate"><span class="pre">(raw_branch,</span> <span class="pre">name_function)</span></code>, where <code class="docutils literal notranslate"><span class="pre">raw_branches</span></code> is a tuple of raw branches and <code class="docutils literal notranslate"><span class="pre">name_function</span></code> is the name of the function applied to the raw branches.</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+<dl class="simple">
+<dt>raw_branches: list</dt><dd><p>list of all the needed branches that need to be loaded from the root files
+in order to create the branches specified in <code class="docutils literal notranslate"><span class="pre">branches_functions</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.definition.print_used_branches_per_particles">
+<code class="sig-prename descclassname">HEA.definition.</code><code class="sig-name descname">print_used_branches_per_particles</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">branches</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/definition.html#print_used_branches_per_particles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.definition.print_used_branches_per_particles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a latex table with the used branches per particle.</p>
+<p>If a particle involves exactly the sames branches, gather the particles together</p>
+<dl class="simple">
+<dt>branches<span class="classifier">list(str)</span></dt><dd><p>list of used branches</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-HEA.pandas_root">
+<span id="hea-pandas-root-module"></span><h2>HEA.pandas_root module<a class="headerlink" href="#module-HEA.pandas_root" title="Permalink to this headline">¶</a></h2>
+<p>Handle root files with Pandas</p>
+<ul class="simple">
+<li><p>Load a root file into a Pandas dataframe</p></li>
+<li><p>Apply cuts the a Pandas dataframe</p></li>
+<li><p>Save a Pandas dataframe into a root file</p></li>
+<li><p>Get the needed branches to load from a root file</p></li>
+<li><p>Act on the branches of a dataframe with functions</p></li>
+</ul>
+<dl class="py function">
+<dt id="HEA.pandas_root.assert_needed_variables">
+<code class="sig-prename descclassname">HEA.pandas_root.</code><code class="sig-name descname">assert_needed_variables</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">needed_variables</span></em>, <em class="sig-param"><span class="n">df</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/pandas_root.html#assert_needed_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.pandas_root.assert_needed_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>assert that all needed variables are in a dataframe</p>
+<dl class="simple">
+<dt>needed_variables: str or list of str</dt><dd><p>list of the variables that will be checked to be in a pandas dataframe</p>
+</dd>
+<dt>df: pandas.Dataframe</dt><dd><p>Dataframe that should contain all the needed variables</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bool</dt><dd><p>True if all the variables in <code class="docutils literal notranslate"><span class="pre">needed_variables</span></code> are in the dataframe <code class="docutils literal notranslate"><span class="pre">df</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.pandas_root.get_dataframe_from_raw_branches_functions">
+<code class="sig-prename descclassname">HEA.pandas_root.</code><code class="sig-name descname">get_dataframe_from_raw_branches_functions</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">raw_branches_functions</em>, <em class="sig-param">mode='new'</em>, <em class="sig-param">functions={'ln(1-x)': &lt;function &lt;lambda&gt;&gt;</em>, <em class="sig-param">'ln(x)': &lt;function &lt;lambda&gt;&gt;</em>, <em class="sig-param">'x/y': &lt;function &lt;lambda&gt;&gt;</em>, <em class="sig-param">'identity': &lt;function &lt;lambda&gt;&gt;</em>, <em class="sig-param">None: None}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/pandas_root.html#get_dataframe_from_raw_branches_functions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.pandas_root.get_dataframe_from_raw_branches_functions" title="Permalink to this definition">¶</a></dt>
+<dd><p>From a list of variables with possibly the functions that will be applied to the variable afterwards, add the variables which a function is applied to, to a pandas dataframe.</p>
+<dl>
+<dt>raw_branches_functions<span class="classifier">list</span></dt><dd><p>list of</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>variable</p></li>
+<li><p>tuple <code class="docutils literal notranslate"><span class="pre">(variable,</span> <span class="pre">function)</span></code>, where <code class="docutils literal notranslate"><span class="pre">function</span></code> is the name of the function applied to the variable</p></li>
+<li><p>tuple <code class="docutils literal notranslate"><span class="pre">(variables,</span> <span class="pre">function)</span></code>, where <code class="docutils literal notranslate"><span class="pre">variables</span></code> is a tuple of variables, inputs of the function</p></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt>df<span class="classifier">Pandas dataframe</span></dt><dd><p>original dataframe</p>
+</dd>
+<dt>mode<span class="classifier">str</span></dt><dd><p>3 modes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘add’: add the variables to the dataframe (in place)</p></li>
+<li><p>‘new’: create a new dataframe with the new variables only</p></li>
+<li><p>‘both’ : do both</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+<dl class="simple">
+<dt>pandas.Dataframe </dt><dd><p>Dataframe with the variables specified in <code class="docutils literal notranslate"><span class="pre">raw_branches_functions</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.pandas_root.load_dataframe">
+<code class="sig-prename descclassname">HEA.pandas_root.</code><code class="sig-name descname">load_dataframe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">tree_name</span></em>, <em class="sig-param"><span class="n">columns</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'read_root'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/pandas_root.html#load_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.pandas_root.load_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>load dataframe from a root file (also print the path of the root file)</p>
+<dl class="simple">
+<dt>path<span class="classifier">str</span></dt><dd><p>location of the root file</p>
+</dd>
+<dt>tree_name<span class="classifier">str</span></dt><dd><p>name of the tree where the data to be loaded is</p>
+</dd>
+<dt>columns<span class="classifier">list</span></dt><dd><p>columns of the root files that are loaded</p>
+</dd>
+<dt>method<span class="classifier">str</span></dt><dd><p>method used to load the data: <code class="docutils literal notranslate"><span class="pre">'read_root'</span></code> or <code class="docutils literal notranslate"><span class="pre">'uproot'</span></code></p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>loaded pandas dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.pandas_root.load_saved_root">
+<code class="sig-prename descclassname">HEA.pandas_root.</code><code class="sig-name descname">load_saved_root</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name_data</span></em>, <em class="sig-param"><span class="n">vars</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">tree_name</span><span class="o">=</span><span class="default_value">'DecayTree'</span></em>, <em class="sig-param"><span class="n">cut_BDT</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'read_root'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/pandas_root.html#load_saved_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.pandas_root.load_saved_root" title="Permalink to this definition">¶</a></dt>
+<dd><p>name_data  : str, name of the root file
+vars       : list of str,</p>
+<blockquote>
+<div><p>list of the desired variables</p>
+</div></blockquote>
+<dl class="simple">
+<dt>method<span class="classifier">str,</span></dt><dd><p>method to retrieve the data (<code class="docutils literal notranslate"><span class="pre">'read_root'</span></code> or <code class="docutils literal notranslate"><span class="pre">'uproot'</span></code>) (read_root is faster)</p>
+</dd>
+<dt>cut_BDT<span class="classifier">str or float or None</span></dt><dd><p>if not <code class="docutils literal notranslate"><span class="pre">None</span></code>, the root file with the BDT cut <code class="docutils literal notranslate"><span class="pre">BDT</span> <span class="pre">&gt;</span> <span class="pre">cut_BDT</span></code> should have a name finishing by <code class="docutils literal notranslate"><span class="pre">&quot;_BDT{cutBDT}&quot;</span></code>.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>pandas.Dataframe </dt><dd><p>loaded, with the desired variables</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.pandas_root.save_root">
+<code class="sig-prename descclassname">HEA.pandas_root.</code><code class="sig-name descname">save_root</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">file_name</span></em>, <em class="sig-param"><span class="n">name_key</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/pandas_root.html#save_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.pandas_root.save_root" title="Permalink to this definition">¶</a></dt>
+<dd><p>save the dataframe in a .root file</p>
+<dl class="simple">
+<dt>df<span class="classifier">pandas.DataFrame</span></dt><dd><p>dataframe to save</p>
+</dd>
+<dt>file_name<span class="classifier">str</span></dt><dd><p>name of the root file that will be saved</p>
+</dd>
+<dt>name_key<span class="classifier">str</span></dt><dd><p>name of the tree where the file will be saved</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.pandas_root.show_cut">
+<code class="sig-prename descclassname">HEA.pandas_root.</code><code class="sig-name descname">show_cut</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">cut</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/pandas_root.html#show_cut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.pandas_root.show_cut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a cut on a Pandas dataframe and print the number of cut-out events</p>
+<dl class="simple">
+<dt>df<span class="classifier">pandas.DataFrame</span></dt><dd><p>Dataframe that will be cut</p>
+</dd>
+<dt>cut<span class="classifier">str</span></dt><dd><p>Performed cut</p>
+</dd>
+<dt>verbose: Bool</dt><dd><p>if True, print the number of cut-out events</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="HEA.config.html" class="btn btn-neutral float-right" title="HEA.config package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Anthony Correia.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

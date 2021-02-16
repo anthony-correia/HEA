@@ -1,0 +1,1410 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>HEA.plot package &mdash; HEA 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="HEA.tools package" href="HEA.tools.html" />
+    <link rel="prev" title="HEA.fit package" href="HEA.fit.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="HEA.config.html">HEA.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="HEA.fit.html">HEA.fit package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">HEA.plot package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-HEA.plot">Package contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-HEA.plot.fit">HEA.plot.fit module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-HEA.plot.histogram">HEA.plot.histogram module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-HEA.plot.line">HEA.plot.line module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-HEA.plot.tools">HEA.plot.tools module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="HEA.tools.html">HEA.tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HEA</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>HEA.plot package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/HEA.plot.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="hea-plot-package">
+<h1>HEA.plot package<a class="headerlink" href="#hea-plot-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-HEA.plot">
+<span id="package-contents"></span><h2>Package contents<a class="headerlink" href="#module-HEA.plot" title="Permalink to this headline">¶</a></h2>
+<p>Package for plotting.</p>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-HEA.plot.fit">
+<span id="hea-plot-fit-module"></span><h2>HEA.plot.fit module<a class="headerlink" href="#module-HEA.plot.fit" title="Permalink to this headline">¶</a></h2>
+<p>Plot a histogram, with the fitted PDF, the pull diagram and the fitted parameters.</p>
+<dl class="py function">
+<dt id="HEA.plot.fit.frac_model">
+<code class="sig-prename descclassname">HEA.plot.fit.</code><code class="sig-name descname">frac_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">frac</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/fit.html#frac_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.fit.frac_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of the values of the pdf of the model 
+evaluated at <code class="docutils literal notranslate"><span class="pre">x</span></code>.
+Multiply by <code class="docutils literal notranslate"><span class="pre">frac</span></code> each of these values.</p>
+<dl class="simple">
+<dt>x<span class="classifier">numpy.array(float)</span></dt><dd><p>Array of numbers where to evaluate the PDF</p>
+</dd>
+<dt>model: zfit.pdf.BasePDF</dt><dd><p>Model (PDF)</p>
+</dd>
+<dt>frac<span class="classifier">float</span></dt><dd><p>Parameter which is multiplied to the result</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>np.array(float)</dt><dd><p>list of the values of the pdf of the model evaluated in x,
+multiplied by <code class="docutils literal notranslate"><span class="pre">frac</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.fit.get_model_name">
+<code class="sig-prename descclassname">HEA.plot.fit.</code><code class="sig-name descname">get_model_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/fit.html#get_model_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.fit.get_model_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the name of the <code class="docutils literal notranslate"><span class="pre">model</span></code></p>
+<dl class="simple">
+<dt>model: zfit.pdf.BasePDF</dt><dd><p>Model (PDF)</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>label_mode: str</dt><dd><p>name of the model (specified by the dictionnary <code class="docutils literal notranslate"><span class="pre">name_PDF</span></code>), e.g., <code class="docutils literal notranslate"><span class="pre">'Gaussian'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Crystall</span> <span class="pre">Ball'</span></code>, …</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.fit.plot_fitted_curve">
+<code class="sig-prename descclassname">HEA.plot.fit.</code><code class="sig-name descname">plot_fitted_curve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">plot_scaling</span></em>, <em class="sig-param"><span class="n">frac</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">line_width</span><span class="o">=</span><span class="default_value">2.5</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">'b'</span></em>, <em class="sig-param"><span class="n">linestyle</span><span class="o">=</span><span class="default_value">'-'</span></em>, <em class="sig-param"><span class="n">low</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">high</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">label</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">x</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">alpha</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/fit.html#plot_fitted_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.fit.plot_fitted_curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a fitted curve given by <code class="docutils literal notranslate"><span class="pre">model</span></code></p>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot the label</p>
+</dd>
+<dt>model: zfit.pdf.BasePDF</dt><dd><p>Model (PDF)</p>
+</dd>
+<dt>frac<span class="classifier">float between 0 and 1</span></dt><dd><p>multiplicative factor corresponding to yield ratio of the sub-models of the model
+<code class="docutils literal notranslate"><span class="pre">frac(sub_model)</span> <span class="pre">=</span> <span class="pre">yield(sub_model)/yield(model)</span></code></p>
+</dd>
+<dt>plot_scaling<span class="classifier">float</span></dt><dd><p>scaling to get the scale of the curve right compared to the histogram</p>
+</dd>
+<dt>line_width<span class="classifier">float</span></dt><dd><p>width of the curve line</p>
+</dd>
+<dt>color<span class="classifier">str</span></dt><dd><p>color of the line</p>
+</dd>
+<dt>linestyle<span class="classifier">str</span></dt><dd><p>style of the line</p>
+</dd>
+<dt>low<span class="classifier">float</span></dt><dd><p>low limit of the plot (x-axis)</p>
+</dd>
+<dt>high<span class="classifier">float</span></dt><dd><p>high limit of the plot (x-axis)</p>
+</dd>
+<dt>label<span class="classifier">str</span></dt><dd><p>label of the curve (for the legend)</p>
+</dd>
+<dt>x<span class="classifier">numpy.numpy(float)</span></dt><dd><p>points of the x-axis where to evaluate the pdf of the model to plot
+If not given, it is computed to be 1000 points between <code class="docutils literal notranslate"><span class="pre">low</span></code> and <code class="docutils literal notranslate"><span class="pre">high</span></code></p>
+</dd>
+<dt>alpha<span class="classifier">float, between 0 and 1</span></dt><dd><p>opacity of the curve</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.fit.plot_fitted_curves">
+<code class="sig-prename descclassname">HEA.plot.fit.</code><code class="sig-name descname">plot_fitted_curves</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">models</span></em>, <em class="sig-param"><span class="n">plot_scaling</span></em>, <em class="sig-param"><span class="n">low</span></em>, <em class="sig-param"><span class="n">high</span></em>, <em class="sig-param"><span class="n">models_names</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">models_types</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fontsize_legend</span><span class="o">=</span><span class="default_value">20.0</span></em>, <em class="sig-param"><span class="n">loc_leg</span><span class="o">=</span><span class="default_value">'upper left'</span></em>, <em class="sig-param"><span class="n">show_legend</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwgs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/fit.html#plot_fitted_curves"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.fit.plot_fitted_curves" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot fitted curve given by <code class="docutils literal notranslate"><span class="pre">models</span></code>, with labels given by <code class="docutils literal notranslate"><span class="pre">models_names</span></code></p>
+<p>ax              : axis where to plot
+models       : zfit.pdf.BasePDF or list(zfit.pdf.BasePDF) or list(list(zfit.pdf.BasePDF)) or …</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>just one PDF (e.g., <code class="docutils literal notranslate"><span class="pre">[model_PDF]</span></code> or <code class="docutils literal notranslate"><span class="pre">model_PDF</span></code>)</p></li>
+<li><p>a list of PDFs, whose first PDF is the composite PDF</p></li>
+</ul>
+<p>and the other ones are their components (e.g., <code class="docutils literal notranslate"><span class="pre">[model_PDG,</span> <span class="pre">signal_PDF,</span> <span class="pre">background_PDF]</span></code>)
+*  list of list of PDFs, if composite of composite of PDFs (e.g., <code class="docutils literal notranslate"><span class="pre">[model_PDG,</span> <span class="pre">[signal_PDF,</span> <span class="pre">signal_compo1_PDF,</span> <span class="pre">signal_compo2_PDF],</span> <span class="pre">background_PDF]</span></code>)
+* … (recursive)</p>
+</div></blockquote>
+<dl>
+<dt>low<span class="classifier">float</span></dt><dd><p>low limit of the plot (x-axis)</p>
+</dd>
+<dt>high<span class="classifier">float</span></dt><dd><p>high limit of the plot (x-axis)</p>
+</dd>
+<dt>models_names<span class="classifier">str or list(str) or list(list(str))</span></dt><dd><p>name of the models - used in the legend</p>
+<ul class="simple">
+<li><p>list of the same size as <code class="docutils literal notranslate"><span class="pre">models_names</span></code> with the name of each PDF</p></li>
+<li><p>If there is only one string for a list of models, it corresponds to the name of the first composite PDFs. The other PDFs are plotted but they aren’t legended</p></li>
+</ul>
+</dd>
+<dt>models_types<span class="classifier">str</span></dt><dd><p>type of each mode (one character for each model or for a list of models):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'m'</span></code> : model (sum) ; should always be the FIRST ONE !!</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'s'</span></code> : signal</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'b'</span></code> : background</p></li>
+</ul>
+<p>used in the legend to indicate if it is a signal or a background component
+If <code class="docutils literal notranslate"><span class="pre">None</span></code>, it is put to <code class="docutils literal notranslate"><span class="pre">['m',</span> <span class="pre">'s',</span> <span class="pre">'b',</span> <span class="pre">'b',</span> <span class="pre">...]</span></code></p>
+</dd>
+<dt>fontsize_legend<span class="classifier">float</span></dt><dd><p>fontsize of the legend</p>
+</dd>
+<dt>loc_leg<span class="classifier">str</span></dt><dd><p>location of the legend</p>
+</dd>
+<dt>show_legend<span class="classifier">bool</span></dt><dd><p>if <code class="docutils literal notranslate"><span class="pre">True</span></code>, show the legend, 
+if None, show the legend only if there are more than 1 model</p>
+</dd>
+<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>kwgs<span class="classifier">dict</span></dt><dd><p>passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">plot_models()</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.fit.plot_hist_fit">
+<code class="sig-prename descclassname">HEA.plot.fit.</code><code class="sig-name descname">plot_hist_fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">branch</span></em>, <em class="sig-param"><span class="n">latex_branch</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">unit</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">obs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_bins</span><span class="o">=</span><span class="default_value">50</span></em>, <em class="sig-param"><span class="n">low_hist</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">high_hist</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">bar_mode</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">models</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">models_names</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">models_types</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">linewidth</span><span class="o">=</span><span class="default_value">2.5</span></em>, <em class="sig-param"><span class="n">colors</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">title</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">plot_pull</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">bar_mode_pull</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">show_leg</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fontsize_leg</span><span class="o">=</span><span class="default_value">20.0</span></em>, <em class="sig-param"><span class="n">loc_leg</span><span class="o">=</span><span class="default_value">'upper left'</span></em>, <em class="sig-param"><span class="n">show_chi2</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">latex_params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">colWidths</span><span class="o">=</span><span class="default_value">[0.04, 0.01, 0.06, 0.06]</span></em>, <em class="sig-param"><span class="n">fontsize_res</span><span class="o">=</span><span class="default_value">20.0</span></em>, <em class="sig-param"><span class="n">loc_res</span><span class="o">=</span><span class="default_value">'upper right'</span></em>, <em class="sig-param"><span class="n">fig_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">save_fig</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">pos_text_LHC</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/fit.html#plot_hist_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.fit.plot_hist_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot complete histogram with fitted curve, pull histogram and results of the fits. Save it in the plot folder.</p>
+<dl class="simple">
+<dt>df<span class="classifier">pandas.Dataframe</span></dt><dd><p>dataframe that contains the branch to plot</p>
+</dd>
+<dt>branch<span class="classifier">str</span></dt><dd><p>name of the branch to plot and that was fitted</p>
+</dd>
+<dt>latex_branch<span class="classifier">str</span></dt><dd><p>latex name of the branch, to be used in the xlabel of the plot</p>
+</dd>
+<dt>unit<span class="classifier">str</span></dt><dd><p>Unit of the physical quantity</p>
+</dd>
+<dt>weights<span class="classifier">numpy.array</span></dt><dd><p>weights passed to <code class="docutils literal notranslate"><span class="pre">plt.hist</span></code></p>
+</dd>
+<dt>obs<span class="classifier">zfit.Space</span></dt><dd><p>Space used for the fit</p>
+</dd>
+<dt>n_bins<span class="classifier">int</span></dt><dd><p>number of desired bins of the histogram</p>
+</dd>
+<dt>low_hist<span class="classifier">float</span></dt><dd><p>lower range value for the histogram (if not specified, use the value contained in <code class="docutils literal notranslate"><span class="pre">obs</span></code>)</p>
+</dd>
+<dt>high_hist<span class="classifier">float</span></dt><dd><p>lower range value for the histogram (if not specified, use the value contained in <code class="docutils literal notranslate"><span class="pre">obs</span></code>)</p>
+</dd>
+<dt>color<span class="classifier">str</span></dt><dd><p>color of the histogram</p>
+</dd>
+</dl>
+<p>bar_mode     : bool</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>if True, plot with bars</p></li>
+<li><p>else, plot with points and error bars</p></li>
+</ul>
+</div></blockquote>
+<dl>
+<dt>models<span class="classifier">zfit.pdf.BasePDF or list(zfit.pdf.BasePDF) or list(list(zfit.pdf.BasePDF)) or …</span></dt><dd><p>passed to py:func:<cite>plot_fitted_curves</cite></p>
+</dd>
+<dt>models_names<span class="classifier">str or list(str) or list(list(str))</span></dt><dd><p>passed to py:func:<cite>plot_fitted_curves</cite></p>
+</dd>
+<dt>models_types<span class="classifier">str</span></dt><dd><p>passed to py:func:<cite>plot_fitted_curves</cite></p>
+</dd>
+<dt>linewidth<span class="classifier">str</span></dt><dd><p>width of the fitted curve line</p>
+</dd>
+<dt>colors<span class="classifier">str</span></dt><dd><p>colors of the fitted curves</p>
+</dd>
+<dt>title<span class="classifier">str</span></dt><dd><p>title of the plot</p>
+</dd>
+<dt>plot_pull<span class="classifier">bool</span></dt><dd><p>if <code class="docutils literal notranslate"><span class="pre">True</span></code>, plot the pull diagram</p>
+</dd>
+<dt>bar_mode_pull: bool</dt><dd><p>if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the pull diagram is plotted with bars instead of points + error bars</p>
+</dd>
+<dt>show_leg<span class="classifier">bool</span></dt><dd><p>if True, show the legend</p>
+</dd>
+<dt>fontsize_leg<span class="classifier">float</span></dt><dd><p>fontsize of the legend</p>
+</dd>
+<dt>loc_leg<span class="classifier">str</span></dt><dd><p>position of the legend, <code class="docutils literal notranslate"><span class="pre">loc</span></code> argument in <code class="docutils literal notranslate"><span class="pre">plt.legend</span></code></p>
+</dd>
+<dt>show_chi2<span class="classifier">bool</span></dt><dd><p>if <code class="docutils literal notranslate"><span class="pre">True</span></code>, show the <span class="math notranslate nohighlight">\(\chi^2\)</span> in the label of the x-axis of the pull diagram</p>
+</dd>
+<dt>params<span class="classifier">dict[zfit.zfitParameter, float]</span></dt><dd><p>Result <code class="docutils literal notranslate"><span class="pre">result.params</span></code> of the minimisation of the loss function (given by <span class="math notranslate nohighlight">\(HEA.fit.fit.launch_fit\)</span>)</p>
+</dd>
+<dt>latex_params<span class="classifier"></span></dt><dd><p>Dictionnary with the name of the params.
+Also indicated the branchs to show in the table among all the branchs in params</p>
+</dd>
+<dt>colWidths<span class="classifier">[float, float, float, float]</span></dt><dd><p>passed to <a class="reference internal" href="#HEA.plot.fit.plot_result_fit" title="HEA.plot.fit.plot_result_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_result_fit()</span></code></a></p>
+</dd>
+<dt>fontsize_res<span class="classifier">float</span></dt><dd><p>fontsize of the text in the result table</p>
+</dd>
+<dt>loc_res<span class="classifier">str</span></dt><dd><blockquote>
+<div><p>position of the result table, loc argument specified in in plt.table</p>
+</div></blockquote>
+<dl class="simple">
+<dt>fig_name<span class="classifier">str</span></dt><dd><p>name of the saved file</p>
+</dd>
+</dl>
+</dd>
+<dt>folder_name<span class="classifier">str</span></dt><dd><p>name of the folder where to save the plot</p>
+</dd>
+<dt>data_name<span class="classifier">str</span></dt><dd><p>name of the data used to constitute the name of the saved file, if <code class="docutils literal notranslate"><span class="pre">fig_name</span></code> is not specified.</p>
+</dd>
+<dt>save_fig<span class="classifier">str</span></dt><dd><p>name of the figure to save</p>
+</dd>
+<dt>pos_text_LHC<span class="classifier">dict, list or str</span></dt><dd><p>passed to <a class="reference internal" href="#HEA.plot.tools.set_text_LHCb" title="HEA.plot.tools.set_text_LHCb"><code class="xref py py-func docutils literal notranslate"><span class="pre">HEA.plot.tools.set_text_LHCb()</span></code></a> as the <code class="docutils literal notranslate"><span class="pre">pos</span></code> argument.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot (only if <code class="docutils literal notranslate"><span class="pre">axis_mode</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p>
+</dd>
+<dt>ax[0]<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the histogram + fitted curves + table</p>
+</dd>
+<dt>ax[1]<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the pull diagram (only if <code class="docutils literal notranslate"><span class="pre">plot_pull</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.fit.plot_hist_fit_auto">
+<code class="sig-prename descclassname">HEA.plot.fit.</code><code class="sig-name descname">plot_hist_fit_auto</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">branch</span></em>, <em class="sig-param"><span class="n">cut_BDT</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/fit.html#plot_hist_fit_auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.fit.plot_hist_fit_auto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the latex name of the branch and unit. Set the folder name to the name of the datasets.
+Then, plot 2d histogram with plot_hist_fit.</p>
+<dl class="simple">
+<dt>df<span class="classifier">pandas.Dataframe</span></dt><dd><p>dataframe that contains the branch to plot</p>
+</dd>
+<dt>branch<span class="classifier">str</span></dt><dd><p>branch (for instance: <code class="docutils literal notranslate"><span class="pre">'B0_M'</span></code>), in dataframe</p>
+</dd>
+<dt>cut_BDT<span class="classifier">float or str</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">BDT</span> <span class="pre">&gt;</span> <span class="pre">cut_BDT</span></code> cut. Used in the name of saved figure.</p>
+</dd>
+<dt><a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs<span class="classifier">dict</span></dt><dd><p>arguments passed in <a class="reference internal" href="#HEA.plot.fit.plot_hist_fit" title="HEA.plot.fit.plot_hist_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_hist_fit()</span></code></a> (except <code class="docutils literal notranslate"><span class="pre">branch</span></code>, <code class="docutils literal notranslate"><span class="pre">latex_branch</span></code>, <code class="docutils literal notranslate"><span class="pre">unit</span></code>)</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot (only if <code class="docutils literal notranslate"><span class="pre">axis_mode</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p>
+</dd>
+<dt>ax[0]<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the histogram + fitted curves + table</p>
+</dd>
+<dt>ax[1]<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the pull diagram (only if <code class="docutils literal notranslate"><span class="pre">plot_pull</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.fit.plot_hist_fit_var">
+<code class="sig-prename descclassname">HEA.plot.fit.</code><code class="sig-name descname">plot_hist_fit_var</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">branch</span></em>, <em class="sig-param"><span class="n">latex_branch</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">unit</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/fit.html#plot_hist_fit_var"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.fit.plot_hist_fit_var" title="Permalink to this definition">¶</a></dt>
+<dd><p>plot data with his fit</p>
+<dl class="simple">
+<dt>data<span class="classifier">pandas.Series or list(pandas.Series)</span></dt><dd><p>dataset to plot</p>
+</dd>
+<dt>branch<span class="classifier">str</span></dt><dd><p>name of the branch, for the name of the file</p>
+</dd>
+<dt>latex_branch<span class="classifier">str</span></dt><dd><p>name of the branch, for the label of the x-axis</p>
+</dd>
+<dt>unit<span class="classifier">str</span></dt><dd><p>unit of the branch</p>
+</dd>
+<dt><a href="#id5"><span class="problematic" id="id6">**</span></a>kwargs<span class="classifier">dict</span></dt><dd><p>parameters passed to <code class="xref py py-func docutils literal notranslate"><span class="pre">HEA.plot.tools.plot_hist_fit()</span></code></p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot (only if <code class="docutils literal notranslate"><span class="pre">axis_mode</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p>
+</dd>
+<dt>ax[0]<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the histogram + fitted curves + table</p>
+</dd>
+<dt>ax[1]<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the pull diagram (only if <cite>plot_pull</cite> is <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.fit.plot_pull_diagram">
+<code class="sig-prename descclassname">HEA.plot.fit.</code><code class="sig-name descname">plot_pull_diagram</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">counts</span></em>, <em class="sig-param"><span class="n">edges</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">centres</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">err</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">low</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">high</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">y_line</span><span class="o">=</span><span class="default_value">3</span></em>, <em class="sig-param"><span class="n">bar_mode_pull</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">plot_scaling</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">25.0</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">'b'</span></em>, <em class="sig-param"><span class="n">color_lines</span><span class="o">=</span><span class="default_value">'r'</span></em>, <em class="sig-param"><span class="n">show_chi2</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/fit.html#plot_pull_diagram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.fit.plot_pull_diagram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot pull diagram of <code class="docutils literal notranslate"><span class="pre">model</span></code> compared to the data, given by (<code class="docutils literal notranslate"><span class="pre">counts</span></code>, <code class="docutils literal notranslate"><span class="pre">centres</span></code>)</p>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot</p>
+</dd>
+<dt>model: zfit.pdf.BasePDF</dt><dd><p>Model (PDF)</p>
+</dd>
+<dt>counts<span class="classifier">np.array(float)</span></dt><dd><p>counts of the bins given by centres in the histogram</p>
+</dd>
+<dt>centres<span class="classifier">np.array(float)</span></dt><dd><p>bin centres of the histogram (if <code class="docutils literal notranslate"><span class="pre">edges</span></code> is not provided)</p>
+</dd>
+<dt>edges<span class="classifier">np.array(float)</span></dt><dd><p>edges of the bins (if <code class="docutils literal notranslate"><span class="pre">centres</span></code> is not provided)</p>
+</dd>
+<dt>err<span class="classifier">np.array(float)</span></dt><dd><p>bin centres of the histogram</p>
+</dd>
+<dt>low<span class="classifier">float</span></dt><dd><p>low limit of the distribution</p>
+</dd>
+<dt>high<span class="classifier">float</span></dt><dd><p>high limit of the distribution</p>
+</dd>
+<dt>y_line<span class="classifier">float</span></dt><dd><p>Position of the lines at <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">0</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">y_line</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">-</span> <span class="pre">y_line</span></code></p>
+</dd>
+<dt>bar_mode_pull: bool</dt><dd><p>if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the pull diagram is plotted with bars instead of points + error bars</p>
+</dd>
+<dt>plot_scaling<span class="classifier">float</span></dt><dd><p>scaling to get the scale of the curve right compared to the histogram</p>
+</dd>
+<dt>fontsize<span class="classifier">float</span></dt><dd><p>fontsize of the labels</p>
+</dd>
+<dt>color<span class="classifier">str</span></dt><dd><p>color of the pull diagram</p>
+</dd>
+<dt>color_lines<span class="classifier">str</span></dt><dd><p>color of the lines at <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">0</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">y_line</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">-</span> <span class="pre">y_line</span></code></p>
+</dd>
+<dt>show_chi2<span class="classifier">bool</span></dt><dd><p>if <code class="docutils literal notranslate"><span class="pre">True</span></code>, show the :math:<code class="docutils literal notranslate"><span class="pre">\chi^2</span></code> in the label of the x-axis of the pull diagram</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.fit.plot_result_fit">
+<code class="sig-prename descclassname">HEA.plot.fit.</code><code class="sig-name descname">plot_result_fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">latex_params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">20.0</span></em>, <em class="sig-param"><span class="n">colWidths</span><span class="o">=</span><span class="default_value">[0.06, 0.01, 0.05, 0.06]</span></em>, <em class="sig-param"><span class="n">loc</span><span class="o">=</span><span class="default_value">'upper right'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/fit.html#plot_result_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.fit.plot_result_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the results of the fit in a table</p>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot</p>
+</dd>
+<dt>params<span class="classifier">dict[zfit.zfitParameter, float]</span></dt><dd><p>Result <code class="docutils literal notranslate"><span class="pre">result.params</span></code> of the minimisation of the loss function (given by <a class="reference internal" href="HEA.fit.html#HEA.fit.fit.launch_fit" title="HEA.fit.fit.launch_fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">HEA.fit.fit.launch_fit()</span></code></a>)</p>
+</dd>
+<dt>latex_params<span class="classifier"></span></dt><dd><p>Dictionnary with the name of the params 
+Also indicated the branchs to show in the table among all the branchs in params</p>
+</dd>
+<dt>fontsize<span class="classifier">float</span></dt><dd><p>Fontsize of the text in the table</p>
+</dd>
+<dt>colWidths<span class="classifier">[float, float, float, float]</span></dt><dd><p>Width of the four columns of the table</p>
+<ul class="simple">
+<li><p>first column: latex name of the parameter</p></li>
+<li><p>second column: nominal value</p></li>
+<li><p>third column: <code class="docutils literal notranslate"><span class="pre">$\pm$</span></code></p></li>
+<li><p>fourth column: error</p></li>
+</ul>
+</dd>
+<dt>loc<span class="classifier">str</span></dt><dd><p>location of the table</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-HEA.plot.histogram">
+<span id="hea-plot-histogram-module"></span><h2>HEA.plot.histogram module<a class="headerlink" href="#module-HEA.plot.histogram" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Plot histograms</p></li>
+<li><p>Plot 2D histograms</p></li>
+<li><p>Plot scatter plots</p></li>
+<li><p>Plot histograms of the quotient of 2 branches</p></li>
+</ul>
+<dl class="py function">
+<dt id="HEA.plot.histogram.end_plot_function">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">end_plot_function</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fig</span></em>, <em class="sig-param"><span class="n">save_fig</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">fig_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">default_fig_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#end_plot_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.end_plot_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>tight the layout and save the file or just return the <code class="docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code> and <code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes</span></code></p>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot</p>
+</dd>
+<dt>fig_name<span class="classifier">str</span></dt><dd><p>name of the file that will be saved</p>
+</dd>
+<dt>folder_name<span class="classifier">str</span></dt><dd><p>name of the folder where the figure will be saved</p>
+</dd>
+<dt>default_fig_name<span class="classifier">str</span></dt><dd><p>name of the figure that will be saved, in the case <code class="docutils literal notranslate"><span class="pre">fig_name</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the plot</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot (only if <code class="docutils literal notranslate"><span class="pre">axis_mode</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the plot (only if <code class="docutils literal notranslate"><span class="pre">axis_mode</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.get_bin_width">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">get_bin_width</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">low</span></em>, <em class="sig-param"><span class="n">high</span></em>, <em class="sig-param"><span class="n">n_bins</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#get_bin_width"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.get_bin_width" title="Permalink to this definition">¶</a></dt>
+<dd><p>return bin width</p>
+<dl class="simple">
+<dt>low<span class="classifier">Float</span></dt><dd><p>low value of the range</p>
+</dd>
+<dt>high<span class="classifier">Float</span></dt><dd><p>high value of the range</p>
+</dd>
+<dt>n_bins<span class="classifier">Int</span></dt><dd><p>number of bins in the given range</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Float</dt><dd><p>Width of the bins</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.get_count_err">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">get_count_err</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">n_bins</span></em>, <em class="sig-param"><span class="n">low</span></em>, <em class="sig-param"><span class="n">high</span></em>, <em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#get_count_err"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.get_count_err" title="Permalink to this definition">¶</a></dt>
+<dd><p>get counts and error for each bin</p>
+<dl class="simple">
+<dt>data<span class="classifier">pandas.Series</span></dt><dd><p>data to plot</p>
+</dd>
+<dt>n_bins<span class="classifier">int</span></dt><dd><p>number of bins</p>
+</dd>
+<dt>low<span class="classifier">float</span></dt><dd><p>low limit of the distribution</p>
+</dd>
+<dt>high<span class="classifier">float</span></dt><dd><p>high limit of the distribution</p>
+</dd>
+<dt>weights<span class="classifier">pandas.Series, numpy.array</span></dt><dd><p>weights of each element in data</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>counts<span class="classifier">np.array</span></dt><dd><p>number of counts in each bin</p>
+</dd>
+<dt>edges<span class="classifier">np.array</span></dt><dd><p>Edges of the bins</p>
+</dd>
+<dt>centres<span class="classifier">np.array</span></dt><dd><p>Centres of the bins</p>
+</dd>
+<dt>err<span class="classifier">np.array</span></dt><dd><p>Errors in the count, for each bin</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.get_fig_ax">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">get_fig_ax</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">orientation</span><span class="o">=</span><span class="default_value">'vertical'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#get_fig_ax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.get_fig_ax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a figure and an axis in the case where <code class="docutils literal notranslate"><span class="pre">ax</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>default axis</p>
+</dd>
+<dt>orientation<span class="classifier">‘vertical’ or ‘horizontal’</span></dt><dd><p>orientation of the plot:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'vertical'</span></code>: figure size is (8, 6)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'horizontal'</span></code>: figure size is (6, 8)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> was None)</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the plot (only if <code class="docutils literal notranslate"><span class="pre">axis_mode</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.plot_divide">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">plot_divide</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dfs</span></em>, <em class="sig-param"><span class="n">branch</span></em>, <em class="sig-param"><span class="n">latex_branch</span></em>, <em class="sig-param"><span class="n">unit</span></em>, <em class="sig-param"><span class="n">low</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">high</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_bins</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">fig_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">save_fig</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pos_text_LHC</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#plot_divide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.plot_divide" title="Permalink to this definition">¶</a></dt>
+<dd><p>plot the (histogram of the dataframe 1 of branch)/(histogram of the dataframe 1 of branch) after normalisation</p>
+<dl class="simple">
+<dt>dfs<span class="classifier">dict(str:pandas.Dataframe)</span></dt><dd><p>Dictionnary {name of the dataframe : pandas dataframe}</p>
+</dd>
+<dt>branch<span class="classifier">str</span></dt><dd><p>name of the branch in the dataframe</p>
+</dd>
+<dt>latex_branch<span class="classifier">str</span></dt><dd><p>Latex name of the branch (for the labels of the plot)</p>
+</dd>
+<dt>unit<span class="classifier">str</span></dt><dd><p>Unit of the physical quantity</p>
+</dd>
+<dt>low<span class="classifier">float</span></dt><dd><p>low value of the distribution</p>
+</dd>
+<dt>high<span class="classifier">float</span></dt><dd><p>high value of the distribution</p>
+</dd>
+<dt>n_bins<span class="classifier">int</span></dt><dd><p>Desired number of bins of the histogram</p>
+</dd>
+<dt>fig_name<span class="classifier">str</span></dt><dd><p>name of the saved figure</p>
+</dd>
+<dt>folder_name<span class="classifier">str</span></dt><dd><p>name of the folder where to save the figure</p>
+</dd>
+<dt>save_fig<span class="classifier">bool</span></dt><dd><p>specifies if the figure is saved</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot</p>
+</dd>
+<dt>pos_text_LHC<span class="classifier">dict, list or str</span></dt><dd><p>passed to <a class="reference internal" href="#HEA.plot.tools.set_text_LHCb" title="HEA.plot.tools.set_text_LHCb"><code class="xref py py-func docutils literal notranslate"><span class="pre">HEA.plot.tools.set_text_LHCb()</span></code></a> as the <code class="docutils literal notranslate"><span class="pre">pos</span></code> argument.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.plot_divide_auto">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">plot_divide_auto</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dfs</span></em>, <em class="sig-param"><span class="n">branch</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#plot_divide_auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.plot_divide_auto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the latex name of the branch and unit. Set the folder name to the name of the datasets.
+Then, plot a “divide” histogram with <a class="reference internal" href="#HEA.plot.histogram.plot_divide" title="HEA.plot.histogram.plot_divide"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_divide()</span></code></a>.</p>
+<dl class="simple">
+<dt>dfs<span class="classifier">dict(str:pandas.Dataframe)</span></dt><dd><p>Dictionnary {name of the dataframe : pandas dataframe}</p>
+</dd>
+<dt>branch<span class="classifier">str</span></dt><dd><p>name of the branch in the dataframe</p>
+</dd>
+<dt>kwargs<span class="classifier">dict</span></dt><dd><p>arguments passed in <a class="reference internal" href="#HEA.plot.histogram.plot_divide" title="HEA.plot.histogram.plot_divide"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_divide()</span></code></a> (except <code class="docutils literal notranslate"><span class="pre">branch</span></code>, <code class="docutils literal notranslate"><span class="pre">latex_branch</span></code> and <code class="docutils literal notranslate"><span class="pre">unit</span></code>)</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.plot_hist">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">plot_hist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dfs</span></em>, <em class="sig-param"><span class="n">branch</span></em>, <em class="sig-param"><span class="n">latex_branch</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">unit</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">low</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">high</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_bins</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">colors</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">alpha</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bar_mode</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">density</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">orientation</span><span class="o">=</span><span class="default_value">'vertical'</span></em>, <em class="sig-param"><span class="n">title</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pos_text_LHC</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fig_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fontsize_label</span><span class="o">=</span><span class="default_value">25.0</span></em>, <em class="sig-param"><span class="n">save_fig</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">factor_ymax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show_leg</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">loc_leg</span><span class="o">=</span><span class="default_value">'best'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#plot_hist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.plot_hist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the histogram(s) of branch of the data given in <code class="docutils literal notranslate"><span class="pre">dfs</span></code></p>
+<dl class="simple">
+<dt>dfs<span class="classifier">dict(str:pandas.Dataframe)</span></dt><dd><p>Dictionnary {name of the dataframe : pandas dataframe}</p>
+</dd>
+<dt>branch<span class="classifier">str</span></dt><dd><p>name of the branch in the dataframe</p>
+</dd>
+<dt>latex_branch<span class="classifier">str</span></dt><dd><p>Latex name of the branch (for the labels of the plot)</p>
+</dd>
+<dt>unit<span class="classifier">str</span></dt><dd><p>Unit of the physical quantity</p>
+</dd>
+<dt>weights<span class="classifier">numpy.array</span></dt><dd><p>weights passed to plt.hist</p>
+</dd>
+<dt>low<span class="classifier">float</span></dt><dd><p>low value of the distribution</p>
+</dd>
+<dt>high<span class="classifier">float</span></dt><dd><p>high value of the distribution</p>
+</dd>
+<dt>n_bins<span class="classifier">int</span></dt><dd><p>Desired number of bins of the histogram</p>
+</dd>
+<dt>colors<span class="classifier">str or list(str)</span></dt><dd><p>color(s) used for the histogram(s)</p>
+</dd>
+<dt>alpha<span class="classifier">str or list(str)</span></dt><dd><p>transparancy(ies) of the histograms</p>
+</dd>
+<dt>bar_mode<span class="classifier">bool</span></dt><dd><p>if True, plot with bars, else, plot with points and error bars</p>
+</dd>
+<dt>density<span class="classifier">bool</span></dt><dd><p>if True, divide the numbers of counts in the histogram by the total number of counts</p>
+</dd>
+<dt>orientation<span class="classifier">‘vertical’ or ‘horizontal’</span></dt><dd><p>orientation of the histogram</p>
+</dd>
+<dt>title<span class="classifier">str</span></dt><dd><p>title of the figure to show at the top of the figure</p>
+</dd>
+<dt>pos_text_LHC<span class="classifier">dict, list or str</span></dt><dd><p>passed to <a class="reference internal" href="#HEA.plot.tools.set_text_LHCb" title="HEA.plot.tools.set_text_LHCb"><code class="xref py py-func docutils literal notranslate"><span class="pre">HEA.plot.tools.set_text_LHCb()</span></code></a> as the <code class="docutils literal notranslate"><span class="pre">pos</span></code> argument.</p>
+</dd>
+<dt>fig_name<span class="classifier">str</span></dt><dd><p>name of the saved figure</p>
+</dd>
+<dt>folder_name<span class="classifier">str</span></dt><dd><p>name of the folder where to save the figure</p>
+</dd>
+<dt>fontsize_label<span class="classifier">float</span></dt><dd><p>fontsize of the label</p>
+</dd>
+<dt>save_fig<span class="classifier">bool</span></dt><dd><p>specifies if the figure is saved</p>
+</dd>
+<dt>factor_ymax<span class="classifier">float</span></dt><dd><p>multiplicative factor of ymax</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot</p>
+</dd>
+<dt>show_leg<span class="classifier">bool</span></dt><dd><p>True if the legend needs to be shown</p>
+</dd>
+<dt>loc_leg<span class="classifier">str</span></dt><dd><p>location of the legend</p>
+</dd>
+<dt><a href="#id7"><span class="problematic" id="id8">**</span></a>params<span class="classifier">dict</span></dt><dd><p>passed to <a class="reference internal" href="#HEA.plot.histogram.plot_hist_alone" title="HEA.plot.histogram.plot_hist_alone"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_hist_alone()</span></code></a></p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.plot_hist2d">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">plot_hist2d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">branches</span></em>, <em class="sig-param"><span class="n">latex_branches</span></em>, <em class="sig-param"><span class="n">units</span></em>, <em class="sig-param"><span class="n">low</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">high</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_bins</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">log_scale</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">title</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fig_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">save_fig</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pos_text_LHC</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#plot_hist2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.plot_hist2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a 2D histogram of 2 branches.</p>
+<dl class="simple">
+<dt>df<span class="classifier">pandas.Dataframe</span></dt><dd><p>Dataframe that contains the 2 branches to plot</p>
+</dd>
+<dt>branches<span class="classifier">[str, str]</span></dt><dd><p>names of the two branches</p>
+</dd>
+<dt>latex_branches<span class="classifier">[str, str]</span></dt><dd><p>latex names of the two branches</p>
+</dd>
+<dt>units<span class="classifier">str or [str, str]</span></dt><dd><p>Common unit or list of two units of the two branches</p>
+</dd>
+<dt>n_bins<span class="classifier">int or [int, int]</span></dt><dd><p>number of bins</p>
+</dd>
+<dt>log_scale<span class="classifier">bool</span></dt><dd><p>if true, the colorbar is in logscale</p>
+</dd>
+<dt>low<span class="classifier">float or [float, float]</span></dt><dd><p>low  value(s) of the branches</p>
+</dd>
+<dt>high<span class="classifier">float or [float, float] </span></dt><dd><p>high value(s) of the branches</p>
+</dd>
+<dt>title<span class="classifier">str</span></dt><dd><p>title of the figure</p>
+</dd>
+<dt>fig_name<span class="classifier">str</span></dt><dd><p>name of the saved figure</p>
+</dd>
+<dt>folder_name<span class="classifier">str</span></dt><dd><p>name of the folder where to save the figure</p>
+</dd>
+<dt>data_name<span class="classifier">str</span></dt><dd><p>name of the data, this is used to define the name of the figure,
+in the case <code class="docutils literal notranslate"><span class="pre">fig_name</span></code> is not defined.</p>
+</dd>
+<dt>save_fig<span class="classifier">bool</span></dt><dd><p>specifies if the figure is saved</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot</p>
+</dd>
+<dt>pos_text_LHC<span class="classifier">dict, list or str</span></dt><dd><p>passed to <a class="reference internal" href="#HEA.plot.tools.set_text_LHCb" title="HEA.plot.tools.set_text_LHCb"><code class="xref py py-func docutils literal notranslate"><span class="pre">HEA.plot.tools.set_text_LHCb()</span></code></a> as the <code class="docutils literal notranslate"><span class="pre">pos</span></code> argument.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.plot_hist2d_auto">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">plot_hist2d_auto</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">branches</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#plot_hist2d_auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.plot_hist2d_auto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the latex name of the branch and unit.
+Then, plot a 2d histogram with <a class="reference internal" href="#HEA.plot.histogram.plot_hist2d" title="HEA.plot.histogram.plot_hist2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_hist2d()</span></code></a>.</p>
+<dl class="simple">
+<dt>df<span class="classifier">pandas.Dataframe</span></dt><dd><p>Dataframe that contains the branches</p>
+</dd>
+<dt>branches<span class="classifier">[str, str]</span></dt><dd><p>names of the two branches</p>
+</dd>
+<dt><a href="#id9"><span class="problematic" id="id10">**</span></a>kwargs<span class="classifier">dict</span></dt><dd><p>arguments passed in <code class="xref py py-func docutils literal notranslate"><span class="pre">plot_hist_2D()</span></code> (except <code class="docutils literal notranslate"><span class="pre">branches</span></code>, <code class="docutils literal notranslate"><span class="pre">latex_branches</span></code> and <code class="docutils literal notranslate"><span class="pre">units</span></code>)</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.plot_hist_alone">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">plot_hist_alone</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">n_bins</span></em>, <em class="sig-param"><span class="n">low</span></em>, <em class="sig-param"><span class="n">high</span></em>, <em class="sig-param"><span class="n">color</span></em>, <em class="sig-param"><span class="n">bar_mode</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">alpha</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">density</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">label</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">show_ncounts</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">orientation</span><span class="o">=</span><span class="default_value">'vertical'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#plot_hist_alone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.plot_hist_alone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot histogram</p>
+<ul class="simple">
+<li><p>If <code class="docutils literal notranslate"><span class="pre">bar_mode</span></code>: Points with error bars</p></li>
+<li><p>Else: histogram with bars</p></li>
+</ul>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot</p>
+</dd>
+<dt>data<span class="classifier">pandas.Series</span></dt><dd><p>data to plot</p>
+</dd>
+<dt>n_bins<span class="classifier">int</span></dt><dd><p>number of bins</p>
+</dd>
+<dt>low<span class="classifier">float</span></dt><dd><p>low limit of the distribution</p>
+</dd>
+<dt>high<span class="classifier">float</span></dt><dd><p>high limit of the distribution</p>
+</dd>
+<dt>color<span class="classifier">str</span></dt><dd><p>color of the distribution</p>
+</dd>
+</dl>
+<p>bar_mode     : bool</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>if <code class="docutils literal notranslate"><span class="pre">True</span></code>, plot with bars</p></li>
+<li><p>else, plot with points and error bars</p></li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>alpha<span class="classifier">float between 0 and 1</span></dt><dd><p>transparency of the bar histogram</p>
+</dd>
+<dt>density<span class="classifier">bool</span></dt><dd><p>if <code class="docutils literal notranslate"><span class="pre">True</span></code>, divide the numbers of counts in the histogram by the total number of counts</p>
+</dd>
+<dt>label<span class="classifier">str</span></dt><dd><p>label of the histogram</p>
+</dd>
+<dt>show_ncounts<span class="classifier">bool</span></dt><dd><p>if True, show the number of counts in each dataset of <code class="docutils literal notranslate"><span class="pre">dfs</span></code></p>
+</dd>
+<dt>weights<span class="classifier">pandas.Series, numpy.array</span></dt><dd><p>weights of each element in data</p>
+</dd>
+<dt>orientation<span class="classifier">‘vertical’ or ‘horizontal’</span></dt><dd><p>orientation of the histogram</p>
+</dd>
+<dt><a href="#id11"><span class="problematic" id="id12">**</span></a>params<span class="classifier">dict</span></dt><dd><p>parameters passed to the <code class="docutils literal notranslate"><span class="pre">ax.bar</span></code>, or <code class="docutils literal notranslate"><span class="pre">ax.barh</span></code> or <code class="docutils literal notranslate"><span class="pre">ax.errorbar</span></code> functions</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>counts<span class="classifier">np.array</span></dt><dd><p>number of counts in each bin</p>
+</dd>
+<dt>edges<span class="classifier">np.array</span></dt><dd><p>Edges of the bins</p>
+</dd>
+<dt>centres<span class="classifier">np.array</span></dt><dd><p>Centres of the bins</p>
+</dd>
+<dt>err<span class="classifier">np.array</span></dt><dd><p>Errors in the count, for each bin</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.plot_hist_auto">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">plot_hist_auto</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dfs</span></em>, <em class="sig-param"><span class="n">branch</span></em>, <em class="sig-param"><span class="n">cut_BDT</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#plot_hist_auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.plot_hist_auto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the latex name of the branch and unit.
+Then, plot histogram with <a class="reference internal" href="#HEA.plot.histogram.plot_hist" title="HEA.plot.histogram.plot_hist"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_hist()</span></code></a>.</p>
+<dl class="simple">
+<dt>dfs<span class="classifier">dict(str:pandas.Dataframe)</span></dt><dd><p>Dictionnary {name of the dataframe : pandas dataframe}</p>
+</dd>
+<dt>cut_BDT<span class="classifier">float or str</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">BDT</span> <span class="pre">&gt;</span> <span class="pre">cut_BDT</span></code> cut. Used in the name of saved figure.</p>
+</dd>
+<dt>branch<span class="classifier">str</span></dt><dd><p>branch (for instance: <code class="docutils literal notranslate"><span class="pre">'B0_M'</span></code>), which should be in the dataframe(s)</p>
+</dd>
+<dt><a href="#id13"><span class="problematic" id="id14">**</span></a>kwargs<span class="classifier">dict</span></dt><dd><p>arguments passed in <a class="reference internal" href="#HEA.plot.histogram.plot_hist" title="HEA.plot.histogram.plot_hist"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_hist()</span></code></a> (except <code class="docutils literal notranslate"><span class="pre">branch</span></code>, <code class="docutils literal notranslate"><span class="pre">latex_branch</span></code> and <code class="docutils literal notranslate"><span class="pre">unit</span></code>)</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.plot_hist_var">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">plot_hist_var</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datas</span></em>, <em class="sig-param"><span class="n">branch</span></em>, <em class="sig-param"><span class="n">latex_branch</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">unit</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data_names</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#plot_hist_var"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.plot_hist_var" title="Permalink to this definition">¶</a></dt>
+<dd><p>plot the histogram(s) of data</p>
+<blockquote>
+<div><dl class="simple">
+<dt>datas<span class="classifier">pandas.Series or list(pandas.Series)</span></dt><dd><p>dataset or list of datasets (a dataset is an array of float)</p>
+</dd>
+<dt>branch<span class="classifier">str</span></dt><dd><p>name of the branch, used to cook the name of the figure that will be saved</p>
+</dd>
+<dt>latex_branch<span class="classifier">str</span></dt><dd><p>Latex name of the branch (for the labels of the plot)</p>
+</dd>
+<dt>unit<span class="classifier">str</span></dt><dd><p>Unit of the physical quantity</p>
+</dd>
+<dt>data_names<span class="classifier">str or list(str)</span></dt><dd><p>name of the datasets</p>
+</dd>
+<dt><a href="#id15"><span class="problematic" id="id16">**</span></a>kwargs<span class="classifier">dict</span></dt><dd><p>passed to plot_hist</p>
+</dd>
+</dl>
+</div></blockquote>
+<blockquote>
+<div><dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.plot_scatter2d">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">plot_scatter2d</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dfs</span></em>, <em class="sig-param"><span class="n">branches</span></em>, <em class="sig-param"><span class="n">latex_branches</span></em>, <em class="sig-param"><span class="n">units</span><span class="o">=</span><span class="default_value">[None, None]</span></em>, <em class="sig-param"><span class="n">low</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">high</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">n_bins</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">colors</span><span class="o">=</span><span class="default_value">['g', 'r', 'o', 'b']</span></em>, <em class="sig-param"><span class="n">data_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">title</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fig_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fontsize_label</span><span class="o">=</span><span class="default_value">25.0</span></em>, <em class="sig-param"><span class="n">save_fig</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">get_sc</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">pos_text_LHC</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#plot_scatter2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.plot_scatter2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a 2D histogram of 2 branches.</p>
+<dl class="simple">
+<dt>dfs<span class="classifier">pandas.Dataframe or list(pandas.Dataframe)</span></dt><dd><p>Dataset or list of datasets.</p>
+</dd>
+<dt>branches<span class="classifier">[str, str]</span></dt><dd><p>names of the two branches</p>
+</dd>
+<dt>latex_branches<span class="classifier">[str, str]</span></dt><dd><p>latex names of the two branches</p>
+</dd>
+<dt>units<span class="classifier">str or [str, str]</span></dt><dd><p>Common unit or list of two units of the two branches</p>
+</dd>
+<dt>n_bins<span class="classifier">int or [int, int]</span></dt><dd><p>number of bins</p>
+</dd>
+<dt>log_scale<span class="classifier">bool</span></dt><dd><p>if true, the colorbar is in logscale</p>
+</dd>
+<dt>low<span class="classifier">float or [float, float]</span></dt><dd><p>low  value(s) of the branches</p>
+</dd>
+<dt>high<span class="classifier">float or [float, float] </span></dt><dd><p>high value(s) of the branches</p>
+</dd>
+<dt>data_name<span class="classifier">str</span></dt><dd><p>name of the data, this is used to define the name of the figure,
+in the case <code class="docutils literal notranslate"><span class="pre">fig_name</span></code> is not defined, and define the legend if there is more than 1 dataframe.</p>
+</dd>
+<dt>colors<span class="classifier">str or list(str)</span></dt><dd><p>color(s) used for the histogram(s)</p>
+</dd>
+<dt>title<span class="classifier">str</span></dt><dd><p>title of the figure</p>
+</dd>
+<dt>fig_name<span class="classifier">str</span></dt><dd><p>name of the saved figure</p>
+</dd>
+<dt>folder_name<span class="classifier">str</span></dt><dd><p>name of the folder where to save the figure</p>
+</dd>
+<dt>fontsize_label<span class="classifier">float</span></dt><dd><p>fontsize of the label of the axes</p>
+</dd>
+<dt>save_fig<span class="classifier">bool</span></dt><dd><p>specifies if the figure is saved</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot</p>
+</dd>
+<dt>get_sc<span class="classifier">bool</span></dt><dd><p>if True: get the scatter plot</p>
+</dd>
+<dt>pos_text_LHC<span class="classifier">dict, list or str</span></dt><dd><p>passed to <a class="reference internal" href="#HEA.plot.tools.set_text_LHCb" title="HEA.plot.tools.set_text_LHCb"><code class="xref py py-func docutils literal notranslate"><span class="pre">HEA.plot.tools.set_text_LHCb()</span></code></a> as the <code class="docutils literal notranslate"><span class="pre">pos</span></code> argument.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+<dt>scs<span class="classifier">matplotlib.PathCollection or list(matplotlib.PathCollection)</span></dt><dd><p>scatter plot or list of scatter plots (only if <code class="docutils literal notranslate"><span class="pre">get_sc</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.plot_scatter2d_auto">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">plot_scatter2d_auto</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dfs</span></em>, <em class="sig-param"><span class="n">branches</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#plot_scatter2d_auto"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.plot_scatter2d_auto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the latex name of the branch and unit.
+Then, plot a scatter plot with <a class="reference internal" href="#HEA.plot.histogram.plot_scatter2d" title="HEA.plot.histogram.plot_scatter2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_scatter2d()</span></code></a>.</p>
+<dl class="simple">
+<dt>dfs<span class="classifier">pandas.Dataframe or list(pandas.Dataframe)</span></dt><dd><p>Dataset or list of datasets.</p>
+</dd>
+</dl>
+<p>branches          : [str, str]
+<a href="#id17"><span class="problematic" id="id18">**</span></a>kwargs  : dict</p>
+<blockquote>
+<div><p>arguments passed in <a class="reference internal" href="#HEA.plot.histogram.plot_scatter2d_auto" title="HEA.plot.histogram.plot_scatter2d_auto"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_scatter2d_auto()</span></code></a> (except <code class="docutils literal notranslate"><span class="pre">branches</span></code>, <code class="docutils literal notranslate"><span class="pre">latex_branches</span></code> and <code class="docutils literal notranslate"><span class="pre">units</span></code>)</p>
+</div></blockquote>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes</span></dt><dd><p>Axis of the plot (only if <code class="docutils literal notranslate"><span class="pre">ax</span></code> is not specified)</p>
+</dd>
+<dt>scs<span class="classifier">matplotlib.PathCollection or list(matplotlib.PathCollection)</span></dt><dd><p>scatter plot or list of scatter plots (only if get_sc is True)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.set_label_2Dhist">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">set_label_2Dhist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">latex_branches</span></em>, <em class="sig-param"><span class="n">units</span></em>, <em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">25.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#set_label_2Dhist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.set_label_2Dhist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the xlabel and ylabel of a 2D histogram</p>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot</p>
+</dd>
+<dt>latex_branches<span class="classifier">[str, str]</span></dt><dd><p>latex names of the branches that were plotted</p>
+</dd>
+<dt>units<span class="classifier">[str, str]</span></dt><dd><p>units of the branches that were plotted</p>
+</dd>
+<dt>fontsize<span class="classifier">float</span></dt><dd><p>fontsize of the label</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.set_label_candidates_hist">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">set_label_candidates_hist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">bin_width</span></em>, <em class="sig-param"><span class="n">pre_label</span></em>, <em class="sig-param"><span class="n">unit</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">25.0</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">'y'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#set_label_candidates_hist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.set_label_candidates_hist" title="Permalink to this definition">¶</a></dt>
+<dd><p>set the typical y-label of a 1D histogram</p>
+<dl>
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot the label</p>
+</dd>
+<dt>bin_width<span class="classifier">float</span></dt><dd><p>bin width of the histogram</p>
+</dd>
+<dt>pre_label<span class="classifier">str</span></dt><dd><p>Label to put before showing the width of the bins (e.g., “Number of candidates”, “proportion of candidates”)</p>
+</dd>
+<dt>unit<span class="classifier">str</span></dt><dd><p>unit of the branch that was plotted</p>
+</dd>
+<dt>fontsize<span class="classifier">float</span></dt><dd><p>fontsize of the label</p>
+</dd>
+<dt>axis<span class="classifier"><code class="docutils literal notranslate"><span class="pre">'x'</span></code> or <code class="docutils literal notranslate"><span class="pre">'y'</span></code> or <code class="docutils literal notranslate"><span class="pre">'both'</span></code></span></dt><dd><p>axis where to set the label</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.set_label_divided_hist">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">set_label_divided_hist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">latex_branch</span></em>, <em class="sig-param"><span class="n">unit</span></em>, <em class="sig-param"><span class="n">bin_width</span></em>, <em class="sig-param"><span class="n">names_data</span></em>, <em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">25.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#set_label_divided_hist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.set_label_divided_hist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the xlabel and ylabel of a “divided” histogram</p>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot</p>
+</dd>
+<dt>latex_branches<span class="classifier">[str, str]</span></dt><dd><p>latex names of the branches that were plotted</p>
+</dd>
+<dt>unit<span class="classifier">str</span></dt><dd><p>unit of the quantity that was plotted</p>
+</dd>
+<dt>bin_width<span class="classifier">float</span></dt><dd><p>bin width of the histogram</p>
+</dd>
+<dt>names_data<span class="classifier">[str, str]</span></dt><dd><p>list of the 2 names of the data (for which a common branch was divided)</p>
+</dd>
+<dt>fontsize<span class="classifier">float</span></dt><dd><p>fontsize of the label</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.histogram.set_label_hist">
+<code class="sig-prename descclassname">HEA.plot.histogram.</code><code class="sig-name descname">set_label_hist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">latex_branch</span></em>, <em class="sig-param"><span class="n">unit</span></em>, <em class="sig-param"><span class="n">bin_width</span></em>, <em class="sig-param"><span class="n">density</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">data_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">25.0</span></em>, <em class="sig-param"><span class="n">orientation</span><span class="o">=</span><span class="default_value">'vertical'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/histogram.html#set_label_hist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.histogram.set_label_hist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the xlabel and ylabel of a 1D histogram</p>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to show the label</p>
+</dd>
+<dt>latex_branch<span class="classifier">str</span></dt><dd><p>latex name of the branch that was plotted</p>
+</dd>
+<dt>unit<span class="classifier">str</span></dt><dd><p>unit of the branch that was plotted</p>
+</dd>
+<dt>bin_width<span class="classifier">float</span></dt><dd><p>bin width of the histogram</p>
+</dd>
+<dt>density<span class="classifier">bool</span></dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the ylabel will be “Proportion of candidates” instead of “candidates’</p>
+</dd>
+<dt>data_name<span class="classifier">str or None</span></dt><dd><p>Name of the data, in case in needs to be specified in the label of the axis between parentheses</p>
+</dd>
+<dt>fontsize<span class="classifier">float</span></dt><dd><p>fontsize of the labels</p>
+</dd>
+<dt>orientation<span class="classifier">‘vertical’ or ‘horizontal’</span></dt><dd><p>orientation of the histogram</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-HEA.plot.line">
+<span id="hea-plot-line-module"></span><h2>HEA.plot.line module<a class="headerlink" href="#module-HEA.plot.line" title="Permalink to this headline">¶</a></h2>
+<p>Plot lines:</p>
+<ul class="simple">
+<li><p>plot y vs x</p></li>
+<li><p>plot y1, y2, y3, … vs x (several curves with the same x)</p></li>
+</ul>
+<dl class="py function">
+<dt id="HEA.plot.line.add_value_labels">
+<code class="sig-prename descclassname">HEA.plot.line.</code><code class="sig-name descname">add_value_labels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">lx</span></em>, <em class="sig-param"><span class="n">ly</span></em>, <em class="sig-param"><span class="n">labels</span></em>, <em class="sig-param"><span class="n">space_x</span><span class="o">=</span><span class="default_value">- 10</span></em>, <em class="sig-param"><span class="n">space_y</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">labelsize</span><span class="o">=</span><span class="default_value">12</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/line.html#add_value_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.line.add_value_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate points with a text whose distance to the point is specified by (<code class="docutils literal notranslate"><span class="pre">space_x</span></code>, <code class="docutils literal notranslate"><span class="pre">space_y</span></code>)</p>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot</p>
+</dd>
+<dt>lx<span class="classifier">list(float)</span></dt><dd><p>abcissa of the points</p>
+</dd>
+<dt>ly<span class="classifier">list(float)</span></dt><dd><p>ordinate of the points</p>
+</dd>
+<dt>labels<span class="classifier">list(str)</span></dt><dd><p>annotation of the specified points</p>
+</dd>
+<dt>space_x<span class="classifier">float</span></dt><dd><p>space in pixel from the point to the annotation text, projected in the x-axis</p>
+</dd>
+<dt>space_y<span class="classifier">float</span></dt><dd><p>space in pixel from the point to the annotation text, projected in the y-axis</p>
+</dd>
+<dt>labelsize<span class="classifier">float</span></dt><dd><p>fontsize of the annotation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.line.plot_x_list_ys">
+<code class="sig-prename descclassname">HEA.plot.line.</code><code class="sig-name descname">plot_x_list_ys</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">name_x</span></em>, <em class="sig-param"><span class="n">names_y</span></em>, <em class="sig-param"><span class="n">latex_name_x</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">latex_names_y</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fig_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">log_scale</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">save_fig</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwgs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/line.html#plot_x_list_ys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.line.plot_x_list_ys" title="Permalink to this definition">¶</a></dt>
+<dd><p>plot y or a list of y as a function of x. If they are different curves, their points should have the same abscissa.</p>
+<dl class="simple">
+<dt>x<span class="classifier">list(float)</span></dt><dd><p>abcissa of the points</p>
+</dd>
+<dt>y<span class="classifier">numpy.array(uncertainties.ufloat) or numpy.array(float) or list(numpy.array(uncertainties.ufloat)) or list(numpy.array(float)) or </span></dt><dd><p>(list instead of numpy.array might work) 
+ordinate of the points of the curve(s)</p>
+</dd>
+<dt>name_x<span class="classifier">str</span></dt><dd><p>name of the x variable, used for then name of the saved figure</p>
+</dd>
+<dt>name_y<span class="classifier">str or list(str)</span></dt><dd><p>name of each list in <code class="docutils literal notranslate"><span class="pre">l_y</span></code>, used for then name of the saved figure</p>
+</dd>
+<dt>latex_name_x<span class="classifier">str</span></dt><dd><p>latex name of the x variable, used to label the x-axis</p>
+</dd>
+<dt>latex_names_y<span class="classifier">str or list(str)</span></dt><dd><p>surname of each list in <code class="docutils literal notranslate"><span class="pre">l_y</span></code> - used for labelling each curve</p>
+</dd>
+<dt>fig_name<span class="classifier">str</span></dt><dd><p>name of the file to save</p>
+</dd>
+<dt>folder_name<span class="classifier">str</span></dt><dd><p>name of the folder where the image is saved</p>
+</dd>
+<dt>factor_ymax<span class="classifier">float</span></dt><dd><p>ymax is multiplied by factor_ymax</p>
+</dd>
+<dt>log_scale<span class="classifier">‘both’, ‘x’ ot ‘y’</span></dt><dd><p>specifies which axis will be set in log scale</p>
+</dd>
+<dt><a href="#id19"><span class="problematic" id="id20">**</span></a>kwgs<span class="classifier">dict</span></dt><dd><p>passed to <code class="docutils literal notranslate"><span class="pre">plot_xys</span></code></p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>Figure of the plot</p>
+</dd>
+<dt>ax<span class="classifier">matplotlib.figure.Axes or list(matplotlib.figure.Axes)</span></dt><dd><p>Axis of the plot or list of axes of the plot</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.line.plot_xys">
+<code class="sig-prename descclassname">HEA.plot.line.</code><code class="sig-name descname">plot_xys</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">ly</span></em>, <em class="sig-param"><span class="n">xlabel</span></em>, <em class="sig-param"><span class="n">labels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">colors</span><span class="o">=</span><span class="default_value">['b', 'g', 'r', 'y']</span></em>, <em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">25.0</span></em>, <em class="sig-param"><span class="n">markersize</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">linewidth</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">linestyle</span><span class="o">=</span><span class="default_value">'-'</span></em>, <em class="sig-param"><span class="n">factor_ymax</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">marker</span><span class="o">=</span><span class="default_value">'.'</span></em>, <em class="sig-param"><span class="n">elinewidth</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">annotations</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fontsize_annot</span><span class="o">=</span><span class="default_value">15.0</span></em>, <em class="sig-param"><span class="n">space_x</span><span class="o">=</span><span class="default_value">- 15</span></em>, <em class="sig-param"><span class="n">space_y</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">pos_text_LHC</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/line.html#plot_xys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.line.plot_xys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the curve(s) in <cite>ly</cite> as a function of <cite>x</cite>, with <cite>annotations</cite>.</p>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot</p>
+</dd>
+<dt>x<span class="classifier">list(float)</span></dt><dd><p>abcissa of the points</p>
+</dd>
+<dt>ly<span class="classifier">list(list(float))</span></dt><dd><p>list of the ordinates of the points of the curves</p>
+</dd>
+<dt>labels<span class="classifier">list(str)</span></dt><dd><p>labels of the curves</p>
+</dd>
+<dt>xlabel<span class="classifier">str</span></dt><dd><p>label of the x-axis</p>
+</dd>
+<dt>labels<span class="classifier">str</span></dt><dd><p>label of the curves</p>
+</dd>
+<dt>colors<span class="classifier">list(str)</span></dt><dd><p>colors of each curve</p>
+</dd>
+<dt>fontsize<span class="classifier">float</span></dt><dd><p>fontsize of the labels</p>
+</dd>
+<dt>markersize<span class="classifier">float</span></dt><dd><p>size of the markers</p>
+</dd>
+<dt>linewidth<span class="classifier">float</span></dt><dd><p>linewidth of the plotted curves</p>
+</dd>
+<dt>linestyle<span class="classifier">str</span></dt><dd><p>linestyle of the plotted curves</p>
+</dd>
+<dt>factor_ymax<span class="classifier">float</span></dt><dd><p>multiplicative factor of ymax</p>
+</dd>
+<dt>marker<span class="classifier">str</span></dt><dd><p>marker style</p>
+</dd>
+<dt>elinewidth<span class="classifier">float</span></dt><dd><p>width of the error bars</p>
+</dd>
+<dt>annotations<span class="classifier">list(str)</span></dt><dd><p>list of the labels of the points - only if there is one curve (i.e., <code class="docutils literal notranslate"><span class="pre">len(ly)==1</span></code>)</p>
+</dd>
+<dt>fontsize_annot<span class="classifier">float</span></dt><dd><p>fontsize of the annotations</p>
+</dd>
+<dt>space_x<span class="classifier">float</span></dt><dd><p>space in pixel from the point to the annotation text, projected in the x-axis</p>
+</dd>
+<dt>space_y<span class="classifier">float</span></dt><dd><p>space in pixel from the point to the annotation text, projected in the y-axis</p>
+</dd>
+<dt>pos_text_LHC<span class="classifier">dict, list or str</span></dt><dd><p>passed to <a class="reference internal" href="#HEA.plot.tools.set_text_LHCb" title="HEA.plot.tools.set_text_LHCb"><code class="xref py py-func docutils literal notranslate"><span class="pre">HEA.plot.tools.set_text_LHCb()</span></code></a> as the <code class="docutils literal notranslate"><span class="pre">pos</span></code> argument.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-HEA.plot.tools">
+<span id="hea-plot-tools-module"></span><h2>HEA.plot.tools module<a class="headerlink" href="#module-HEA.plot.tools" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Save a plot</p></li>
+<li><p>Some functions to change how the plots look (grid, logscale, label of the ticks, text [‘LHCb preliminary’], …)which are used in <a class="reference internal" href="#module-HEA.plot.histogram" title="HEA.plot.histogram"><code class="xref py py-mod docutils literal notranslate"><span class="pre">HEA.plot.histogram</span></code></a>, <a class="reference internal" href="#module-HEA.plot.fit" title="HEA.plot.fit"><code class="xref py py-mod docutils literal notranslate"><span class="pre">HEA.plot.fit</span></code></a> and <code class="xref py py-mod docutils literal notranslate"><span class="pre">HEA.line</span></code></p></li>
+</ul>
+<dl class="py function">
+<dt id="HEA.plot.tools.change_range_axis">
+<code class="sig-prename descclassname">HEA.plot.tools.</code><code class="sig-name descname">change_range_axis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">factor_max</span><span class="o">=</span><span class="default_value">1.1</span></em>, <em class="sig-param"><span class="n">min_to_0</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">'y'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/tools.html#change_range_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.tools.change_range_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>multiple the max range of an axis of a plot by <code class="docutils literal notranslate"><span class="pre">factor</span></code></p>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot</p>
+</dd>
+<dt>factor_max: float</dt><dd><p>factor by which xmax and/or ymax are/is multiplied</p>
+</dd>
+<dt>min_to_0<span class="classifier">bool</span></dt><dd><p>if True, the min of the range of the considered axis is set at 0</p>
+</dd>
+<dt>axis<span class="classifier">‘x’, ‘y’ or ‘both’</span></dt><dd><p>Axis where to change the range limits</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.tools.fix_plot">
+<code class="sig-prename descclassname">HEA.plot.tools.</code><code class="sig-name descname">fix_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">factor_ymax</span><span class="o">=</span><span class="default_value">1.1</span></em>, <em class="sig-param"><span class="n">show_leg</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">fontsize_ticks</span><span class="o">=</span><span class="default_value">20.0</span></em>, <em class="sig-param"><span class="n">fontsize_leg</span><span class="o">=</span><span class="default_value">20.0</span></em>, <em class="sig-param"><span class="n">loc_leg</span><span class="o">=</span><span class="default_value">'best'</span></em>, <em class="sig-param"><span class="n">ymin_to_0</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">pos_text_LHC</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">'y'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/tools.html#fix_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.tools.fix_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Some fixing of plot parameters (fontsize, ymax, legend)</p>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot</p>
+</dd>
+<dt>factor_ymax<span class="classifier">float</span></dt><dd><p>multiplicative factor of ymax</p>
+</dd>
+<dt>show_leg<span class="classifier">bool</span></dt><dd><p>True if the legend needs to be shown</p>
+</dd>
+<dt>fontsize_ticks<span class="classifier">float</span></dt><dd><p>fontsize of the ticks</p>
+</dd>
+<dt>fontsize_leg<span class="classifier">float</span></dt><dd><p>fontsize of the legend</p>
+</dd>
+<dt>loc_leg<span class="classifier">str</span></dt><dd><p>location of the legend</p>
+</dd>
+<dt>ymin_to_0<span class="classifier">bool</span></dt><dd><p>if <code class="docutils literal notranslate"><span class="pre">True</span></code>, the min value of the y-axis is set at 0</p>
+</dd>
+<dt>pos_text_LHC<span class="classifier">dict, list or str</span></dt><dd><p>passed to <a class="reference internal" href="#HEA.plot.tools.set_text_LHCb" title="HEA.plot.tools.set_text_LHCb"><code class="xref py py-func docutils literal notranslate"><span class="pre">HEA.plot.tools.set_text_LHCb()</span></code></a> as the <code class="docutils literal notranslate"><span class="pre">pos</span></code> argument.</p>
+</dd>
+<dt>axis<span class="classifier">‘y’ or ‘x’</span></dt><dd><p>if <code class="docutils literal notranslate"><span class="pre">axis</span></code> is <code class="docutils literal notranslate"><span class="pre">'x'</span></code>, <code class="docutils literal notranslate"><span class="pre">ymin_to_0</span></code> and <code class="docutils literal notranslate"><span class="pre">factor_ymax</span></code> acts on the x-axis</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.tools.get_latex_branches_units">
+<code class="sig-prename descclassname">HEA.plot.tools.</code><code class="sig-name descname">get_latex_branches_units</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">branches</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/tools.html#get_latex_branches_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.tools.get_latex_branches_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the latex branches and units associated with <code class="docutils literal notranslate"><span class="pre">branches</span></code></p>
+<dl class="simple">
+<dt>branchs: str or list(str)</dt><dd><p>branch or list of branches</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>latex_branchs: str or list(str)</dt><dd><p>latex name of the branch or list of latex names of the branches</p>
+</dd>
+<dt>units: str or list(str)</dt><dd><p>unit of the branch or list of units of the branches</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.tools.save_fig">
+<code class="sig-prename descclassname">HEA.plot.tools.</code><code class="sig-name descname">save_fig</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fig</span></em>, <em class="sig-param"><span class="n">fig_name</span></em>, <em class="sig-param"><span class="n">folder_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">default_fig_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">directory</span><span class="o">=</span><span class="default_value">'/afs/cern.ch/user/c/correian/bd2dst3pi/output/plots//'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/tools.html#save_fig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.tools.save_fig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save fig in a file, in <code class="docutils literal notranslate"><span class="pre">{directory}/{folder_name}/{fig_name</span> <span class="pre">or</span> <span class="pre">default_fig_name}.pdf</span></code></p>
+<dl class="simple">
+<dt>fig<span class="classifier">matplotlib.figure.Figure</span></dt><dd><p>figure to save</p>
+</dd>
+<dt>fig_name<span class="classifier">str or None</span></dt><dd><p>name of the file</p>
+</dd>
+<dt>default_fig_name<span class="classifier">str or None</span></dt><dd><p>alternative name of the file if fig_name is None</p>
+</dd>
+<dt>folder_name<span class="classifier">str or None</span></dt><dd><p>name of the folder where the file will be saved</p>
+</dd>
+<dt>directory<span class="classifier">str</span></dt><dd><p>root path where to save the plot</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.tools.set_label_branch">
+<code class="sig-prename descclassname">HEA.plot.tools.</code><code class="sig-name descname">set_label_branch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">latex_branch</span></em>, <em class="sig-param"><span class="n">unit</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">25.0</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">'x'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/tools.html#set_label_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.tools.set_label_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>set the label branch <code class="docutils literal notranslate"><span class="pre">(data_name)</span> <span class="pre">[unit]</span></code> for the axis specified by <code class="docutils literal notranslate"><span class="pre">'axis'</span></code></p>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to show the grid</p>
+</dd>
+<dt>latex_branch<span class="classifier">str</span></dt><dd><p>latex name of the branch that was plotted</p>
+</dd>
+<dt>unit<span class="classifier">str</span></dt><dd><p>unit of the branch that was plotted</p>
+</dd>
+<dt>data_name<span class="classifier">str or None</span></dt><dd><p>Name of the data, in case in needs to be specified in the label of the axis between parentheses</p>
+</dd>
+<dt>fontsize<span class="classifier">float</span></dt><dd><p>fontsize of the label</p>
+</dd>
+<dt>axis<span class="classifier">‘x’ or ‘y’ or ‘both’</span></dt><dd><p>Axis where to set the label</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.tools.set_label_ticks">
+<code class="sig-prename descclassname">HEA.plot.tools.</code><code class="sig-name descname">set_label_ticks</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">labelsize</span><span class="o">=</span><span class="default_value">20.0</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">'both'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/tools.html#set_label_ticks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.tools.set_label_ticks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set label ticks to size given by labelsize</p>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot</p>
+</dd>
+<dt>labelsize<span class="classifier">float</span></dt><dd><p>fontsize of the ticks</p>
+</dd>
+<dt>axis<span class="classifier">‘x’, ‘y’ or ‘both’</span></dt><dd><p>Axis where to change the tick fontsize</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.tools.set_log_scale">
+<code class="sig-prename descclassname">HEA.plot.tools.</code><code class="sig-name descname">set_log_scale</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">'both'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/tools.html#set_log_scale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.tools.set_log_scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set logscale to the specified axes</p>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to change the scale into a log one</p>
+</dd>
+<dt>axis<span class="classifier">‘both’, ‘x’ or ‘y’</span></dt><dd><p>axis with a log scale</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.tools.set_text_LHCb">
+<code class="sig-prename descclassname">HEA.plot.tools.</code><code class="sig-name descname">set_text_LHCb</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">text</span><span class="o">=</span><span class="default_value">'LHCb preliminary\n2 fb$^{-1}$'</span></em>, <em class="sig-param"><span class="n">fontsize</span><span class="o">=</span><span class="default_value">25.0</span></em>, <em class="sig-param"><span class="n">pos</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/tools.html#set_text_LHCb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.tools.set_text_LHCb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put a text on a plot</p>
+<dl>
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to plot</p>
+</dd>
+<dt>text<span class="classifier">str</span></dt><dd><p>text to plot</p>
+</dd>
+<dt>fontsize<span class="classifier">float</span></dt><dd><p>fontsize of the text</p>
+</dd>
+<dt>pos<span class="classifier">dict, list or str</span></dt><dd><p>Three possibilities</p>
+<ul>
+<li><p>dictionnary with these keys</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'x'</span></code>: position of the text along the x-axis</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'y'</span></code>: position of the text along the y-axis</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'ha'</span></code>: horizontal alignment</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fontsize</span></code>: fontsize of the text</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">text</span></code> : text to plot</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>list: <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y,</span> <span class="pre">ha]</span></code></p></li>
+<li><p>str: alignment <code class="docutils literal notranslate"><span class="pre">'left'</span></code> or <code class="docutils literal notranslate"><span class="pre">'right'</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>if ‘left’, <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">0.02</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">0.95</span></code></p></li>
+<li><p>if ‘right’, <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">0.98</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">0.95</span></code>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>These values are also the default values for the dictionnary input mode.
+These parameters are passed to <code class="docutils literal notranslate"><span class="pre">ax.text()</span></code>.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>matplotlib.text.Text</dt><dd><p>the text element that <code class="docutils literal notranslate"><span class="pre">plt.text</span></code> returns</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="HEA.plot.tools.show_grid">
+<code class="sig-prename descclassname">HEA.plot.tools.</code><code class="sig-name descname">show_grid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">which</span><span class="o">=</span><span class="default_value">'major'</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">'both'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/HEA/plot/tools.html#show_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#HEA.plot.tools.show_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>show grid</p>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib.axes.Axes</span></dt><dd><p>axis where to show the grid</p>
+</dd>
+<dt>which<span class="classifier">‘both’, ‘major’ or ‘minor’</span></dt><dd><p>which grid to show</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="HEA.tools.html" class="btn btn-neutral float-right" title="HEA.tools package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="HEA.fit.html" class="btn btn-neutral float-left" title="HEA.fit package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Anthony Correia.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

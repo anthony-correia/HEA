@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>HEA.fit.PDF &mdash; HEA 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.config.html">HEA.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.fit.html">HEA.fit package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.plot.html">HEA.plot package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.tools.html">HEA.tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">HEA</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>HEA.fit.PDF</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for HEA.fit.PDF</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* Get the number of d.o.f. of a model</span>
+<span class="sd">* Get the :math:`\\chi^2` of a model</span>
+<span class="sd">* Get the mean/std of an array</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">zfit.core.parameter</span> <span class="kn">import</span> <span class="n">ComposedParameter</span>
+<span class="kn">from</span> <span class="nn">zfit.models.functor</span> <span class="kn">import</span> <span class="n">SumPDF</span>
+
+<span class="c1">#################################################################################################</span>
+<span class="c1">################################# number of d.o.f. of a model ###################################</span>
+<span class="c1">#################################################################################################</span>
+
+
+<div class="viewcode-block" id="get_n_dof_params_recurs"><a class="viewcode-back" href="../../../HEA.fit.html#HEA.fit.PDF.get_n_dof_params_recurs">[docs]</a><span class="k">def</span> <span class="nf">get_n_dof_params_recurs</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">params_seen</span><span class="o">=</span><span class="p">[],</span> <span class="n">n_dof_previous</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Recursive function to get the number of d.o.f. of a parameter</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    params          : zfit.pdf.Parameter or zfit.pdf.ComposedParameter</span>
+<span class="sd">        Parameter</span>
+<span class="sd">    params_seen    : list(str)</span>
+<span class="sd">        list of the names of the parameters that have been seen so far</span>
+<span class="sd">    n_dof_previous : int</span>
+<span class="sd">        number of d.o.f. counted so far</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    n_dof: int</span>
+<span class="sd">        number of d.o.f. contained in the list of parameters that aren&#39;t in the list of</span>
+<span class="sd">        parameters already seen, to which is added the number of d.o.f. already seen previously.</span>
+<span class="sd">    params_seen: list(str)</span>
+<span class="sd">        list of the names of the parameters that have been seen so far</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_dof</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        
+        <span class="n">name_param</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">name_param</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params_seen</span> <span class="p">:</span>
+            <span class="n">params_seen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name_param</span><span class="p">)</span>
+            <span class="c1"># if it is a composed parameter, check to composite parameters</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">ComposedParameter</span><span class="p">):</span> 
+                <span class="n">n_dof</span><span class="p">,</span> <span class="n">params_seen</span> <span class="o">=</span> <span class="n">get_n_dof_params_recurs</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">params_seen</span><span class="p">,</span> <span class="n">n_dof</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">floating</span><span class="p">:</span>
+                    <span class="n">n_dof</span><span class="o">+=</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="n">n_dof</span> <span class="o">+</span> <span class="n">n_dof_previous</span><span class="p">,</span> <span class="n">params_seen</span></div>
+
+<span class="k">def</span> <span class="nf">__get_n_dof_model_recurs</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params_seen</span><span class="o">=</span><span class="p">[],</span> <span class="n">n_dof_previous</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Recurvive function to get the number of d.o.f. of a model.</span>
+<span class="sd">    A d.o.f. corresponds to a floated parameter in the model.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model: zfit.pdf.BasePDF</span>
+<span class="sd">        Model (PDF)</span>
+<span class="sd">    params_seen    : list(str)</span>
+<span class="sd">        list of the names of the parameters that have been seen so far</span>
+<span class="sd">    n_dof_previous : int</span>
+<span class="sd">        number of d.o.f. counted so far    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    n_dof: int</span>
+<span class="sd">        number of d.o.f. contained in the model, corresponding to parameters that aren&#39;t in the list of</span>
+<span class="sd">        parameters already seen, to which is added the number of d.o.f. already seen previously.</span>
+<span class="sd">    params_seen: list(str)</span>
+<span class="sd">        list of the names of the parameters that have been seen so far</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_dof</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="c1"># Explore the parameters of model</span>
+    <span class="n">n_dof</span><span class="p">,</span> <span class="n">params_seen</span> <span class="o">=</span> <span class="n">get_n_dof_params_recurs</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">params_seen</span><span class="p">,</span> <span class="n">n_dof</span><span class="p">)</span>
+
+    
+    
+    <span class="c1"># Explore the parameters of the submodels of model</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">SumPDF</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">submodel</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+            <span class="n">n_dof</span><span class="p">,</span> <span class="n">params_seen</span> <span class="o">=</span> <span class="n">__get_n_dof_model_recurs</span><span class="p">(</span><span class="n">submodel</span><span class="p">,</span> <span class="n">params_seen</span><span class="p">,</span> <span class="n">n_dof</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">n_dof</span> <span class="o">+</span> <span class="n">n_dof_previous</span><span class="p">,</span> <span class="n">params_seen</span>
+
+<div class="viewcode-block" id="get_n_dof_model"><a class="viewcode-back" href="../../../HEA.fit.html#HEA.fit.PDF.get_n_dof_model">[docs]</a><span class="k">def</span> <span class="nf">get_n_dof_model</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Get the number of d.o.f. of a zfit model.</span>
+<span class="sd">    A d.o.f. corresponds to a floated parameter in the model.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model: zfit.pdf.BasePDF</span>
+<span class="sd">        Model (PDF)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    n_dof: int</span>
+<span class="sd">        number of d.o.f. in the model</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_dof</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">__get_n_dof_model_recurs</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params_seen</span><span class="o">=</span><span class="p">[])</span>
+    <span class="k">return</span> <span class="n">n_dof</span></div>
+
+
+<span class="c1">#################################################################################################</span>
+<span class="c1">####################################### Goodness of fit #########################################</span>
+<span class="c1">#################################################################################################</span>
+
+<div class="viewcode-block" id="get_chi2"><a class="viewcode-back" href="../../../HEA.fit.html#HEA.fit.PDF.get_chi2">[docs]</a><span class="k">def</span> <span class="nf">get_chi2</span><span class="p">(</span><span class="n">fit_counts</span><span class="p">,</span> <span class="n">counts</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Get the :math:`\\chi^2` of a fit</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fit_counts : np.array or list</span>
+<span class="sd">        fitted number of counts</span>
+<span class="sd">    counts     : np.array or list</span>
+<span class="sd">        number of counts in the histogram of the fitted data</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    returns : float</span>
+<span class="sd">        :math:`\\chi^2` of the fit</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">fit_counts</span> <span class="o">-</span> <span class="n">counts</span><span class="p">)</span>
+    
+    <span class="c1">#n_bins = len(counts)</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">counts</span><span class="p">),</span> <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">diff</span><span class="p">),</span> <span class="n">where</span><span class="o">=</span><span class="n">counts</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">chi2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="c1"># sigma_i^2 = mu_i</span>
+    <span class="k">return</span> <span class="n">chi2</span></div>
+
+<div class="viewcode-block" id="get_reduced_chi2"><a class="viewcode-back" href="../../../HEA.fit.html#HEA.fit.PDF.get_reduced_chi2">[docs]</a><span class="k">def</span> <span class="nf">get_reduced_chi2</span><span class="p">(</span><span class="n">fit_counts</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> <span class="n">n_dof</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Get the reduced :math:`\\chi^2` of a fit</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fit_counts : np.array or list</span>
+<span class="sd">        fitted number of counts</span>
+<span class="sd">    counts     : np.array or list</span>
+<span class="sd">        number of counts in the histogram of the fitted data</span>
+<span class="sd">    n_dof      : int</span>
+<span class="sd">        number of d.o.f. in the model</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------  </span>
+<span class="sd">    returns    : float</span>
+<span class="sd">        reduced :math:`\\chi^2` of the fit</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">counts</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">get_chi2</span><span class="p">(</span><span class="n">fit_counts</span><span class="p">,</span> <span class="n">counts</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">n_bins</span> <span class="o">-</span> <span class="n">n_dof</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_mean"><a class="viewcode-back" href="../../../HEA.fit.html#HEA.fit.PDF.get_mean">[docs]</a><span class="k">def</span> <span class="nf">get_mean</span><span class="p">(</span><span class="n">pull</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Get the mean of an array, excluding non-valid values.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pull : numpy.array</span>
+<span class="sd">        Array</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mean_pull: float</span>
+<span class="sd">        mean of the array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">pull</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">pull</span><span class="p">)])</span></div>
+
+<div class="viewcode-block" id="get_std"><a class="viewcode-back" href="../../../HEA.fit.html#HEA.fit.PDF.get_std">[docs]</a><span class="k">def</span> <span class="nf">get_std</span><span class="p">(</span><span class="n">pull</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Get the standard deviation of an array, excluding non-valid values.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pull : numpy.array</span>
+<span class="sd">        Array</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mean_pull: float</span>
+<span class="sd">        Standard deviation of the array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">pull</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">pull</span><span class="p">)])</span></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Anthony Correia.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

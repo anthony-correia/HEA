@@ -1,0 +1,663 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>HEA.plot.tools &mdash; HEA 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.config.html">HEA.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.fit.html">HEA.fit package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.plot.html">HEA.plot package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.tools.html">HEA.tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">HEA</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>HEA.plot.tools</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for HEA.plot.tools</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* Save a plot</span>
+<span class="sd">* Some functions to change how the plots look (grid, logscale, label of the ticks, text [&#39;LHCb preliminary&#39;], ...)which are used in :py:mod:`HEA.plot.histogram`, :py:mod:`HEA.plot.fit` and :py:mod:`HEA.line`</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">HEA.config</span> <span class="kn">import</span> <span class="n">loc</span><span class="p">,</span> <span class="n">default_fontsize</span><span class="p">,</span> <span class="n">default_project</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pandas.core.series</span> <span class="kn">import</span> <span class="n">Series</span>
+
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">op</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">from</span> <span class="nn">HEA.tools.da</span> <span class="kn">import</span> <span class="n">add_in_dic</span><span class="p">,</span> <span class="n">el_to_list</span>
+<span class="kn">from</span> <span class="nn">HEA.tools.dir</span> <span class="kn">import</span> <span class="n">create_directory</span>
+<span class="kn">from</span> <span class="nn">HEA.tools</span> <span class="kn">import</span> <span class="n">string</span>
+<span class="kn">from</span> <span class="nn">HEA.definition</span> <span class="kn">import</span> <span class="n">RVariable</span>
+<span class="kn">from</span> <span class="nn">HEA.tools</span> <span class="kn">import</span> <span class="n">assertion</span>
+
+
+
+
+
+<span class="c1">#################################################################################################</span>
+<span class="c1">########################################### Saving ##############################################</span>
+<span class="c1">################################################################################################# </span>
+
+<span class="c1"># SAVING FIGURE ================================================</span>
+
+<div class="viewcode-block" id="save_fig"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.tools.save_fig">[docs]</a><span class="k">def</span> <span class="nf">save_fig</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">fig_name</span><span class="p">,</span> <span class="n">folder_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default_fig_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;plots&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Save fig in a file, in ``{directory}/{folder_name}/{fig_name or default_fig_name}.pdf``</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fig                : matplotlib.figure.Figure</span>
+<span class="sd">        figure to save</span>
+<span class="sd">    fig_name         : str or None</span>
+<span class="sd">        name of the file</span>
+<span class="sd">    default_fig_name : str or None</span>
+<span class="sd">        alternative name of the file if fig_name is None</span>
+<span class="sd">    folder_name       : str or None</span>
+<span class="sd">        name of the folder where the file will be saved</span>
+<span class="sd">    directory         : str</span>
+<span class="sd">         root path where to save the plot</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">folder_name</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">_remove_space</span><span class="p">(</span><span class="n">folder_name</span><span class="p">)</span>
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">create_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">folder_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fig_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig_name</span> <span class="o">=</span> <span class="n">default_fig_name</span>
+
+    <span class="n">fig_name</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">_remove_space</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">_remove_latex</span><span class="p">(</span><span class="n">fig_name</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="s1">&#39;d&#39;</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">fig_name</span><span class="p">)</span>
+    <span class="c1">#Save the plot as a PDF document into our PLOTS folder (output/plots as defined in bd2dst3pi/locations.py)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;.pdf&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="c1">#     fig.savefig(path + &#39;.jpg&#39;, dpi=600, bbox_inches=&quot;tight&quot;)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Figure saved in </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    
+    
+<span class="c1">#################################################################################################</span>
+<span class="c1">############################### Tool functions for plotting #####################################</span>
+<span class="c1">################################################################################################# </span>
+
+<span class="c1">### Computation -------------------------------------------------------------------</span>
+<span class="k">def</span> <span class="nf">_redefine_low_high</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; if low or high is not None, return global min (``low``) or max (``high``) of all the data in data, respectively.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    low    : float or None</span>
+<span class="sd">        low value of the range</span>
+<span class="sd">    high   : float or None</span>
+<span class="sd">        high value of the range</span>
+<span class="sd">    data   : pandas.Series or list of pandas.Series </span>
+<span class="sd">        for which we want to define the ``low``/``high`` value</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    low  : float</span>
+<span class="sd">        low  if the parameter ``low`` was not None, else minimum of all the data in ``data``</span>
+<span class="sd">    high : float</span>
+<span class="sd">        high if the parameter ``high`` was not None, else maximum of all the data in ``data``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Transform data into a list of data (if it is not already the case)</span>
+    <span class="n">l_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Series</span><span class="p">)</span> <span class="k">else</span> <span class="n">data</span>
+        
+    <span class="n">define_low</span> <span class="o">=</span> <span class="n">low</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="n">define_high</span> <span class="o">=</span> <span class="n">high</span> <span class="ow">is</span> <span class="kc">None</span>
+    
+    <span class="k">if</span> <span class="n">define_low</span> <span class="ow">or</span> <span class="n">define_high</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">define_low</span><span class="p">:</span> 
+            <span class="n">low</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="k">if</span> <span class="n">define_high</span><span class="p">:</span>
+            <span class="n">high</span> <span class="o">=</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="k">for</span> <span class="n">el_data</span> <span class="ow">in</span> <span class="n">l_data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">define_low</span><span class="p">:</span>
+                <span class="n">low</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">el_data</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">define_high</span><span class="p">:</span>
+                <span class="n">high</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">el_data</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    
+    <span class="k">return</span> <span class="n">low</span><span class="p">,</span><span class="n">high</span>
+
+<span class="c1">### Text formatting -------------------------------------------------------------------</span>
+
+<span class="k">def</span> <span class="nf">_get_fig_name_given_BDT_cut</span><span class="p">(</span><span class="n">fig_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cut_BDT</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">data_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="c1"># previously: get_fig_name_title_BDT</span>
+    <span class="sd">&quot;&quot;&quot; Return the new name of the file and the new title given the cut on the BDT </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fig_name   : str</span>
+<span class="sd">        initial name of the file</span>
+<span class="sd">    cut_BDT     : float</span>
+<span class="sd">        cut on the BDT (we keep ``BDT &gt; {cut_BDT}``)</span>
+<span class="sd">    branch    : float</span>
+<span class="sd">        a name of branch (e.g., ``&#39;B0_M&#39;``)</span>
+<span class="sd">    data_name   : str or None</span>
+<span class="sd">        name of the plotted data</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig_name: str</span>
+<span class="sd">        new fig_name</span>
+<span class="sd">    </span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; _get_title_given_BDT_cut(&quot;fig_name&quot;, -0.1, &#39;B0_M&#39;, &#39;MC&#39;)</span>
+<span class="sd">    &quot;fig_BDT_name-0.1&quot;</span>
+<span class="sd">    &gt;&gt;&gt; _get_title_given_BDT_cut(None, -0.1, &#39;B0_M&#39;, &#39;MC&#39;)</span>
+<span class="sd">    &quot;B0_M_MC_BDT-0.1&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">assert</span> <span class="p">(</span><span class="n">fig_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">data_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">fig_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig_name</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="n">data_name</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Title with BDT</span>
+    <span class="k">if</span> <span class="n">cut_BDT</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig_name</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="n">fig_name</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;BDT</span><span class="si">{</span><span class="n">cut_BDT</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">fig_name</span>
+
+<span class="k">def</span> <span class="nf">_get_title_given_BDT_cut</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">cut_BDT</span><span class="p">):</span> <span class="c1"># previously: get_fig_name_title_BDT</span>
+    <span class="sd">&quot;&quot;&quot; Return the the new title given the cut on the BDT </span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    title       : str</span>
+<span class="sd">        initial title</span>
+<span class="sd">    cut_BDT     : float</span>
+<span class="sd">        cut on the BDT (we keep ``BDT &gt; {cut_BDT}``)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    title: str</span>
+<span class="sd">        new title</span>
+<span class="sd">    </span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; _get_title_given_BDT_cut(&quot;title&quot;, -0.1)</span>
+<span class="sd">    &quot;title - BDT &gt; -0.1&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Title with BDT</span>
+    <span class="k">if</span> <span class="n">cut_BDT</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;BDT $&gt;$ </span><span class="si">{</span><span class="n">cut_BDT</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s1">&#39; - &#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">title</span>
+
+    
+<span class="c1">### Core of the plot -------------------------------------------------------------------</span>
+<div class="viewcode-block" id="show_grid"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.tools.show_grid">[docs]</a><span class="k">def</span> <span class="nf">show_grid</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;show grid</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax    : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to show the grid</span>
+<span class="sd">    which : &#39;both&#39;, &#39;major&#39; or &#39;minor&#39;</span>
+<span class="sd">        which grid to show</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="n">which</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#666666&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span></div>
+
+<span class="c1"># def change_y_range(ax, factor_ymax=1.1, ymin_to_0=True): # change_ymax</span>
+<span class="c1">#     &quot;&quot;&quot; multiple ymax of the plot by factor</span>
+<span class="c1">#     Parameters</span>
+<span class="c1">#     ----------</span>
+<span class="c1">#     ax           : matplotlib.axes.Axes</span>
+<span class="c1">#         Axis to change</span>
+<span class="c1">#     factor_ymax  : float</span>
+<span class="c1">#         factor by which ymax is multiplied</span>
+<span class="c1">#     ymin_to_0    : bool</span>
+<span class="c1">#         if True, ymin is set at 0</span>
+    
+    
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     ymin, ymax = ax.get_ylim()</span>
+    
+<span class="c1">#     if ymin_to_0:</span>
+<span class="c1">#         ymin = 0</span>
+    
+<span class="c1">#     ax.set_ylim(ymin, ymax*factor_ymax)</span>
+
+<div class="viewcode-block" id="change_range_axis"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.tools.change_range_axis">[docs]</a><span class="k">def</span> <span class="nf">change_range_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">factor_max</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">min_to_0</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">):</span> <span class="c1"># previously: change_max</span>
+    <span class="sd">&quot;&quot;&quot; multiple the max range of an axis of a plot by ``factor``</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax        : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot</span>
+<span class="sd">    factor_max: float</span>
+<span class="sd">        factor by which xmax and/or ymax are/is multiplied</span>
+<span class="sd">    min_to_0  : bool</span>
+<span class="sd">        if True, the min of the range of the considered axis is set at 0</span>
+<span class="sd">    axis      : &#39;x&#39;, &#39;y&#39; or &#39;both&#39;</span>
+<span class="sd">        Axis where to change the range limits</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">axis</span><span class="o">==</span><span class="s1">&#39;x&#39;</span> <span class="ow">or</span> <span class="n">axis</span><span class="o">==</span><span class="s1">&#39;both&#39;</span><span class="p">:</span>
+        <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">min_to_0</span><span class="p">:</span>
+            <span class="n">xmin</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">*</span> <span class="n">factor_max</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">axis</span><span class="o">==</span><span class="s1">&#39;y&#39;</span> <span class="ow">or</span> <span class="n">axis</span><span class="o">==</span><span class="s1">&#39;both&#39;</span><span class="p">:</span>
+        <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">min_to_0</span><span class="p">:</span>
+            <span class="n">ymin</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span><span class="n">ymax</span><span class="o">*</span><span class="n">factor_max</span><span class="p">)</span></div>
+    
+    
+<div class="viewcode-block" id="set_label_ticks"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.tools.set_label_ticks">[docs]</a><span class="k">def</span> <span class="nf">set_label_ticks</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">default_fontsize</span><span class="p">[</span><span class="s1">&#39;ticks&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Set label ticks to size given by labelsize</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax        : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot</span>
+<span class="sd">    labelsize : float</span>
+<span class="sd">        fontsize of the ticks</span>
+<span class="sd">    axis      : &#39;x&#39;, &#39;y&#39; or &#39;both&#39;</span>
+<span class="sd">        Axis where to change the tick fontsize</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">labelsize</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="set_log_scale"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.tools.set_log_scale">[docs]</a><span class="k">def</span> <span class="nf">set_log_scale</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Set logscale to the specified axes</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax   : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to change the scale into a log one</span>
+<span class="sd">    axis : &#39;both&#39;, &#39;x&#39; or &#39;y&#39;</span>
+<span class="sd">        axis with a log scale</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;both&#39;</span> <span class="ow">or</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;both&#39;</span> <span class="ow">or</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="set_text_LHCb"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.tools.set_text_LHCb">[docs]</a><span class="k">def</span> <span class="nf">set_text_LHCb</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">default_project</span><span class="p">[</span><span class="s1">&#39;text_plot&#39;</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">default_fontsize</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">],</span> <span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Put a text on a plot </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax       : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot</span>
+<span class="sd">    text     : str</span>
+<span class="sd">        text to plot</span>
+<span class="sd">    fontsize : float</span>
+<span class="sd">        fontsize of the text</span>
+<span class="sd">    pos      : dict, list or str</span>
+<span class="sd">        Three possibilities</span>
+<span class="sd">        </span>
+<span class="sd">        - dictionnary with these keys</span>
+<span class="sd">        </span>
+<span class="sd">            - ``&#39;x&#39;``: position of the text along the x-axis</span>
+<span class="sd">            - ``&#39;y&#39;``: position of the text along the y-axis</span>
+<span class="sd">            - ``&#39;ha&#39;``: horizontal alignment</span>
+<span class="sd">            - ``fontsize``: fontsize of the text</span>
+<span class="sd">            - ``text`` : text to plot</span>
+<span class="sd">            </span>
+<span class="sd">        - list: ``[x, y, ha]``</span>
+<span class="sd">        </span>
+<span class="sd">        - str: alignment ``&#39;left&#39;`` or ``&#39;right&#39;``.</span>
+<span class="sd">        </span>
+<span class="sd">            - if &#39;left&#39;, ``x = 0.02`` and ``y = 0.95``</span>
+<span class="sd">            - if &#39;right&#39;, ``x = 0.98`` and ``y = 0.95``.</span>
+<span class="sd">            </span>
+<span class="sd">        These values are also the default values for the dictionnary input mode.</span>
+<span class="sd">        These parameters are passed to ``ax.text()``.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.text.Text</span>
+<span class="sd">        the text element that ``plt.text`` returns</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">pos</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">ha</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;ha&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">ha</span><span class="o">==</span><span class="s1">&#39;left&#39;</span> <span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="mf">0.02</span> <span class="k">if</span> <span class="s1">&#39;x&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info</span> <span class="k">else</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="mf">0.95</span> <span class="k">if</span> <span class="s1">&#39;y&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info</span> <span class="k">else</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">ha</span><span class="o">==</span><span class="s1">&#39;right&#39;</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="mf">0.98</span> <span class="k">if</span> <span class="s1">&#39;x&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info</span> <span class="k">else</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="mf">0.95</span> <span class="k">if</span> <span class="s1">&#39;y&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info</span> <span class="k">else</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+            
+            <span class="n">add_in_dic</span><span class="p">(</span><span class="s1">&#39;fontsize&#39;</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">fontsize</span><span class="p">)</span>
+            <span class="n">add_in_dic</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+            
+            <span class="n">fontsize</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="s1">&#39;fontsize&#39;</span><span class="p">]</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span>
+            
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pos</span><span class="o">==</span><span class="s1">&#39;left&#39;</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="mf">0.02</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="mf">0.95</span>
+                <span class="n">ha</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span>
+            <span class="k">elif</span> <span class="n">pos</span><span class="o">==</span><span class="s1">&#39;right&#39;</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="mf">0.98</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="mf">0.95</span>
+            <span class="n">ha</span> <span class="o">=</span> <span class="s1">&#39;right&#39;</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">ha</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    
+        <span class="k">return</span> <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">,</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="n">ha</span><span class="p">,</span> 
+                    <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span></div>
+
+    
+    
+<div class="viewcode-block" id="fix_plot"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.tools.fix_plot">[docs]</a><span class="k">def</span> <span class="nf">fix_plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">factor_ymax</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">show_leg</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fontsize_ticks</span><span class="o">=</span><span class="n">default_fontsize</span><span class="p">[</span><span class="s1">&#39;ticks&#39;</span><span class="p">],</span> 
+             <span class="n">fontsize_leg</span><span class="o">=</span><span class="n">default_fontsize</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">],</span> <span class="n">loc_leg</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">,</span> <span class="n">ymin_to_0</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pos_text_LHC</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Some fixing of plot parameters (fontsize, ymax, legend)</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax              : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot</span>
+<span class="sd">    factor_ymax     : float</span>
+<span class="sd">        multiplicative factor of ymax</span>
+<span class="sd">    show_leg        : bool</span>
+<span class="sd">        True if the legend needs to be shown</span>
+<span class="sd">    fontsize_ticks  : float</span>
+<span class="sd">        fontsize of the ticks</span>
+<span class="sd">    fontsize_leg    : float</span>
+<span class="sd">        fontsize of the legend</span>
+<span class="sd">    loc_leg         : str</span>
+<span class="sd">        location of the legend</span>
+<span class="sd">    ymin_to_0       : bool</span>
+<span class="sd">        if ``True``, the min value of the y-axis is set at 0</span>
+<span class="sd">    pos_text_LHC    : dict, list or str</span>
+<span class="sd">        passed to :py:func:`HEA.plot.tools.set_text_LHCb` as the ``pos`` argument.</span>
+<span class="sd">        </span>
+<span class="sd">    axis            : &#39;y&#39; or &#39;x&#39;</span>
+<span class="sd">        if ``axis`` is ``&#39;x&#39;``, ``ymin_to_0`` and ``factor_ymax`` acts on the x-axis</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="n">factor_ymax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">change_range_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">factor_ymax</span><span class="p">,</span> <span class="n">ymin_to_0</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>
+    
+    <span class="n">set_label_ticks</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">show_leg</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span> <span class="o">=</span> <span class="n">fontsize_leg</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">loc_leg</span><span class="p">)</span>
+    
+    <span class="n">set_text_LHCb</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">pos_text_LHC</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="get_latex_branches_units"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.tools.get_latex_branches_units">[docs]</a><span class="k">def</span> <span class="nf">get_latex_branches_units</span><span class="p">(</span><span class="n">branches</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Get the latex branches and units associated with ``branches``</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    branchs: str or list(str)</span>
+<span class="sd">        branch or list of branches</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    latex_branchs: str or list(str)</span>
+<span class="sd">        latex name of the branch or list of latex names of the branches</span>
+<span class="sd">    units: str or list(str)</span>
+<span class="sd">        unit of the branch or list of units of the branches</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">assertion</span><span class="o">.</span><span class="n">is_list_tuple</span><span class="p">(</span><span class="n">branches</span><span class="p">):</span>
+        <span class="n">latex_branches</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="n">units</span>      <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+            <span class="n">latex_branches</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">units</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">RVariable</span><span class="o">.</span><span class="n">get_latex_branch_unit_from_branch</span><span class="p">(</span><span class="n">branches</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">latex_branches</span><span class="p">,</span> <span class="n">units</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">RVariable</span><span class="o">.</span><span class="n">get_latex_branch_unit_from_branch</span><span class="p">(</span><span class="n">branches</span><span class="p">)</span></div>
+
+<span class="k">def</span> <span class="nf">_set_folder_name_from_data_name</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">data_names</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Change the key `&quot;folder_name&quot;` of a dictionnary by the list of data names (in place)</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    kwargs: dict</span>
+<span class="sd">        with the key `&quot;folder_name&quot;`</span>
+<span class="sd">    data_names : str or list(str)</span>
+<span class="sd">        name of the dataset(s)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">add_in_dic</span><span class="p">(</span><span class="s1">&#39;folder_name&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;folder_name&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_names</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">str_data_names</span> <span class="o">=</span> <span class="n">data_names</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">str_data_names</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">list_into_string</span><span class="p">(</span><span class="n">data_names</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;folder_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">str_data_names</span>
+
+<span class="k">def</span> <span class="nf">_unit_between_brackets</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span> <span class="n">show_bracket</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span> <span class="c1"># previously: redefine_unit</span>
+        <span class="sd">&quot;&quot;&quot;Return the correct string to show the units in the labels of plots</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        unit         : str</span>
+<span class="sd">            Unit in the label</span>
+<span class="sd">        show_bracket : bool</span>
+<span class="sd">            Is the bracket shown?</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            text with</span>
+<span class="sd">            </span>
+<span class="sd">            * a space before it</span>
+<span class="sd">            * between the squared brackets ``&#39;[&#39;`` if ``show_bracket`` is ``True``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">show_bracket</span><span class="p">:</span>
+            <span class="n">bracket</span> <span class="o">=</span> <span class="s1">&#39;[&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bracket</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">string_between_brackets</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span> <span class="n">bracket</span><span class="o">=</span><span class="n">bracket</span><span class="p">)</span>           
+
+<div class="viewcode-block" id="set_label_branch"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.tools.set_label_branch">[docs]</a><span class="k">def</span> <span class="nf">set_label_branch</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">default_fontsize</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; set the label branch ``(data_name) [unit]`` for the axis specified by ``&#39;axis&#39;``</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ax            : matplotlib.axes.Axes</span>
+<span class="sd">            axis where to show the grid</span>
+<span class="sd">        latex_branch  : str</span>
+<span class="sd">            latex name of the branch that was plotted</span>
+<span class="sd">        unit          : str</span>
+<span class="sd">            unit of the branch that was plotted</span>
+<span class="sd">        data_name     : str or None</span>
+<span class="sd">            Name of the data, in case in needs to be specified in the label of the axis between parentheses</span>
+<span class="sd">        fontsize      : float</span>
+<span class="sd">            fontsize of the label</span>
+<span class="sd">        axis          : &#39;x&#39; or &#39;y&#39; or &#39;both&#39;</span>
+<span class="sd">            Axis where to set the label</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">unit_text</span> <span class="o">=</span> <span class="n">_unit_between_brackets</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+        <span class="n">data_name_text</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">string_between_brackets</span><span class="p">(</span><span class="n">data_name</span><span class="p">,</span> <span class="n">bracket</span> <span class="o">=</span> <span class="s1">&#39;(&#39;</span><span class="p">)</span>
+
+        <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%s%s</span><span class="s2">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">latex_branch</span><span class="p">,</span> <span class="n">data_name_text</span><span class="p">,</span> <span class="n">unit_text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;x&#39;</span> <span class="ow">or</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;both&#39;</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span> <span class="ow">or</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;both&#39;</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Anthony Correia.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

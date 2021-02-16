@@ -1,0 +1,1105 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>HEA.plot.fit &mdash; HEA 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.config.html">HEA.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.fit.html">HEA.fit package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.plot.html">HEA.plot package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.tools.html">HEA.tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">HEA</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>HEA.plot.fit</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for HEA.plot.fit</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Plot a histogram, with the fitted PDF, the pull diagram and the fitted parameters.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">HEA.plot.tools</span> <span class="k">as</span> <span class="nn">pt</span>
+<span class="kn">from</span> <span class="nn">.histogram</span> <span class="kn">import</span> <span class="n">plot_hist_alone</span><span class="p">,</span> <span class="n">set_label_hist</span><span class="p">,</span> <span class="n">get_bin_width</span>
+<span class="kn">from</span> <span class="nn">HEA.tools.da</span> <span class="kn">import</span> <span class="n">add_in_dic</span><span class="p">,</span> <span class="n">el_to_list</span><span class="p">,</span> <span class="n">get_element_list</span>
+<span class="kn">from</span> <span class="nn">HEA.tools</span> <span class="kn">import</span> <span class="n">string</span><span class="p">,</span> <span class="n">assertion</span>
+<span class="kn">from</span> <span class="nn">HEA.config</span> <span class="kn">import</span> <span class="n">default_fontsize</span>
+<span class="kn">from</span> <span class="nn">HEA.fit</span> <span class="kn">import</span> <span class="n">PDF</span>
+
+
+<span class="kn">from</span> <span class="nn">zfit.core.parameter</span> <span class="kn">import</span> <span class="n">ComposedParameter</span>
+<span class="kn">from</span> <span class="nn">zfit.core.parameter</span> <span class="kn">import</span> <span class="n">Parameter</span> <span class="k">as</span> <span class="n">SimpleParameter</span>
+<span class="kn">from</span> <span class="nn">zfit.models.functor</span> <span class="kn">import</span> <span class="n">SumPDF</span>
+
+<span class="c1">#from zfit.core.parameter import Parameter</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.gridspec</span> <span class="k">as</span> <span class="nn">gridspec</span>
+<span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">MultipleLocator</span>
+<span class="kn">import</span> <span class="nn">matplotlib.ticker</span> <span class="k">as</span> <span class="nn">ticker</span>
+
+<span class="c1">#Gives us nice LaTeX fonts in the plots</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">rc</span><span class="p">,</span> <span class="n">rcParams</span>
+<span class="n">rc</span><span class="p">(</span><span class="s1">&#39;font&#39;</span><span class="p">,</span><span class="o">**</span><span class="p">{</span><span class="s1">&#39;family&#39;</span><span class="p">:</span><span class="s1">&#39;serif&#39;</span><span class="p">,</span><span class="s1">&#39;serif&#39;</span><span class="p">:[</span><span class="s1">&#39;Roman&#39;</span><span class="p">]})</span>
+<span class="n">rc</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="n">usetex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.unicode_minus&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="n">model_names_types</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;m&#39;</span> <span class="p">:</span> <span class="s1">&#39;model&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;s&#39;</span> <span class="p">:</span> <span class="s1">&#39;signal&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;b&#39;</span> <span class="p">:</span> <span class="s1">&#39;background&#39;</span>
+<span class="p">}</span>
+
+<span class="c1"># Alternative names for the models</span>
+<span class="n">name_PDF</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;DoubleCB&#39;</span><span class="p">:</span> <span class="s1">&#39;Double CB&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;SumPDF&#39;</span>  <span class="p">:</span> <span class="s1">&#39;Sum&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Exponential&#39;</span><span class="p">:</span> <span class="s1">&#39;Exponential&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Gauss&#39;</span> <span class="p">:</span> <span class="s1">&#39;Gaussian&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CrystalBall&#39;</span><span class="p">:</span> <span class="s1">&#39;Crystal Ball&#39;</span>
+<span class="p">}</span>
+
+<span class="c1">#################################################################################################</span>
+<span class="c1">########################################## Scaling PDF ##########################################</span>
+<span class="c1">#################################################################################################</span>
+
+
+<span class="k">def</span> <span class="nf">_get_plot_scaling</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return plot_scaling, the factor to scale the curve fit to unormalised histogram</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    counts : np.array or list</span>
+<span class="sd">        number of counts in the histogram of the fitted data</span>
+<span class="sd">    low    : float</span>
+<span class="sd">        low limit of the distribution</span>
+<span class="sd">    high   : float</span>
+<span class="sd">        high limit of the distribution </span>
+<span class="sd">    n_bins : int</span>
+<span class="sd">        number of bins    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">counts</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span><span class="p">(</span><span class="n">high</span><span class="o">-</span><span class="n">low</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_bins</span> 
+    
+<div class="viewcode-block" id="frac_model"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.fit.frac_model">[docs]</a><span class="k">def</span> <span class="nf">frac_model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">frac</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Return the list of the values of the pdf of the model </span>
+<span class="sd">    evaluated at ``x``.</span>
+<span class="sd">    Multiply by ``frac`` each of these values.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x       : numpy.array(float)</span>
+<span class="sd">        Array of numbers where to evaluate the PDF</span>
+<span class="sd">    model: zfit.pdf.BasePDF</span>
+<span class="sd">        Model (PDF)</span>
+<span class="sd">    frac    : float</span>
+<span class="sd">        Parameter which is multiplied to the result</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    </span>
+<span class="sd">    np.array(float)</span>
+<span class="sd">        list of the values of the pdf of the model evaluated in x,</span>
+<span class="sd">        multiplied by ``frac``</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">return</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="n">frac</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span></div>
+
+<span class="c1">#################################################################################################</span>
+<span class="c1">#################################### Sub-plotting functions #####################################</span>
+<span class="c1">#################################################################################################</span>
+    
+
+<span class="c1">## PULL DIAGRAM ===================================================================================</span>
+<div class="viewcode-block" id="plot_pull_diagram"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.fit.plot_pull_diagram">[docs]</a><span class="k">def</span> <span class="nf">plot_pull_diagram</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> 
+                      <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">centres</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                      <span class="n">low</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                      <span class="n">y_line</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bar_mode_pull</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">plot_scaling</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">default_fontsize</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">color_lines</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">show_chi2</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot pull diagram of ``model`` compared to the data, given by (``counts``, ``centres``)</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    </span>
+<span class="sd">    ax            : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot</span>
+<span class="sd">    model: zfit.pdf.BasePDF</span>
+<span class="sd">        Model (PDF)</span>
+<span class="sd">    counts        : np.array(float)</span>
+<span class="sd">        counts of the bins given by centres in the histogram</span>
+<span class="sd">    centres       : np.array(float)</span>
+<span class="sd">        bin centres of the histogram (if ``edges`` is not provided)</span>
+<span class="sd">    edges        : np.array(float)</span>
+<span class="sd">        edges of the bins (if ``centres`` is not provided)</span>
+<span class="sd">    err       : np.array(float)</span>
+<span class="sd">        bin centres of the histogram    </span>
+<span class="sd">    low    : float</span>
+<span class="sd">        low limit of the distribution</span>
+<span class="sd">    high   : float</span>
+<span class="sd">        high limit of the distribution</span>
+<span class="sd">    y_line : float</span>
+<span class="sd">        Position of the lines at ``y = 0``, ``y = y_line`` and ``y = - y_line`` </span>
+<span class="sd">    bar_mode_pull: bool</span>
+<span class="sd">        if ``True``, the pull diagram is plotted with bars instead of points + error bars</span>
+<span class="sd">    plot_scaling  : float</span>
+<span class="sd">        scaling to get the scale of the curve right compared to the histogram</span>
+<span class="sd">    fontsize      : float</span>
+<span class="sd">        fontsize of the labels</span>
+<span class="sd">    color         : str</span>
+<span class="sd">        color of the pull diagram</span>
+<span class="sd">    color_lines   : str</span>
+<span class="sd">        color of the lines at ``y = 0``, ``y = y_line`` and ``y = - y_line``</span>
+<span class="sd">    show_chi2     : bool</span>
+<span class="sd">        if ``True``, show the :math:``\\chi^2`` in the label of the x-axis of the pull diagram</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">assert</span> <span class="p">(</span><span class="n">edges</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">centres</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;The array of the edges or of the centres of the bins should be provided&quot;</span>
+    
+    <span class="k">if</span> <span class="n">edges</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">centres</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">centres</span> <span class="o">-</span> <span class="p">(</span><span class="n">centres</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">centres</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">edges</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="k">elif</span> <span class="n">edges</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">centres</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">centres</span> <span class="o">=</span> <span class="p">(</span><span class="n">edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span><span class="o">/</span><span class="mf">2.</span>
+        
+    <span class="k">if</span> <span class="n">err</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+    
+    <span class="c1">## Computing</span>
+    <span class="k">if</span> <span class="n">low</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">low</span> <span class="o">=</span> <span class="n">centres</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">centres</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">centres</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span>
+    <span class="k">if</span> <span class="n">high</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">high</span> <span class="o">=</span> <span class="n">centres</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">centres</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">centres</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span>
+    
+    <span class="k">if</span> <span class="n">plot_scaling</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n_bins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">centres</span><span class="p">)</span>
+        <span class="n">plot_scaling</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="n">high</span><span class="o">-</span><span class="n">low</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_bins</span>
+        
+    <span class="n">fit</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">centres</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">*</span><span class="n">plot_scaling</span>
+    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span> <span class="c1"># ignore divide-by-0 warning</span>
+        <span class="n">pull</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">counts</span><span class="o">-</span><span class="n">fit</span><span class="p">,</span><span class="n">err</span><span class="p">)</span>
+    
+    <span class="c1">## Plotting</span>
+    <span class="k">if</span> <span class="n">bar_mode_pull</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">centres</span><span class="p">,</span> <span class="n">pull</span><span class="p">,</span> <span class="n">centres</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">centres</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">pull</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">centres</span><span class="p">,</span><span class="n">pull</span><span class="p">,</span> <span class="n">yerr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">centres</span><span class="p">)),</span><span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">low</span><span class="p">,</span><span class="n">high</span><span class="p">],[</span><span class="n">y_line</span><span class="p">,</span> <span class="n">y_line</span><span class="p">],</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">low</span><span class="p">,</span><span class="n">high</span><span class="p">],[</span><span class="o">-</span><span class="n">y_line</span><span class="p">,</span> <span class="o">-</span><span class="n">y_line</span><span class="p">],</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">low</span><span class="p">,</span><span class="n">high</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    
+    <span class="c1">## Symmetric pull diagram</span>
+    <span class="n">low_y</span><span class="p">,</span> <span class="n">high_y</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span> 
+    <span class="n">maxi</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">4.</span><span class="p">,</span> <span class="o">-</span><span class="n">low_y</span><span class="p">,</span> <span class="n">high_y</span><span class="p">)</span> 
+    <span class="n">low_y</span> <span class="o">=</span> <span class="o">-</span><span class="n">maxi</span>
+    <span class="n">high_y</span> <span class="o">=</span> <span class="n">maxi</span>
+    
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">low_y</span><span class="p">,</span> <span class="n">high_y</span><span class="p">])</span>
+    
+    <span class="c1">## Label and ticks</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;residuals / $</span><span class="se">\\</span><span class="s1">sigma$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">3.</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">1.</span><span class="p">))</span>
+    
+    <span class="n">pt</span><span class="o">.</span><span class="n">show_grid</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;minor&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+    
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">low</span><span class="p">,</span><span class="n">high</span><span class="p">])</span> 
+    
+    <span class="n">ndof</span> <span class="o">=</span> <span class="n">PDF</span><span class="o">.</span><span class="n">get_n_dof_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    
+    <span class="c1">## Fit quality</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of bins: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">centres</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Width of the bins: </span><span class="si">{</span><span class="n">centres</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">centres</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">chi2</span> <span class="o">=</span> <span class="n">PDF</span><span class="o">.</span><span class="n">get_reduced_chi2</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> <span class="n">ndof</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of d.o.f. in the model: &quot;</span><span class="p">,</span> <span class="n">ndof</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reduced chi2: &#39;</span><span class="p">,</span> <span class="n">chi2</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean of the normalised residuals: </span><span class="si">{</span><span class="n">PDF</span><span class="o">.</span><span class="n">get_mean</span><span class="p">(</span><span class="n">pull</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Std of the normalised residuals: </span><span class="si">{</span><span class="n">PDF</span><span class="o">.</span><span class="n">get_std</span><span class="p">(</span><span class="n">pull</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">show_chi2</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;(reduced $</span><span class="se">\\</span><span class="s1">chi^2$=</span><span class="si">{</span><span class="n">chi2</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">)</span></div>
+
+<span class="c1">## FITTED CURVES ===================================================================================</span>
+        
+<div class="viewcode-block" id="plot_fitted_curve"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.fit.plot_fitted_curve">[docs]</a><span class="k">def</span> <span class="nf">plot_fitted_curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">plot_scaling</span><span class="p">,</span> <span class="n">frac</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">line_width</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span>
+                      <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot a fitted curve given by ``model``</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax            : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot the label</span>
+<span class="sd">    model: zfit.pdf.BasePDF</span>
+<span class="sd">        Model (PDF)</span>
+<span class="sd">    frac          : float between 0 and 1</span>
+<span class="sd">        multiplicative factor corresponding to yield ratio of the sub-models of the model</span>
+<span class="sd">        ``frac(sub_model) = yield(sub_model)/yield(model)``</span>
+<span class="sd">    plot_scaling  : float</span>
+<span class="sd">        scaling to get the scale of the curve right compared to the histogram</span>
+<span class="sd">    line_width    : float</span>
+<span class="sd">        width of the curve line</span>
+<span class="sd">    color         : str</span>
+<span class="sd">        color of the line</span>
+<span class="sd">    linestyle     : str</span>
+<span class="sd">        style of the line</span>
+<span class="sd">    low           : float</span>
+<span class="sd">        low limit of the plot (x-axis)</span>
+<span class="sd">    high          : float</span>
+<span class="sd">        high limit of the plot (x-axis)</span>
+<span class="sd">    label         : str</span>
+<span class="sd">        label of the curve (for the legend)</span>
+<span class="sd">    x             : numpy.numpy(float)</span>
+<span class="sd">        points of the x-axis where to evaluate the pdf of the model to plot</span>
+<span class="sd">        If not given, it is computed to be 1000 points between ``low`` and ``high``</span>
+<span class="sd">    alpha         : float, between 0 and 1</span>
+<span class="sd">        opacity of the curve</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">low</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">high</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;If &#39;x&#39; is None, low and high must be specified&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    
+    <span class="n">y</span> <span class="o">=</span> <span class="n">frac_model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">frac</span><span class="o">=</span><span class="n">frac</span><span class="p">)</span><span class="o">*</span> <span class="n">plot_scaling</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">line_width</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="n">linestyle</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span></div>
+
+
+
+
+<span class="k">def</span> <span class="nf">_get_frac_or_yield_model</span><span class="p">(</span><span class="n">models</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; return the ``frac`` of a composite PDF specified with the ``frac`` argument. If the model is a sum of extended PDFs, just return the total number of events in the model</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    models       : list(zfit.pdf.BasePDF) or list(list(zfit.pdf.BasePDF))</span>
+<span class="sd">        list of zFit models, whose first element is the sum of the others, weighted by ``frac`` and ``1 - frac`` or extended.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    total_yield : float</span>
+<span class="sd">        Yield of the model (returned if the composing PDFs are extended)</span>
+<span class="sd">    frac        : float</span>
+<span class="sd">        Relative yield of the sub-models (returned if the composing PDFs are not extended)</span>
+<span class="sd">    mode_frac   : bool</span>
+<span class="sd">        if ``True``, ``frac`` is returned</span>
+<span class="sd">        else, ``n_tot`` is returned</span>
+<span class="sd">    </span>
+<span class="sd">    NB: this functions assumes that there is only 1 ``frac`` (I don&#39;t need more that 1 ``frac`` yet)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Get the composite PDF</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">SumPDF</span><span class="p">)</span>
+    
+    <span class="n">mode_frac</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    
+    <span class="c1"># The parameters of the composite PDF should be all composedParameters as they are from the composing PDFs</span>
+    <span class="c1"># Except if there is the ``frac`` parameter, which is indeed not a composed parameted for the composite PDF.</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">mode_frac</span> <span class="ow">and</span> <span class="n">i</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">parameters</span><span class="p">):</span>
+        <span class="c1"># if one of the parameter is not a ComposedParameter, this it is a frac parameter</span>
+        <span class="n">mode_frac</span> <span class="o">=</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ComposedParameter</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode_frac</span><span class="p">:</span> 
+            <span class="c1"># If it is not a ComposedParameter, it should be a SimpleParameter</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">SimpleParameter</span><span class="p">)</span>
+        <span class="n">i</span><span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="k">if</span> <span class="n">mode_frac</span><span class="p">:</span>
+        <span class="c1"># parameters[i-1] is a SimpleParameter, i.e., frac</span>
+        <span class="n">frac</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">frac</span><span class="p">,</span> <span class="n">mode_frac</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">n_tot</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># We sum up the yields of the composing PDFs</span>
+        <span class="k">for</span> <span class="n">sub_model</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">sub_model</span><span class="o">.</span><span class="n">is_extended</span>
+            <span class="n">n_tot</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sub_model</span><span class="o">.</span><span class="n">get_yield</span><span class="p">()</span><span class="o">.</span><span class="n">value</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">n_tot</span><span class="p">,</span> <span class="n">mode_frac</span>
+
+        
+
+<div class="viewcode-block" id="get_model_name"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.fit.get_model_name">[docs]</a><span class="k">def</span> <span class="nf">get_model_name</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; return the name of the ``model``</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model: zfit.pdf.BasePDF</span>
+<span class="sd">        Model (PDF)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    label_mode: str</span>
+<span class="sd">        name of the model (specified by the dictionnary ``name_PDF``), e.g., ``&#39;Gaussian&#39;``, ``&#39;Crystall Ball&#39;``, ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># get the name of the model, removing  &#39;_extended&#39; when the PDF is extended</span>
+    <span class="n">marker</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span> 
+    <span class="k">if</span> <span class="n">marker</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">marker</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="n">model_name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">[:</span><span class="n">marker</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">name_PDF</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2"> is not defined in </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">name_PDF</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">label_model</span> <span class="o">=</span> <span class="n">name_PDF</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">label_model</span></div>
+
+
+<span class="k">def</span> <span class="nf">_plot_single_model</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">plot_scaling</span><span class="p">,</span> 
+                       <span class="n">model_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                       <span class="n">frac</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+                       <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">line_width</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Plot the models recursively</span>
+<span class="sd">    with a label for the curve ``&quot;{name of the PDF (e.g., Gaussian, ...)} - {type of the model, e.g., signal ...} {Name of the model, e.g., &quot;B0-&gt;Dst Ds&quot;}&quot;`` (if ``model_name`` is specified)</span>
+<span class="sd">    ax           : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot</span>
+<span class="sd">    x             : numpy.numpy(float)</span>
+<span class="sd">        points of the x-axis where to evaluate the pdf of the model to plot</span>
+<span class="sd">    model        : zfit.pdf.BasePDF</span>
+<span class="sd">        just one zfit model</span>
+<span class="sd">    plot_scaling : float</span>
+<span class="sd">        scaling to get the scale of the curve right</span>
+<span class="sd">    model_type  : str</span>
+<span class="sd">        type of the model</span>
+<span class="sd">        </span>
+<span class="sd">        * ``&#39;m&#39;`` : model (sum) ; should always be the FIRST ONE !!</span>
+<span class="sd">        * ``&#39;s&#39;`` : signal</span>
+<span class="sd">        * ``&#39;b&#39;`` : background</span>
+<span class="sd">        used in the legend to indicate if it is a signal or a background component</span>
+<span class="sd">    model_name : str</span>
+<span class="sd">        name of the models - used in the legend. </span>
+<span class="sd">        If ``None``, the legend is not shown</span>
+<span class="sd">    frac        : float</span>
+<span class="sd">        frac is multiplied to the PDF to get the correct scale due to composite PDFs</span>
+<span class="sd">    color      : str</span>
+<span class="sd">        list of colors for each curve, same structure as ``models_names``</span>
+<span class="sd">    linestyle  : str</span>
+<span class="sd">        line style of the curve</span>
+<span class="sd">    PDF_level   : int</span>
+<span class="sd">        Level of the PDF:</span>
+<span class="sd">        </span>
+<span class="sd">        * 0 is first sumPDF</span>
+<span class="sd">        * 1 if component of this sumPDF</span>
+<span class="sd">        * 2 if component of a sumPDF component of sumPDF</span>
+<span class="sd">        * etc.</span>
+<span class="sd">        </span>
+<span class="sd">    line_width  : float</span>
+<span class="sd">        width of the plotted lines</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">assertion</span><span class="o">.</span><span class="n">is_list_tuple</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+    <span class="c1"># Label</span>
+    <span class="k">if</span> <span class="n">model_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">label_model</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">get_model_name</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="n">model_names_types</span><span class="p">[</span><span class="n">model_type</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">label_model</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="n">label_model</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">label_model</span><span class="o">=</span><span class="kc">None</span>
+
+    <span class="n">plot_fitted_curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">plot_scaling</span><span class="p">,</span> <span class="n">frac</span><span class="o">=</span><span class="n">frac</span><span class="p">,</span> <span class="n">line_width</span><span class="o">=</span><span class="n">line_width</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> 
+                      <span class="n">linestyle</span> <span class="o">=</span> <span class="n">linestyle</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label_model</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+    
+<span class="k">def</span> <span class="nf">_plot_models</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">plot_scaling</span><span class="p">,</span> <span class="n">models_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">models_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                <span class="n">frac</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">PDF_level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;gold&#39;</span><span class="p">,</span> <span class="s1">&#39;magenta&#39;</span><span class="p">,</span> <span class="s1">&#39;orange&#39;</span><span class="p">],</span> 
+                <span class="n">linestyles</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;-.&#39;</span><span class="p">],</span> <span class="n">line_width</span><span class="o">=</span><span class="mf">2.5</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Plot the models recursively</span>
+<span class="sd">    with a label for each curve ``&quot;{name of the PDF (e.g., Gaussian, ...)} - {type of the model, e.g., signal ...} {Name of the model, e.g., &quot;B0-&gt;Dst Ds&quot;}&quot;`` (if the corresponding model_name is specified)</span>
+<span class="sd">    ax           : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot</span>
+<span class="sd">    x             : numpy.numpy(float)</span>
+<span class="sd">        points of the x-axis where to evaluate the pdf of the model to plot</span>
+<span class="sd">    models       : list(zfit.pdf.BasePDF) or list(list(zfit.pdf.BasePDF))</span>
+<span class="sd">    </span>
+<span class="sd">        * just one PDF (e.g., ``[model_PDF]``)</span>
+<span class="sd">        * a list of PDFs, whose first PDF is the composite PDF </span>
+<span class="sd">        and the other ones are their components (e.g., ``[model_PDG, signal_PDF, background_PDF]``)</span>
+<span class="sd">        *  list of list of PDFs, if composite of composite of PDFs (e.g., ``[model_PDG, [signal_PDF, signal_compo1_PDF, signal_compo2_PDF], background_PDF]``)</span>
+<span class="sd">        * ... (recursive)</span>
+<span class="sd">    plot_scaling : float</span>
+<span class="sd">        scaling to get the scale of the curve right</span>
+<span class="sd">    models_types  : str</span>
+<span class="sd">        type of each mode (one character for each model or for a list of models):</span>
+<span class="sd">        </span>
+<span class="sd">        * ``&#39;m&#39;`` : model (sum) ; should always be the FIRST ONE !!</span>
+<span class="sd">        * ``&#39;s&#39;`` : signal</span>
+<span class="sd">        * ``&#39;b&#39;`` : background</span>
+<span class="sd">        used in the legend to indicate if it is a signal or a background component</span>
+<span class="sd">    models_names : str or list(str) or list(list(str))</span>
+<span class="sd">        name of the models - used in the legend</span>
+<span class="sd">        </span>
+<span class="sd">        * list of the same size as ``models_names`` with the name of each PDF</span>
+<span class="sd">        * If there is only one string for a list of models, it corresponds to the name of the first composite PDFs. The other PDFs are plotted but they aren&#39;t legended</span>
+<span class="sd">    frac        : float</span>
+<span class="sd">        frac is multiplied to the PDF to get the correct scale due to composite PDFs</span>
+<span class="sd">    colors      : list(str)</span>
+<span class="sd">        list of colors for each curve, same structure as models_names</span>
+<span class="sd">    linestyles  : list(str)</span>
+<span class="sd">        list of linestyles at each level of composite PDFs, as specified by the ``PDF_level`` argument</span>
+<span class="sd">    PDF_level   : int</span>
+<span class="sd">    </span>
+<span class="sd">        * 0 is first sumPDF</span>
+<span class="sd">        * 1 if component of this sumPDF</span>
+<span class="sd">        * 2 if component of a sumPDF component of sumPDF</span>
+<span class="sd">        * etc.</span>
+<span class="sd">    line_width  : float</span>
+<span class="sd">        width of the plotted lines</span>
+<span class="sd">    &quot;&quot;&quot;</span>             
+    
+    <span class="k">if</span> <span class="n">assertion</span><span class="o">.</span><span class="n">is_list_tuple</span><span class="p">(</span><span class="n">models</span><span class="p">):</span> <span class="c1"># if there are several PDFs to plot</span>
+        <span class="c1"># if there are more than 1 model:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">frac_or_yield</span><span class="p">,</span> <span class="n">mode_frac</span> <span class="o">=</span> <span class="n">_get_frac_or_yield_model</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># if there is only one model, there is no frac and no yield to compute. It has already been computed</span>
+            <span class="n">mode_frac</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="c1"># So far with this function, we can use to specify ``frac`` for composite PDF only if the model is made of 2 composing PDFs.</span>
+        <span class="k">if</span> <span class="n">mode_frac</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span><span class="o">==</span><span class="mi">3</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">models</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span> <span class="c1"># models = [sumPDF, compositePDF1, compositePDF2, ...]</span>
+                <span class="n">PDF_level</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="c1"># Compute frac</span>
+            <span class="n">applied_frac</span> <span class="o">=</span> <span class="n">frac</span> <span class="c1"># frac already specified</span>
+            
+            <span class="k">if</span> <span class="n">mode_frac</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">mode_frac</span><span class="p">:</span> <span class="c1"># in this case, frac_or_yield = frac and there is 2 composite PDFs</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">applied_frac</span> <span class="o">=</span> <span class="n">frac</span> <span class="o">*</span> <span class="n">frac_or_yield</span>
+                    <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">2</span> <span class="p">:</span> 
+                        <span class="n">applied_frac</span> <span class="o">=</span> <span class="n">frac</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">frac_or_yield</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span> <span class="c1"># in this case, frac_or_yield = yield, the yield of the model</span>
+                    <span class="c1">#frac_or_yield is yield</span>
+                    <span class="n">total_yield</span> <span class="o">=</span> <span class="n">frac_or_yield</span>
+                    <span class="k">if</span> <span class="n">k</span><span class="o">&gt;=</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="c1"># we get the composing model</span>
+                        <span class="n">main_model</span> <span class="o">=</span> <span class="n">get_element_list</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> 
+                        <span class="c1"># and compute its relative yield</span>
+                        <span class="n">applied_frac</span> <span class="o">=</span> <span class="n">frac</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">main_model</span><span class="o">.</span><span class="n">get_yield</span><span class="p">()</span><span class="o">.</span><span class="n">value</span><span class="p">())</span> <span class="o">/</span> <span class="n">total_yield</span> 
+            
+            <span class="c1"># labels</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">models_types</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">model_type</span> <span class="o">=</span> <span class="n">models_types</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">model_type</span> <span class="o">=</span> <span class="n">models_types</span>
+            
+            <span class="c1"># color</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">get_element_list</span><span class="p">(</span><span class="n">colors</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">models_names</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span> 
+                <span class="c1"># if the name of the subsubmodel is not specified, put it to None</span>
+                <span class="k">if</span> <span class="n">k</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                    <span class="n">model_name</span> <span class="o">=</span> <span class="n">models_names</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">model_name</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">model_name</span> <span class="o">=</span> <span class="n">models_names</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+
+            <span class="n">_plot_models</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">plot_scaling</span><span class="p">,</span> <span class="n">model_type</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">applied_frac</span><span class="p">,</span> <span class="n">PDF_level</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> 
+                        <span class="n">linestyles</span><span class="p">,</span> <span class="n">line_width</span><span class="p">)</span>
+    
+    <span class="k">else</span><span class="p">:</span> <span class="c1"># if there is only one PDF to plot</span>
+        <span class="k">if</span> <span class="n">PDF_level</span><span class="o">&gt;=</span><span class="mi">2</span><span class="p">:</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">_plot_single_model</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">plot_scaling</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="n">models_types</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="n">models_names</span><span class="p">,</span> 
+                <span class="n">frac</span><span class="o">=</span><span class="n">frac</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span> 
+                <span class="n">linestyle</span><span class="o">=</span><span class="n">linestyles</span><span class="p">[</span><span class="n">PDF_level</span><span class="p">],</span> <span class="n">line_width</span><span class="o">=</span><span class="n">line_width</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+
+        
+<div class="viewcode-block" id="plot_fitted_curves"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.fit.plot_fitted_curves">[docs]</a><span class="k">def</span> <span class="nf">plot_fitted_curves</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">plot_scaling</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> 
+                       <span class="n">models_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">models_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">fontsize_legend</span><span class="o">=</span><span class="n">default_fontsize</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">],</span>
+                       <span class="n">loc_leg</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="o">**</span><span class="n">kwgs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Plot fitted curve given by ``models``, with labels given by ``models_names``</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax              : axis where to plot</span>
+<span class="sd">    models       : zfit.pdf.BasePDF or list(zfit.pdf.BasePDF) or list(list(zfit.pdf.BasePDF)) or ...</span>
+<span class="sd">    </span>
+<span class="sd">        * just one PDF (e.g., ``[model_PDF]`` or ``model_PDF``)</span>
+<span class="sd">        * a list of PDFs, whose first PDF is the composite PDF </span>
+<span class="sd">        and the other ones are their components (e.g., ``[model_PDG, signal_PDF, background_PDF]``)</span>
+<span class="sd">        *  list of list of PDFs, if composite of composite of PDFs (e.g., ``[model_PDG, [signal_PDF, signal_compo1_PDF, signal_compo2_PDF], background_PDF]``)</span>
+<span class="sd">        * ... (recursive)</span>
+<span class="sd">    low             : float</span>
+<span class="sd">        low limit of the plot (x-axis)</span>
+<span class="sd">    high            : float</span>
+<span class="sd">        high limit of the plot (x-axis)</span>
+<span class="sd">    models_names : str or list(str) or list(list(str))</span>
+<span class="sd">        name of the models - used in the legend</span>
+<span class="sd">        </span>
+<span class="sd">        * list of the same size as ``models_names`` with the name of each PDF</span>
+<span class="sd">        * If there is only one string for a list of models, it corresponds to the name of the first composite PDFs. The other PDFs are plotted but they aren&#39;t legended</span>
+<span class="sd">    models_types  : str</span>
+<span class="sd">        type of each mode (one character for each model or for a list of models):</span>
+<span class="sd">        </span>
+<span class="sd">        * ``&#39;m&#39;`` : model (sum) ; should always be the FIRST ONE !!</span>
+<span class="sd">        * ``&#39;s&#39;`` : signal</span>
+<span class="sd">        * ``&#39;b&#39;`` : background</span>
+<span class="sd">        used in the legend to indicate if it is a signal or a background component</span>
+<span class="sd">        If ``None``, it is put to ``[&#39;m&#39;, &#39;s&#39;, &#39;b&#39;, &#39;b&#39;, ...]``</span>
+<span class="sd">    fontsize_legend : float</span>
+<span class="sd">        fontsize of the legend</span>
+<span class="sd">    loc_leg         : str</span>
+<span class="sd">        location of the legend</span>
+<span class="sd">    show_legend     : bool</span>
+<span class="sd">        if ``True``, show the legend, </span>
+<span class="sd">        if None, show the legend only if there are more than 1 model</span>
+<span class="sd">    **kwgs        : dict</span>
+<span class="sd">        passed to :py:func:`plot_models`</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">models</span> <span class="o">=</span> <span class="n">el_to_list</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">show_legend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">show_legend</span> <span class="o">=</span> <span class="n">models_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="n">models_names</span> <span class="o">=</span> <span class="n">el_to_list</span><span class="p">(</span><span class="n">models_names</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">))</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+    
+    <span class="c1"># Plot the models</span>
+    <span class="k">if</span> <span class="n">models_types</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">models_types</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">models_names</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">models_types</span> <span class="o">+=</span> <span class="s1">&#39;s&#39;</span>
+            <span class="n">models_types</span> <span class="o">+=</span> <span class="s1">&#39;b&#39;</span><span class="o">*</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">models_names</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="n">_plot_models</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">plot_scaling</span><span class="p">,</span> <span class="n">models_types</span><span class="o">=</span><span class="n">models_types</span><span class="p">,</span> <span class="n">models_names</span><span class="o">=</span><span class="n">models_names</span><span class="p">,</span> <span class="o">**</span><span class="n">kwgs</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">show_legend</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_legend</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">loc_leg</span><span class="p">)</span></div>
+
+<span class="c1">## RESULT FIT ===================================================================================</span>
+        
+        
+        
+<div class="viewcode-block" id="plot_result_fit"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.fit.plot_result_fit">[docs]</a><span class="k">def</span> <span class="nf">plot_result_fit</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">latex_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">default_fontsize</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">],</span> <span class="n">colWidths</span><span class="o">=</span><span class="p">[</span><span class="mf">0.06</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.06</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot the results of the fit in a table</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax            : matplotlib.axes.Axes</span>
+<span class="sd">        axis where to plot</span>
+<span class="sd">    params        : dict[zfit.zfitParameter, float]</span>
+<span class="sd">        Result ``result.params`` of the minimisation of the loss function (given by :py:func:`HEA.fit.fit.launch_fit`)</span>
+<span class="sd">    latex_params  : </span>
+<span class="sd">        Dictionnary with the name of the params </span>
+<span class="sd">        Also indicated the branchs to show in the table among all the branchs in params</span>
+<span class="sd">    fontsize      : float</span>
+<span class="sd">        Fontsize of the text in the table</span>
+<span class="sd">    colWidths     : [float, float, float, float]</span>
+<span class="sd">        Width of the four columns of the table</span>
+<span class="sd">        </span>
+<span class="sd">        * first column: latex name of the parameter</span>
+<span class="sd">        * second column: nominal value</span>
+<span class="sd">        * third column: ``$\\pm$``</span>
+<span class="sd">        * fourth column: error</span>
+<span class="sd">    loc           : str</span>
+<span class="sd">        location of the table</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#result_fit = &quot;&quot;</span>
+    <span class="n">result_fit</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span> <span class="c1"># loop through the parameters</span>
+        
+        <span class="n">name_param</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span>
+        
+        <span class="c1"># if name_param as &#39;;&#39;, remove everything from &#39;;&#39; onwards</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">name_param</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">index</span><span class="o">!=-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">name_param</span> <span class="o">=</span> <span class="n">name_param</span><span class="p">[:</span><span class="n">index</span><span class="p">]</span>
+        
+        <span class="c1"># if latex_params not None, it specifies the branchs we want to show</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">latex_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">name_param</span> <span class="ow">in</span> <span class="n">latex_params</span><span class="p">):</span> 
+            <span class="c1"># Retrieve value and error</span>
+            <span class="n">value_param</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+            <span class="n">error_param</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="s1">&#39;minuit_hesse&#39;</span><span class="p">][</span><span class="s1">&#39;error&#39;</span><span class="p">]</span>
+            
+            <span class="c1"># Retrieve alt name</span>
+            <span class="k">if</span> <span class="n">latex_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">surname_param</span> <span class="o">=</span> <span class="n">latex_params</span><span class="p">[</span><span class="n">name_param</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">surname_param</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">_latex_format</span><span class="p">(</span><span class="n">name_param</span><span class="p">)</span>
+
+            <span class="c1"># Table --&gt; name_param   :   value_param +/- error_param</span>
+            <span class="n">size_int_part</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">value_param</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="n">size_int_part</span><span class="o">&gt;=</span><span class="mi">4</span><span class="p">:</span>
+                <span class="n">value_param_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value_param</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">value_param_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value_param</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">result_fit</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">surname_param</span><span class="p">,</span><span class="s2">&quot;:&quot;</span><span class="p">,</span><span class="n">value_param_text</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;$\pm$ </span><span class="si">{</span><span class="n">error_param</span><span class="si">:</span><span class="s1">.2g</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">])</span> 
+
+    <span class="c1"># Plot the table with the fitted parameters in the upper right part of the plot  </span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">result_fit</span><span class="p">,</span><span class="n">loc</span><span class="o">=</span><span class="n">loc</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="s1">&#39;open&#39;</span><span class="p">,</span> <span class="n">cellLoc</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
+              <span class="n">colWidths</span><span class="o">=</span><span class="n">colWidths</span><span class="p">)</span>                 
+    <span class="n">table</span><span class="o">.</span><span class="n">auto_set_font_size</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">fontsize</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> </div>
+
+
+
+<span class="c1">#################################################################################################</span>
+<span class="c1">###################################### Plotting function ########################################</span>
+<span class="c1">#################################################################################################   </span>
+    
+<div class="viewcode-block" id="plot_hist_fit"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.fit.plot_hist_fit">[docs]</a><span class="k">def</span> <span class="nf">plot_hist_fit</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">latex_branch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">obs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">low_hist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">high_hist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">bar_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                  <span class="n">models</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="n">models_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">models_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                  <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                  <span class="n">plot_pull</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bar_mode_pull</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                  <span class="n">show_leg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fontsize_leg</span><span class="o">=</span><span class="n">default_fontsize</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">],</span> <span class="n">loc_leg</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">,</span>
+                  <span class="n">show_chi2</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                  <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">latex_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">colWidths</span><span class="o">=</span><span class="p">[</span><span class="mf">0.04</span><span class="p">,</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.06</span><span class="p">,</span><span class="mf">0.06</span><span class="p">],</span> <span class="n">fontsize_res</span><span class="o">=</span><span class="n">default_fontsize</span><span class="p">[</span><span class="s1">&#39;legend&#39;</span><span class="p">],</span>
+                  <span class="n">loc_res</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">,</span> 
+                  <span class="n">fig_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">folder_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                  <span class="n">save_fig</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pos_text_LHC</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Plot complete histogram with fitted curve, pull histogram and results of the fits. Save it in the plot folder.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df            : pandas.Dataframe</span>
+<span class="sd">        dataframe that contains the branch to plot</span>
+<span class="sd">    branch        : str</span>
+<span class="sd">        name of the branch to plot and that was fitted</span>
+<span class="sd">    latex_branch  : str</span>
+<span class="sd">        latex name of the branch, to be used in the xlabel of the plot</span>
+<span class="sd">    unit            : str</span>
+<span class="sd">        Unit of the physical quantity</span>
+<span class="sd">    weights         : numpy.array</span>
+<span class="sd">        weights passed to ``plt.hist``</span>
+<span class="sd">    obs           : zfit.Space</span>
+<span class="sd">        Space used for the fit</span>
+<span class="sd">    n_bins        : int</span>
+<span class="sd">        number of desired bins of the histogram</span>
+<span class="sd">    low_hist      : float</span>
+<span class="sd">        lower range value for the histogram (if not specified, use the value contained in ``obs``)</span>
+<span class="sd">    high_hist     : float</span>
+<span class="sd">        lower range value for the histogram (if not specified, use the value contained in ``obs``)</span>
+<span class="sd">    color         : str</span>
+<span class="sd">        color of the histogram</span>
+<span class="sd">    bar_mode     : bool</span>
+<span class="sd">    </span>
+<span class="sd">        * if True, plot with bars</span>
+<span class="sd">        * else, plot with points and error bars</span>
+<span class="sd">    models        : zfit.pdf.BasePDF or list(zfit.pdf.BasePDF) or list(list(zfit.pdf.BasePDF)) or ...</span>
+<span class="sd">        passed to py:func:`plot_fitted_curves`</span>
+<span class="sd">    models_names : str or list(str) or list(list(str))</span>
+<span class="sd">        passed to py:func:`plot_fitted_curves`</span>
+<span class="sd">    models_types  : str</span>
+<span class="sd">        passed to py:func:`plot_fitted_curves` </span>
+<span class="sd">    linewidth     : str</span>
+<span class="sd">        width of the fitted curve line</span>
+<span class="sd">    colors        : str</span>
+<span class="sd">        colors of the fitted curves</span>
+<span class="sd">    title         : str</span>
+<span class="sd">        title of the plot</span>
+<span class="sd">    plot_pull     : bool</span>
+<span class="sd">        if ``True``, plot the pull diagram</span>
+<span class="sd">    bar_mode_pull: bool</span>
+<span class="sd">        if ``True``, the pull diagram is plotted with bars instead of points + error bars</span>
+<span class="sd">    show_leg      : bool</span>
+<span class="sd">        if True, show the legend</span>
+<span class="sd">    fontsize_leg  : float</span>
+<span class="sd">        fontsize of the legend</span>
+<span class="sd">    loc_leg       : str</span>
+<span class="sd">        position of the legend, ``loc`` argument in ``plt.legend``</span>
+<span class="sd">    show_chi2     : bool</span>
+<span class="sd">        if ``True``, show the :math:`\\chi^2` in the label of the x-axis of the pull diagram</span>
+<span class="sd">    params        : dict[zfit.zfitParameter, float]</span>
+<span class="sd">        Result ``result.params`` of the minimisation of the loss function (given by :math:`HEA.fit.fit.launch_fit`)</span>
+<span class="sd">    latex_params  : </span>
+<span class="sd">        Dictionnary with the name of the params.</span>
+<span class="sd">        Also indicated the branchs to show in the table among all the branchs in params</span>
+<span class="sd">    colWidths     : [float, float, float, float]</span>
+<span class="sd">        passed to :py:func:`plot_result_fit`</span>
+<span class="sd">    fontsize_res   : float</span>
+<span class="sd">        fontsize of the text in the result table</span>
+<span class="sd">    loc_res       : str</span>
+<span class="sd">        position of the result table, loc argument specified in in plt.table </span>
+<span class="sd">     fig_name      : str</span>
+<span class="sd">        name of the saved file</span>
+<span class="sd">    folder_name   : str</span>
+<span class="sd">        name of the folder where to save the plot</span>
+<span class="sd">    data_name     : str</span>
+<span class="sd">        name of the data used to constitute the name of the saved file, if ``fig_name`` is not specified. </span>
+<span class="sd">    save_fig      : str</span>
+<span class="sd">        name of the figure to save</span>
+<span class="sd">    pos_text_LHC    : dict, list or str</span>
+<span class="sd">        passed to :py:func:`HEA.plot.tools.set_text_LHCb` as the ``pos`` argument.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig   : matplotlib.figure.Figure</span>
+<span class="sd">        Figure of the plot (only if ``axis_mode`` is ``False``)</span>
+<span class="sd">    ax[0] : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the histogram + fitted curves + table</span>
+<span class="sd">    ax[1] : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the pull diagram (only if ``plot_pull`` is ``True``)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1">## Create figure</span>
+    <span class="k">if</span> <span class="n">plot_pull</span><span class="p">:</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+        <span class="n">gs</span> <span class="o">=</span> <span class="n">gridspec</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="p">[</span><span class="n">ax</span><span class="p">]</span>    
+    
+    
+    <span class="c1">## Retrieve low,high (of x-axis)</span>
+    <span class="n">low</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">limits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">high</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="k">if</span> <span class="n">low_hist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">low_hist</span> <span class="o">=</span> <span class="n">low</span>
+    <span class="k">if</span> <span class="n">high_hist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">high_hist</span> <span class="o">=</span> <span class="n">high</span>
+    
+    <span class="k">if</span> <span class="n">latex_branch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">latex_branch</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">_latex_format</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
+    
+    
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+    
+    <span class="c1">## plot 1D histogram of data</span>
+    <span class="c1"># Histogram </span>
+    <span class="n">counts</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">centres</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">plot_hist_alone</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="n">branch</span><span class="p">],</span> <span class="n">n_bins</span><span class="p">,</span>
+                                               <span class="n">low_hist</span><span class="p">,</span> <span class="n">high_hist</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">bar_mode</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+    
+    
+    <span class="c1"># Label</span>
+    <span class="n">bin_width</span> <span class="o">=</span> <span class="n">get_bin_width</span><span class="p">(</span><span class="n">low_hist</span><span class="p">,</span> <span class="n">high_hist</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">)</span>
+    <span class="n">set_label_hist</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">bin_width</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+    
+    <span class="c1"># Ticks</span>
+    <span class="n">pt</span><span class="o">.</span><span class="n">set_label_ticks</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">pt</span><span class="o">.</span><span class="n">set_text_LHCb</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos</span><span class="o">=</span><span class="n">pos_text_LHC</span><span class="p">)</span>
+    
+    <span class="c1">## Plot fitted curve </span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">models</span><span class="p">,</span><span class="nb">list</span><span class="p">):</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># the first model is the &quot;global&quot; one</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">models</span>
+    
+        
+    <span class="n">plot_scaling</span> <span class="o">=</span> <span class="n">_get_plot_scaling</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">low_hist</span><span class="p">,</span> <span class="n">high_hist</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">)</span>
+    <span class="n">plot_fitted_curves</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">models</span><span class="p">,</span> <span class="n">plot_scaling</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">models_names</span><span class="o">=</span><span class="n">models_names</span><span class="p">,</span> <span class="n">models_types</span><span class="o">=</span><span class="n">models_types</span><span class="p">,</span>
+                       <span class="n">line_width</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span> <span class="n">fontsize_legend</span><span class="o">=</span><span class="n">fontsize_leg</span><span class="p">,</span> <span class="n">loc_leg</span><span class="o">=</span><span class="n">loc_leg</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="n">show_leg</span><span class="p">)</span>
+    
+    <span class="n">pt</span><span class="o">.</span><span class="n">change_range_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">factor_max</span><span class="o">=</span><span class="mf">1.1</span><span class="p">)</span>    
+    
+    <span class="n">color_pull</span> <span class="o">=</span> <span class="n">colors</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">colors</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">colors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1">## Plot pull histogram</span>
+    <span class="k">if</span> <span class="n">plot_pull</span><span class="p">:</span>
+        <span class="n">plot_pull_diagram</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">model</span><span class="p">,</span> <span class="n">counts</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">centres</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_pull</span><span class="p">,</span>
+                          <span class="n">low</span><span class="o">=</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">high</span><span class="p">,</span> <span class="n">plot_scaling</span><span class="o">=</span><span class="n">plot_scaling</span><span class="p">,</span> <span class="n">show_chi2</span><span class="o">=</span><span class="n">show_chi2</span><span class="p">,</span> <span class="n">bar_mode_pull</span><span class="o">=</span><span class="n">bar_mode_pull</span><span class="p">)</span>
+    
+    
+    <span class="c1">## Plot the fitted parameters of the fit</span>
+    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plot_result_fit</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">params</span><span class="p">,</span> <span class="n">latex_params</span><span class="o">=</span><span class="n">latex_params</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_res</span><span class="p">,</span> <span class="n">colWidths</span><span class="o">=</span><span class="n">colWidths</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">loc_res</span><span class="p">)</span>
+    
+    <span class="c1"># Save result</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">save_fig</span><span class="p">:</span>
+        <span class="n">pt</span><span class="o">.</span><span class="n">save_fig</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">fig_name</span><span class="p">,</span><span class="n">folder_name</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">branch</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">data_name</span><span class="si">}</span><span class="s1">_fit&#39;</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="n">plot_pull</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="plot_hist_fit_var"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.fit.plot_hist_fit_var">[docs]</a><span class="k">def</span> <span class="nf">plot_hist_fit_var</span> <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">latex_branch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; plot data with his fit</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data      : pandas.Series or list(pandas.Series)</span>
+<span class="sd">        dataset to plot</span>
+<span class="sd">    branch    : str</span>
+<span class="sd">        name of the branch, for the name of the file</span>
+<span class="sd">    latex_branch  : str</span>
+<span class="sd">        name of the branch, for the label of the x-axis</span>
+<span class="sd">    unit      : str</span>
+<span class="sd">        unit of the branch</span>
+<span class="sd">    **kwargs  : dict</span>
+<span class="sd">        parameters passed to :py:func:`HEA.plot.tools.plot_hist_fit`</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig   : matplotlib.figure.Figure</span>
+<span class="sd">        Figure of the plot (only if ``axis_mode`` is ``False``)</span>
+<span class="sd">    ax[0] : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the histogram + fitted curves + table</span>
+<span class="sd">    ax[1] : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the pull diagram (only if `plot_pull` is ``True``)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">branch</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+    
+    <span class="k">return</span> <span class="n">plot_hist_fit</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> </div>
+    
+
+
+
+<span class="c1">#################################################################################################</span>
+<span class="c1">##################################### Automatic label plots #####################################</span>
+<span class="c1">#################################################################################################  </span>
+
+<div class="viewcode-block" id="plot_hist_fit_auto"><a class="viewcode-back" href="../../../HEA.plot.html#HEA.plot.fit.plot_hist_fit_auto">[docs]</a><span class="k">def</span> <span class="nf">plot_hist_fit_auto</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">cut_BDT</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Retrieve the latex name of the branch and unit. Set the folder name to the name of the datasets.</span>
+<span class="sd">    Then, plot 2d histogram with plot_hist_fit.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    </span>
+<span class="sd">    df            : pandas.Dataframe</span>
+<span class="sd">        dataframe that contains the branch to plot</span>
+<span class="sd">    branch : str</span>
+<span class="sd">        branch (for instance: ``&#39;B0_M&#39;``), in dataframe</span>
+<span class="sd">    cut_BDT         : float or str</span>
+<span class="sd">        ``BDT &gt; cut_BDT`` cut. Used in the name of saved figure.</span>
+<span class="sd">    **kwargs : dict</span>
+<span class="sd">        arguments passed in :py:func:`plot_hist_fit` (except ``branch``, ``latex_branch``, ``unit``)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig   : matplotlib.figure.Figure</span>
+<span class="sd">        Figure of the plot (only if ``axis_mode`` is ``False``)</span>
+<span class="sd">    ax[0] : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the histogram + fitted curves + table</span>
+<span class="sd">    ax[1] : matplotlib.figure.Axes</span>
+<span class="sd">        Axis of the pull diagram (only if ``plot_pull`` is ``True``)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1">## Retrieve particle name, and branch name and unit.</span>
+<span class="c1">#     particle, var = retrieve_particle_branch(branch)</span>
+    
+<span class="c1">#     latex_branch = branchs_params[var][&#39;name&#39;]</span>
+<span class="c1">#     unit = branchs_params[var][&#39;unit&#39;]</span>
+<span class="c1">#     name_particle = particle_names[particle]</span>
+    
+    
+    
+    <span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">get_latex_branches_units</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
+       
+    <span class="c1"># Title and name of the file with BDT    </span>
+    <span class="n">add_in_dic</span><span class="p">(</span><span class="s1">&#39;fig_name&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">add_in_dic</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">add_in_dic</span><span class="p">(</span><span class="s1">&#39;data_name&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+    
+    <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;fig_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">_get_fig_name_given_BDT_cut</span><span class="p">(</span><span class="n">fig_name</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;fig_name&#39;</span><span class="p">],</span> <span class="n">cut_BDT</span><span class="o">=</span><span class="n">cut_BDT</span><span class="p">,</span> 
+                                                        <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> 
+                                                        <span class="n">data_name</span><span class="o">=</span><span class="n">string</span><span class="o">.</span><span class="n">add_text</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;data_name&#39;</span><span class="p">],</span>
+                                                                                  <span class="s1">&#39;fit&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+    
+    <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">_get_title_given_BDT_cut</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">],</span> <span class="n">cut_BDT</span><span class="o">=</span><span class="n">cut_BDT</span><span class="p">)</span>
+    
+    
+    <span class="c1"># Name of the folder = name of the data</span>
+    <span class="n">add_in_dic</span><span class="p">(</span><span class="s1">&#39;folder_name&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;folder_name&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;data_name&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;folder_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;data_name&#39;</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">plot_hist_fit</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">latex_branch</span><span class="o">=</span><span class="n">latex_branch</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Anthony Correia.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

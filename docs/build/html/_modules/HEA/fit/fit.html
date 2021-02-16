@@ -1,0 +1,470 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>HEA.fit.fit &mdash; HEA 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.config.html">HEA.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.fit.html">HEA.fit package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.plot.html">HEA.plot package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../HEA.tools.html">HEA.tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">HEA</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>HEA.fit.fit</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for HEA.fit.fit</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* Define some PDFs</span>
+<span class="sd">* Define the parameters from a dictionnary of training variables</span>
+<span class="sd">* Perform a fit (using zfit)</span>
+<span class="sd">* Check if the fit has an error (if it did not converge, has not a positive-definite hesse, ...)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">HEA.tools.dir</span> <span class="kn">import</span> <span class="n">create_directory</span>
+<span class="kn">from</span> <span class="nn">HEA.tools.da</span> <span class="kn">import</span> <span class="n">el_to_list</span><span class="p">,</span> <span class="n">add_in_dic</span>
+<span class="kn">from</span> <span class="nn">HEA.tools.serial</span> <span class="kn">import</span> <span class="n">dump_json</span>
+
+<span class="kn">import</span> <span class="nn">zfit</span>
+
+<span class="c1">#################################################################################################</span>
+<span class="c1">############################################# PDFs ##############################################</span>
+<span class="c1">#################################################################################################</span>
+
+<div class="viewcode-block" id="crystall_ball_or_gaussian"><a class="viewcode-back" href="../../../HEA.fit.html#HEA.fit.fit.crystall_ball_or_gaussian">[docs]</a><span class="k">def</span> <span class="nf">crystall_ball_or_gaussian</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; return a Crystall Ball (CB) or gaussian PDF</span>
+<span class="sd">    </span>
+<span class="sd">    * Gaussian if ``alpha`` or ``n`` is ``None``</span>
+<span class="sd">    * CB if none of them are ``None``</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mu : zfit.Parameter</span>
+<span class="sd">        mean</span>
+<span class="sd">    sigma: zfit.Parameter</span>
+<span class="sd">        standard deviation</span>
+<span class="sd">    obs: zfit.Space</span>
+<span class="sd">        Space</span>
+<span class="sd">    alpha: zfit.Parameter</span>
+<span class="sd">        :math:`\\alpha` parameter of the tail</span>
+<span class="sd">    n: zfit.Parameter</span>
+<span class="sd">        :math:`n` parameter of the tail</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    zfit.PDF.Gauss or zfit.PDF.CrystallBall</span>
+<span class="sd">        PDF</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">alpha</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pdf</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">Gauss</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pdf</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">CrystalBall</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">obs</span><span class="o">=</span><span class="n">obs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pdf</span></div>
+
+<div class="viewcode-block" id="sum_crystalball_or_gaussian"><a class="viewcode-back" href="../../../HEA.fit.html#HEA.fit.fit.sum_crystalball_or_gaussian">[docs]</a><span class="k">def</span> <span class="nf">sum_crystalball_or_gaussian</span><span class="p">(</span><span class="n">muL</span><span class="p">,</span> <span class="n">muR</span><span class="p">,</span> <span class="n">sigmaL</span><span class="p">,</span> <span class="n">sigmaR</span><span class="p">,</span> <span class="n">frac</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">alphaL</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alphaR</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nL</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nR</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Return the sum of 2 crystall ball PDFs with tails in opposite side (left or right) or Gaussian PDFs.</span>
+<span class="sd">    If the ``alpha`` or ``n`` is ``None``, the corresponding distribution (left or right) is a gaussian.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    muL : zfit.Parameter</span>
+<span class="sd">        mean of the left distribution</span>
+<span class="sd">    muR : zfit.Parameter</span>
+<span class="sd">        mean of the right distribution</span>
+<span class="sd">    sigmaL: zfit.Parameter</span>
+<span class="sd">        standard deviation of the left distribution</span>
+<span class="sd">    sigmaR: zfit.Parameter</span>
+<span class="sd">        standard deviation of the right distribution</span>
+<span class="sd">    obs: zfit.Space</span>
+<span class="sd">        Space</span>
+<span class="sd">    alphaL: zfit.Parameter</span>
+<span class="sd">        :math:`\\alpha_L` parameter of the left tail of the left distribution</span>
+<span class="sd">    alphaR: zfit.Parameter</span>
+<span class="sd">        :math:`\\alpha_R` parameter of the left tail of the right distribution</span>
+<span class="sd">    nL: zfit.Parameter</span>
+<span class="sd">        :math:`n_L` parameter of the left tail of the left distribution</span>
+<span class="sd">    nL: zfit.Parameter</span>
+<span class="sd">        :math:`n_R` parameter of the right tail of the right distribution</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    zfit.PDF.SumPDF</span>
+<span class="sd">        PDF sum of 2 crystall ball or Gaussian PDFs.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pdfL</span> <span class="o">=</span> <span class="n">crystall_ball_or_gaussian</span><span class="p">(</span><span class="n">muL</span><span class="p">,</span> <span class="n">sigmaL</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span>
+                                         <span class="n">alphaL</span><span class="p">,</span><span class="n">nL</span><span class="p">)</span>
+    <span class="n">pdfR</span> <span class="o">=</span> <span class="n">crystall_ball_or_gaussian</span><span class="p">(</span><span class="n">muR</span><span class="p">,</span> <span class="n">sigmaR</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span>
+                                         <span class="n">alphaR</span><span class="p">,</span> <span class="n">nR</span><span class="p">)</span>
+    
+    <span class="n">model</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">pdf</span><span class="o">.</span><span class="n">SumPDF</span><span class="p">([</span><span class="n">pdfL</span><span class="p">,</span> <span class="n">pdfR</span><span class="p">],</span> <span class="n">fracs</span><span class="o">=</span><span class="n">frac</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">model</span><span class="p">,</span> <span class="n">pdfL</span><span class="p">,</span> <span class="n">pdfR</span></div>
+
+<span class="c1">#################################################################################################</span>
+<span class="c1">########################################## Parameters ###########################################</span>
+<span class="c1">#################################################################################################</span>
+
+<div class="viewcode-block" id="define_zparams"><a class="viewcode-back" href="../../../HEA.fit.html#HEA.fit.fit.define_zparams">[docs]</a><span class="k">def</span> <span class="nf">define_zparams</span><span class="p">(</span><span class="n">initial_values</span><span class="p">,</span> <span class="n">cut_BDT</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Define zparams from the dictionnary initial_values</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    </span>
+<span class="sd">    initial_values : dict </span>
+<span class="sd">        {&quot;name_variable&quot;: {&quot;value&quot;:, &quot;low&quot;:, &quot;high&quot;:, &quot;floating&quot;:}}</span>
+<span class="sd">    cut_BDT        : float</span>
+<span class="sd">        performed cut on the BDT (BDT &gt; cutBDT)</span>
+<span class="sd">    num            : integer</span>
+<span class="sd">        Index of the fit. add ``&quot;;{num}&quot;`` at the end of the variable/</span>
+<span class="sd">        the other functions I wrote allow to ignore the ``&quot;;{num}&quot;`` in the name of the variable. This is used manely in order to define a parameter several times (when tuning their values to make the fit convergent)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    zparams        : dict[str, zfit.Parameter]</span>
+<span class="sd">        Dictionnary of zfit Parameters whose keys are the name of the variables and:</span>
+<span class="sd">        </span>
+<span class="sd">        * if cut_BDT is None, the key is just the name of the variable</span>
+<span class="sd">        * else, the key is ``&quot;{name_variable}|BDT{cut_BDT}&quot;``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">zparams</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">initial_values</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">cut_BDT</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name_var</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">|BDT</span><span class="si">{</span><span class="n">cut_BDT</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">name_var</span> <span class="o">=</span> <span class="n">var</span>
+        <span class="k">if</span> <span class="n">num</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name_var</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;;</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s1">&#39;</span>
+        
+        <span class="n">init</span> <span class="o">=</span> <span class="n">initial_values</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+        <span class="n">add_in_dic</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">add_in_dic</span><span class="p">(</span><span class="s1">&#39;low&#39;</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">add_in_dic</span><span class="p">(</span><span class="s1">&#39;high&#39;</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">add_in_dic</span><span class="p">(</span><span class="s1">&#39;floating&#39;</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="n">zparams</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">name_var</span><span class="p">,</span> <span class="n">init</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span> <span class="n">init</span><span class="p">[</span><span class="s1">&#39;low&#39;</span><span class="p">],</span> <span class="n">init</span><span class="p">[</span><span class="s1">&#39;high&#39;</span><span class="p">],</span>
+                                          <span class="n">floating</span> <span class="o">=</span> <span class="n">init</span><span class="p">[</span><span class="s1">&#39;floating&#39;</span><span class="p">])</span>
+        
+    <span class="k">return</span> <span class="n">zparams</span></div>
+
+<div class="viewcode-block" id="check_fit"><a class="viewcode-back" href="../../../HEA.fit.html#HEA.fit.fit.check_fit">[docs]</a><span class="k">def</span> <span class="nf">check_fit</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Check if the fit has gone well. If a check has gone wrong, point it out.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    result  : zfit.minimize.FitResult</span>
+<span class="sd">        result of the minimisation of the likelihood</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Bool</span>
+<span class="sd">        ``False`` if something has gone wrong in the fit.</span>
+<span class="sd">        ``True`` if the fit has gone smoothly.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fit_ok</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">info_fit</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;original&#39;</span><span class="p">]</span>
+    
+    <span class="n">checks</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">checks</span><span class="p">[</span><span class="s1">&#39;is_valid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">checks</span><span class="p">[</span><span class="s1">&#39;has_valid_parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">checks</span><span class="p">[</span><span class="s1">&#39;has_accurate_covar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">checks</span><span class="p">[</span><span class="s1">&#39;has_posdef_covar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">checks</span><span class="p">[</span><span class="s1">&#39;has_made_posdef_covar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">checks</span><span class="p">[</span><span class="s1">&#39;hesse_failed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">checks</span><span class="p">[</span><span class="s1">&#39;has_covariance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">checks</span><span class="p">[</span><span class="s1">&#39;is_above_max_edm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">checks</span><span class="p">[</span><span class="s1">&#39;has_reached_call_limit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="k">for</span> <span class="n">check</span><span class="p">,</span> <span class="n">desired</span> <span class="ow">in</span> <span class="n">checks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">info_fit</span><span class="p">[</span><span class="n">check</span><span class="p">]</span><span class="o">!=</span><span class="n">desired</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Problem: </span><span class="si">{</span><span class="n">check</span><span class="si">}</span><span class="s1"> is &#39;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">info_fit</span><span class="p">[</span><span class="n">check</span><span class="p">]))</span>
+            <span class="n">fit_ok</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="n">edm</span> <span class="o">=</span> <span class="n">info_fit</span><span class="p">[</span><span class="s1">&#39;edm&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">edm</span> <span class="o">&gt;</span> <span class="mf">0.001</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;edm = </span><span class="si">{</span><span class="n">edm</span><span class="si">}</span><span class="s1"> &gt; 0.001&#39;</span><span class="p">)</span>
+        <span class="n">fit_ok</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">params_at_limit</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;param at limit&#39;</span><span class="p">)</span>
+        <span class="n">fit_ok</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="k">return</span> <span class="n">fit_ok</span></div>
+    
+
+<div class="viewcode-block" id="save_params"><a class="viewcode-back" href="../../../HEA.fit.html#HEA.fit.fit.save_params">[docs]</a><span class="k">def</span> <span class="nf">save_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">name_file</span><span class="p">,</span> <span class="n">uncertainty</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dic_add</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">folder_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Save the parameters of the fit in ``{loc[&#39;json&#39;]}/{name_file}_params.json``</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    params        : dict[zfit.zfitParameter, float]</span>
+<span class="sd">        Result ``&#39;result.params&#39;`` of the minimisation of the loss function (given by :py:func:`launch_fit`)</span>
+<span class="sd">    name_file     : str</span>
+<span class="sd">        name of the file that will be saved  </span>
+<span class="sd">    uncertainty   : bool</span>
+<span class="sd">        if True, save also the uncertainties (variables that contain &#39;_err&#39; in their name)</span>
+<span class="sd">    dic_add       : dict or None</span>
+<span class="sd">        other parameters to be saved in the json file</span>
+<span class="sd">    folder_name   : str</span>
+<span class="sd">        name of the folder</span>
+<span class="sd">    remove        : list[str] or str or None</span>
+<span class="sd">        if not ``None``, string to be removed from the names of the parameters    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">remove</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">remove</span> <span class="o">=</span> <span class="n">el_to_list</span><span class="p">(</span><span class="n">remove</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    
+    
+    <span class="n">param_results</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span> <span class="c1"># loop through the parameters</span>
+        <span class="c1"># Retrieve name, value and error</span>
+        <span class="n">name_param</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">remove</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">remove</span><span class="p">:</span>
+                <span class="n">name_param</span> <span class="o">=</span> <span class="n">name_param</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            
+        <span class="n">value_param</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+        <span class="n">param_results</span><span class="p">[</span><span class="n">name_param</span><span class="p">]</span> <span class="o">=</span> <span class="n">value_param</span>
+        <span class="k">if</span> <span class="n">uncertainty</span><span class="p">:</span>
+            <span class="n">error_param</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="s1">&#39;minuit_hesse&#39;</span><span class="p">][</span><span class="s1">&#39;error&#39;</span><span class="p">]</span>
+            <span class="n">param_results</span><span class="p">[</span><span class="n">name_param</span> <span class="o">+</span> <span class="s1">&#39;_err&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">error_param</span>
+    
+    <span class="k">if</span> <span class="n">dic_add</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dic_add</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">param_results</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    
+    <span class="n">dump_json</span><span class="p">(</span><span class="n">param_results</span><span class="p">,</span> <span class="n">name_file</span> <span class="o">+</span> <span class="s1">&#39;_params&#39;</span><span class="p">,</span> <span class="n">folder_name</span><span class="o">=</span><span class="n">folder_name</span><span class="p">)</span></div>
+
+   
+    
+<div class="viewcode-block" id="launch_fit"><a class="viewcode-back" href="../../../HEA.fit.html#HEA.fit.fit.launch_fit">[docs]</a><span class="k">def</span> <span class="nf">launch_fit</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">extended</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Fit the data with the model</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model    : zfit.pdf.BasePDF</span>
+<span class="sd">        Overall PDF for the fit</span>
+<span class="sd">    data     : zfit.data.Data</span>
+<span class="sd">        Data that will be fitted to</span>
+<span class="sd">    extended : if True</span>
+<span class="sd">        Define or not an extended loss function</span>
+<span class="sd">    verbose  : Bool</span>
+<span class="sd">        print or not the result of the fit</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    result: zfit.minimize.FitResult</span>
+<span class="sd">        result of the minimisation of the likelihood</span>
+<span class="sd">    param : Dict[ZfitParameter, float]</span>
+<span class="sd">        Result ``result.params`` of the minimisation of the loss function (given by :py:func:`launch_fit`)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1">## Minimisation of the loss function </span>
+    <span class="k">if</span> <span class="n">extended</span><span class="p">:</span>
+        <span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">ExtendedUnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nll</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">UnbinnedNLL</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+    
+    <span class="c1"># create a minimizer</span>
+    <span class="n">minimizer</span> <span class="o">=</span> <span class="n">zfit</span><span class="o">.</span><span class="n">minimize</span><span class="o">.</span><span class="n">Minuit</span><span class="p">(</span><span class="n">verbosity</span><span class="o">=</span><span class="n">verbose</span><span class="o">*</span><span class="mi">5</span><span class="p">)</span>
+    <span class="c1"># minimise with nll the model with the data</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">minimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">nll</span><span class="p">)</span>
+
+    <span class="c1"># do the error calculations, here with Hesse</span>
+    <span class="n">param_hesse</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">hesse</span><span class="p">()</span> <span class="c1"># get he hessien</span>
+    <span class="c1">#param_errors, _ = result.errors(method=&#39;minuit_minos&#39;) # get the errors (gaussian)</span>
+    
+    <span class="n">param</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">params</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>        
+    <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">param</span></div>
+
+
+    
+    
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Anthony Correia.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

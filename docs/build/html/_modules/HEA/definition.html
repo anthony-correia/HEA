@@ -1,0 +1,1042 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>HEA.definition &mdash; HEA 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../HEA.config.html">HEA.config package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../HEA.fit.html">HEA.fit package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../HEA.plot.html">HEA.plot package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../HEA.tools.html">HEA.tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HEA</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>HEA.definition</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for HEA.definition</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* Global variables</span>
+<span class="sd">    * ``definition_functions``: dict ``{{name_function}: function}``</span>
+<span class="sd">    * ``latex_function``: dict ``{name_function}: function providing a latex representation``</span>
+<span class="sd">* Class ``RVariable`` to concoct the latex name of the branches, particles and physical quantities, from the python file ``loc[&#39;definition&#39;]`` that contains</span>
+<span class="sd">    * ``definition_quantities``: dict(dict) ``{quantity: {&#39;latex&#39;: latex_quantity, &#39;unit&#39;: unit}}</span>
+<span class="sd">    * ``latex_particles``: dict ``{particle: latex_particle}``</span>
+<span class="sd">* Functions to get branches and raw branches from ``raw_branches_functions`` (*list(str or (str, str) or (tuple, str)*), list of </span>
+
+<span class="sd">    * branches</span>
+<span class="sd">    * tuple ``(raw_branch, name_function)``, where ``name_function`` is the name of the function applied to the branch</span>
+<span class="sd">    * tuple ``(raw_branch, name_function)``, where ``raw_branches`` is a tuple of raw branches and ``name_function`` is the name of the function applied to the raw branches.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">log</span>
+
+
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">loc</span><span class="p">,</span> <span class="n">default_fontsize</span>
+
+<span class="kn">import</span> <span class="nn">importlib.util</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span><span class="s2">&quot;definition_project&quot;</span><span class="p">,</span> <span class="n">loc</span><span class="p">[</span><span class="s1">&#39;definition&#39;</span><span class="p">])</span>
+<span class="n">definition_project</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">definition_project</span><span class="p">)</span>
+<span class="n">definition_quantities</span> <span class="o">=</span> <span class="n">definition_project</span><span class="o">.</span><span class="n">definition_quantities</span>
+<span class="n">latex_particles</span> <span class="o">=</span> <span class="n">definition_project</span><span class="o">.</span><span class="n">latex_particles</span>
+
+
+<span class="kn">import</span> <span class="nn">HEA.tools.assertion</span> <span class="k">as</span> <span class="nn">assertion</span>
+<span class="kn">from</span> <span class="nn">HEA.tools.da</span> <span class="kn">import</span> <span class="n">el_to_list</span>
+<span class="kn">from</span> <span class="nn">HEA.tools.string</span> <span class="kn">import</span> <span class="n">add_text</span><span class="p">,</span> <span class="n">_latex_format</span><span class="p">,</span> <span class="n">string_between_brackets</span>
+<span class="kn">from</span> <span class="nn">HEA.tools.serial</span> <span class="kn">import</span> <span class="n">get_latex_column_table</span>
+
+
+<span class="c1"># Name of the functions and functions ======================================================</span>
+
+<span class="c1"># Name of the functions and functions</span>
+<span class="n">definition_functions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;ln(1-x)&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">log</span><span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">x</span><span class="p">)),</span>
+    <span class="s1">&#39;ln(x)&#39;</span>   <span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span>
+    <span class="s1">&#39;x/y&#39;</span>     <span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+    <span class="s1">&#39;identity&#39;</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">),</span>
+    <span class="kc">None</span>      <span class="p">:</span> <span class="kc">None</span>
+<span class="p">}</span>
+
+<span class="n">latex_functions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;x/y&#39;</span>     <span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">frac</span><span class="se">{{</span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="se">}}{{</span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="se">}}</span><span class="s1">$&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1"># RVariable =================================================================================</span>
+
+
+<div class="viewcode-block" id="RVariable"><a class="viewcode-back" href="../../index.html#HEA.definition.RVariable">[docs]</a><span class="k">class</span> <span class="nc">RVariable</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; Variable of candidates.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_quantity  : str</span>
+<span class="sd">        A physical quantity (e.g., ``&#39;M&#39;`` the invariant mass, ...)  or list of physical quantities</span>
+<span class="sd">    particle      : str or list(str) or tuple(str)</span>
+<span class="sd">        A particle (e.g., &#39;B0&#39; for the B0 meson) or a list of particles.</span>
+<span class="sd">        </span>
+<span class="sd">            * If ``particle`` is a list, ``quantity`` must be a list of same length</span>
+<span class="sd">            * If ``quantity`` is a list and ``particle`` is a str, then each physical quantity refers to the same ``particle``</span>
+<span class="sd">            </span>
+<span class="sd">    name_function : str</span>
+<span class="sd">        Name of the functions (as defined in the dictionnary ``definition_functions``) that can be applied to the quantity(es)</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The class ``RVariable`` allows to concoct the latex name of the branches, particles and physical quantities, from the python file ``loc[&#39;definition&#39;]`` that contains</span>
+<span class="sd">    </span>
+<span class="sd">    * ``definition_quantities``: dict(dict) ``{quantity: {&#39;latex&#39;: latex_quantity, &#39;unit&#39;: unit}}</span>
+<span class="sd">    * ``latex_particles``: dict ``{particle: latex_particle}``</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    The particle `particle` must be one of the keys of dictionnary  ``latex_particles`` in ``loc[&#39;definition&#39;]``. That is how they are identified.</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    Examples</span>
+<span class="sd">    -------- </span>
+<span class="sd">    </span>
+<span class="sd">    Then, the RVariable corresponds to:</span>
+<span class="sd">    </span>
+<span class="sd">    * Branch *BDT*:</span>
+<span class="sd">        * ``raw_quantity``  : ``&#39;BDT&#39;`` </span>
+<span class="sd">        * ``particle``      : ``None``</span>
+<span class="sd">        * ``name_function`` : ``None``</span>
+<span class="sd">    * Branch mass of the :math:`B^{0}` meson </span>
+<span class="sd">        * ``raw_quantity``  : ``&#39;M&#39;`` </span>
+<span class="sd">        * ``particle``      : ``&#39;B0&#39;``</span>
+<span class="sd">        * ``name_function`` : ``None``</span>
+<span class="sd">    * :math:`\\text{ln}(1-x)` of the DIRA angle of the own primary vertex of the :math:`D^{*}` meson</span>
+<span class="sd">        * ``raw_quantity``  : ``&#39;DIRA_OWNPV&#39;`` </span>
+<span class="sd">        * ``particle``      : ``&#39;Dst&#39;``</span>
+<span class="sd">        * ``name_function`` : ``&#39;ln(1-x)&#39;``</span>
+<span class="sd">    * :math:`\\chi^2` of the end vertex divided by the number of d.o.f. of the corresponding fit, for the :math:`3\\pi` mesonic system.</span>
+<span class="sd">        * ``raw_quantity``  : ``(&#39;ENDVERTEX_CHI2&#39;, &#39;ENDVERTEX_NDOF&#39;)`` </span>
+<span class="sd">        * ``particle``      : ``&#39;tau&#39;``</span>
+<span class="sd">        * ``name_function`` : ``&#39;x/y&#39;``</span>
+<span class="sd">    * :math:`p_T` of :math:`\\pi_0` divided by the :math:`p_T` of :math:`pi_1`</span>
+<span class="sd">        * ``raw_quantity``  : ``(&#39;pT&#39;, &#39;pT&#39;)`` </span>
+<span class="sd">        * ``particle``      : ``(&#39;tau_pi0&#39;, `tau_pi1`)``</span>
+<span class="sd">        * ``name_function`` : ``&#39;x/y&#39;``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1">## Constructors------------------------------------------------------------</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_quantity</span><span class="p">,</span> <span class="n">particle</span><span class="p">,</span> <span class="n">name_function</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create a RVariable from a physical quantity, a particle and the function applied to the variable.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        raw_quantity: str or list(str) or tuple(str)</span>
+<span class="sd">            A physical quantity (e.g., ``&#39;M&#39;`` the invariant mass, ...)  or list of physical quantities</span>
+<span class="sd">            If it is an iterable, the ``function`` must transform them into a single variable (i.e., the function takes more than 1 variable)</span>
+<span class="sd">        particle: str or list(str) or tuple(str)</span>
+<span class="sd">            A particle (e.g., &#39;B0&#39; for the B0 meson) or a list of particles.</span>
+<span class="sd">            </span>
+<span class="sd">            * If ``particle`` is a list, ``quantity`` must be a list of same length</span>
+<span class="sd">            * If ``quantity`` is a list and ``particle`` is a str, then each physical quantity refers to the same ``particle``</span>
+<span class="sd">        function: str or None</span>
+<span class="sd">            Name of the functions (as defined in the dictionnary ``definition_functions``) that can be applied to the quantity(es)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">assertion</span><span class="o">.</span><span class="n">_assert_is_in_iterable</span><span class="p">(</span><span class="n">name_function</span><span class="p">,</span> <span class="n">definition_functions</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">particle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">particle</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">assertion</span><span class="o">.</span><span class="n">_assert_list_tuple</span><span class="p">(</span><span class="n">particle</span><span class="p">)</span>
+            <span class="n">assertion</span><span class="o">.</span><span class="n">_assert_list_tuple</span><span class="p">(</span><span class="n">raw_quantity</span><span class="p">)</span>
+            
+            <span class="n">particle</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">particle</span><span class="p">)</span>
+            <span class="n">raw_quantity</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">raw_quantity</span><span class="p">)</span>
+            
+            <span class="n">assertion</span><span class="o">.</span><span class="n">_assert_same_length</span><span class="p">(</span><span class="n">particle</span><span class="p">,</span> <span class="n">raw_quantity</span><span class="p">)</span>
+            
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_quantity</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">assertion</span><span class="o">.</span><span class="n">_assert_list_tuple</span><span class="p">(</span><span class="n">raw_quantity</span><span class="p">)</span>
+            <span class="n">raw_quantity</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">raw_quantity</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_quantity</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1"># if raw_quantity is an iterable, the ``function`` must transform them into a single variable (i.e., the function takes more than 1 variable)</span>
+            <span class="n">assertion</span><span class="o">.</span><span class="n">_assert_not_none</span><span class="p">(</span><span class="n">name_function</span><span class="p">)</span>        
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw_quantity</span> <span class="o">=</span> <span class="n">raw_quantity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">particle</span> <span class="o">=</span> <span class="n">particle</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_function</span> <span class="o">=</span> <span class="n">name_function</span>
+    
+<div class="viewcode-block" id="RVariable.from_branch"><a class="viewcode-back" href="../../index.html#HEA.definition.RVariable.from_branch">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_branch</span><span class="p">(</span><span class="n">branch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create a RVariable from a branch</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        branch: branch name</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        RVariable:</span>
+<span class="sd">            RVariable with branch given by the argument</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">particle</span><span class="p">,</span> <span class="n">raw_quantity</span><span class="p">,</span> <span class="n">name_function</span> <span class="o">=</span> <span class="n">RVariable</span><span class="o">.</span><span class="n">get_particle_raw_quantity_name_function_from_branch</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">raw_quantity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">RVariable</span><span class="p">(</span><span class="n">particle</span><span class="o">=</span><span class="n">particle</span><span class="p">,</span> <span class="n">raw_quantity</span><span class="o">=</span><span class="n">raw_quantity</span><span class="p">,</span> <span class="n">name_function</span><span class="o">=</span><span class="n">name_function</span><span class="p">)</span></div>
+    
+    
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">latex_branch</span>
+    
+    
+    <span class="c1">## non-latex properties -----------------------------------------------------------</span>
+    
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">quantity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Combined physical quantity, with the function applied to it. Only defined if there is zero or one particle.</span>
+<span class="sd">        </span>
+<span class="sd">        * ``{raw_quantity}`` if there is one raw branch and no function</span>
+<span class="sd">        * ``{raw_quantity}:{name_function}`` if there is one raw quantity and a function</span>
+<span class="sd">        * ``{raw_quantity[0]},{raw_quantity[1]}:{name_function}`` if there are two raw variables and a function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">assertion</span><span class="o">.</span><span class="n">is_list_tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_quantity</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">raw_quantities</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_quantity</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">raw_quantities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_quantity</span>
+            <span class="k">return</span> <span class="n">add_text</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">raw_quantities</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_function</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">raw_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; str, the name of the branch that could be found in a root file</span>
+<span class="sd">        </span>
+<span class="sd">        * ``{raw_quantity}`` if there is one raw quantity, zero particle</span>
+<span class="sd">        * ``raw_variable = {particle}_{raw_quantity}`` if there is one raw quantity, one particle</span>
+<span class="sd">        * Tuple of ``tuple({raw_variable[0]},{raw_variable[1]})`` if there is two raw variables</span>
+<span class="sd">        * ...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">RVariable</span><span class="o">.</span><span class="n">get_raw_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_quantity</span><span class="p">)</span>
+        
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">branch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; str, the name of the branch used in the pandas dataframe</span>
+<span class="sd">        </span>
+<span class="sd">        * ``{raw_branch}`` if there is one raw branch and no function </span>
+<span class="sd">        * ``{raw_branch}:{name_function}`` if there is one raw quantity and a function </span>
+<span class="sd">        * ``{raw_branch[0]},{raw_branch[1]}:{name_function}`` if there is two raw variables and a function </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span>  <span class="bp">self</span><span class="o">.</span><span class="n">get_branch_from_raw_branch_name_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_branch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_function</span><span class="p">)</span>
+        
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Function whose name is ``name_function``. If ``None``, the function is the identity.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">definition_functions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name_function</span><span class="p">]</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">unit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; unit of the physical quantity</span>
+<span class="sd">        </span>
+<span class="sd">        Check in the ``definition_quantities`` dictionnary with ``self.quantity`` or ``self.branch`` as a key</span>
+<span class="sd">        If their is nothing, just return ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch</span> <span class="ow">in</span> <span class="n">definition_quantities</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">definition_quantities</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">branch</span><span class="p">][</span><span class="s1">&#39;unit&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="ow">in</span> <span class="n">definition_quantities</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">definition_quantities</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">][</span><span class="s1">&#39;unit&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="c1">## Latex properties -----------------------------------------------------------</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">latex_particle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Latex name of the particle, taken from the `latex_particles` dictionnary in `loc[&#39;definition&#39;]`.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_latex_particle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">)</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">latex_raw_quantity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Latex name of the raw quantity, taken from the `definition_quantities` dictionnary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_latex_raw_quantity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_quantity</span><span class="p">)</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">latex_quantity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; str</span>
+<span class="sd">        </span>
+<span class="sd">        1. If there are more than 1 particle, it is `None`. The latex name of the quantity is not well defined in this case!</span>
+<span class="sd">        2. if there is no function (i.e., the function is the identity), it is the ``latex_quantity_without_function`` argument</span>
+<span class="sd">        3. if there is a function:</span>
+<span class="sd">        </span>
+<span class="sd">            1. The latex name might be provided in the ``definition_quantities`` dictionnary with the key ``self.quantity`` (if not ``None``)</span>
+<span class="sd">            2. If there is a function, if the dictionnary ``latex_functions`` contains the name of the function, it means that another way to specify the application of the function to the variable is provided, it has to be used in preference. For instance, we have chosen to show the division function with the ``\\frac{}{}`` latex operator.</span>
+<span class="sd">            3. If the latex name is not provided in this dictionnary, the latex name is just ``&quot;{name_function} of the {latex_raw_quantity}&quot;`` or ``&quot;{name_function} of the {latex_raw_quantity[0]} and the {latex_raw_quantity[1]}&quot;`` if there are more than 1 quantity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Case 1</span>
+        <span class="k">if</span> <span class="n">assertion</span><span class="o">.</span><span class="n">is_list_tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        
+        <span class="c1"># Case 2</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">latex_raw_quantity</span>
+        
+        <span class="c1"># Case 3</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_latex_variable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latex_raw_quantity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_function</span><span class="p">)</span>
+<span class="c1">#             # Case 3.1</span>
+<span class="c1">#             if self.quantity in definition_quantities:</span>
+<span class="c1">#                 return definition_quantities[self.quantity][&#39;latex&#39;]</span>
+            
+<span class="c1">#             # Case 3.2:</span>
+<span class="c1">#             elif self.name_function in latex_functions:</span>
+<span class="c1">#                 return latex_functions[self.name_function](self.latex_raw_quantity)</span>
+            
+<span class="c1">#             # Case 3.3</span>
+<span class="c1">#             else:                    </span>
+<span class="c1">#                 latex_raw_quantities_text = &#39; and the &#39;.join(self.latex_raw_quantity)</span>
+<span class="c1">#                 return f&quot;{self.name_function} of the {latex_raw_quantities_text}&quot;</span>
+                
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">latex_raw_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the latex name of the branches, without including the function in the label</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        latex_raw_branch: str or tuple(str)</span>
+<span class="sd">            * if ``self.raw_branch`` is one branch, returns ``&quot;{self.latex_raw_quantity}({self.latex_particle})&quot;`` or just ``self.latex_quantity`` if no the rVariable has no particle.</span>
+<span class="sd">            * if ``self.latex_quantity`` is a tuple of quantities, returns a tuple of latex names of variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_latex_raw_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latex_particle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latex_raw_quantity</span><span class="p">)</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">latex_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Full latex name of the variable</span>
+<span class="sd">        </span>
+<span class="sd">        1. If there is no function specified, the latex name of the variable is merely ``self.latex_raw_branch`` </span>
+<span class="sd">        2. The latex name might be provided in the ``definition_quantities`` dictionnary with the key ``self.branch``</span>
+<span class="sd">        3. If there is one particle for several quantities, specify the name of the particle just at the very end. Then, ``latex_branch`` is ``{latex_quantity}({latex_particle})``</span>
+<span class="sd">        4. If there is the same number of particles and quantities, specify the particle for each variable</span>
+<span class="sd">        </span>
+<span class="sd">            1. If there is a function, if the dictionnary ``latex_functions`` contains the name of the function, it means that another way to specify the application of the function to the variable is provided, it has to be used in preference. For instance, we have chosen to show the division function with the ``\\frac{}{}`` latex operator.</span>
+<span class="sd">            2. If the dictionnary does not contain a label for the function: if there is only one variable the name of the variable is ``&quot;{name_function} of the {latex_raw_branch}&quot;`` or ``&quot;{name_function} of the {latex_raw_branch[0]} and {latex_raw_branch[1]}&quot;`` if there are more than one variable.</span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        </span>
+<span class="sd">        (These steps are done with ``self.__get_latex_variable(variable, latex_raw_variable, name_function)``)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Case 1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_latex_upper_case</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latex_raw_branch</span><span class="p">)</span>
+        
+        <span class="c1"># Case 2</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch</span> <span class="ow">in</span> <span class="n">definition_quantities</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">definition_quantities</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">branch</span><span class="p">][</span><span class="s1">&#39;latex&#39;</span><span class="p">]</span>
+        
+        
+        <span class="n">are_one_particle_and_several_quantities</span> <span class="o">=</span> <span class="n">assertion</span><span class="o">.</span><span class="n">is_list_tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_quantity</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_quantity</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particle</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="c1"># Case 3</span>
+        <span class="k">if</span> <span class="n">are_one_particle_and_several_quantities</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">latex_quantity</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">latex_particle</span><span class="si">}</span><span class="s2">)&quot;</span>
+        
+        <span class="c1">#Case 4</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_latex_variable</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latex_raw_branch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_function</span><span class="p">)</span>
+    <span class="c1">## Static methods ---------------------------------------------------------------</span>
+    
+<div class="viewcode-block" id="RVariable.get_raw_branch"><a class="viewcode-back" href="../../index.html#HEA.definition.RVariable.get_raw_branch">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_raw_branch</span><span class="p">(</span><span class="n">particle</span><span class="p">,</span> <span class="n">raw_variable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">         particle: str or tuple(str) or None</span>
+<span class="sd">            particle or list of particles</span>
+<span class="sd">        raw_variable: str</span>
+<span class="sd">            name of the raw variable</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        raw_branch: str or tuple(str)</span>
+<span class="sd">            Name of the raw branch or tuple of the names of the raw branches</span>
+<span class="sd">            </span>
+<span class="sd">            * ``{raw_quantity}`` if there is one raw quantity, zero particle</span>
+<span class="sd">            * ``raw_variable = {particle}_{raw_quantity}`` if there is one raw quantity, one particle</span>
+<span class="sd">            * Tuple of ``tuple({raw_variable[0]},{raw_variable[1]})`` if there is two raw variables</span>
+<span class="sd">            * ...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="n">assertion</span><span class="o">.</span><span class="n">is_list_tuple</span><span class="p">(</span><span class="n">raw_variable</span><span class="p">):</span>
+            <span class="n">particle</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">el_to_list</span><span class="p">(</span><span class="n">particle</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_variable</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">RVariable</span><span class="o">.</span><span class="n">get_raw_branch</span><span class="p">(</span><span class="n">sub_particle</span><span class="p">,</span> <span class="n">sub_raw_quantity</span><span class="p">)</span> <span class="k">for</span> <span class="n">sub_particle</span><span class="p">,</span> <span class="n">sub_raw_quantity</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">particle</span><span class="p">,</span> <span class="n">raw_variable</span><span class="p">))</span>
+        
+        <span class="k">return</span> <span class="n">add_text</span><span class="p">(</span><span class="n">particle</span><span class="p">,</span> <span class="n">raw_variable</span><span class="p">)</span> </div>
+    
+<div class="viewcode-block" id="RVariable.get_latex_particle"><a class="viewcode-back" href="../../index.html#HEA.definition.RVariable.get_latex_particle">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_latex_particle</span><span class="p">(</span><span class="n">particle</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get the latex label of a particle from its raw name</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        particle: str or tuple(str) or None</span>
+<span class="sd">            particle or list of particles</span>
+<span class="sd">            </span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        latex_particle: str or tuple(str) or None</span>
+<span class="sd">        </span>
+<span class="sd">            * latex name of the particle(s) if specified in ``latex_particles``</span>
+<span class="sd">            * else, ``particle``</span>
+<span class="sd">            * if a list of particle is provided, returns a tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># If ``particle`` is a list (recursion)</span>
+        <span class="k">if</span> <span class="n">assertion</span><span class="o">.</span><span class="n">is_list_tuple</span><span class="p">(</span><span class="n">particle</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">RVariable</span><span class="o">.</span><span class="n">get_latex_particle</span><span class="p">(</span><span class="n">sub_particle</span><span class="p">)</span> <span class="k">for</span> <span class="n">sub_particle</span> <span class="ow">in</span> <span class="n">particle</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">particle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">particle</span> <span class="ow">in</span> <span class="n">latex_particles</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">latex_particles</span><span class="p">[</span><span class="n">particle</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">particle</span></div>
+    
+<div class="viewcode-block" id="RVariable.get_latex_raw_quantity"><a class="viewcode-back" href="../../index.html#HEA.definition.RVariable.get_latex_raw_quantity">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_latex_raw_quantity</span><span class="p">(</span><span class="n">raw_quantity</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get the latex label of a raw quantity</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        raw_quantity: str or tuple(str)</span>
+<span class="sd">            raw quantity or list of raw quantities</span>
+<span class="sd">            </span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        latex_raw_quantity: str or tuple(str) or None</span>
+<span class="sd">            * latex name of the raw quantitie(s) if specified in ``definition_quantities``</span>
+<span class="sd">            * else, ``raw_quantity``</span>
+<span class="sd">            * if a list of raw quantities is provided, returns a tuple of their latex names</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">assertion</span><span class="o">.</span><span class="n">_assert_not_none</span><span class="p">(</span><span class="n">raw_quantity</span><span class="p">)</span>
+        
+        <span class="c1"># If ``raw_quantity`` is a listraw_quantity(recursion)</span>
+        <span class="k">if</span> <span class="n">assertion</span><span class="o">.</span><span class="n">is_list_tuple</span><span class="p">(</span><span class="n">raw_quantity</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">RVariable</span><span class="o">.</span><span class="n">get_latex_raw_quantity</span><span class="p">(</span><span class="n">sub_raw_quantity</span><span class="p">)</span> <span class="k">for</span> <span class="n">sub_raw_quantity</span> <span class="ow">in</span> <span class="n">raw_quantity</span><span class="p">)</span>
+        
+        
+        <span class="k">elif</span> <span class="n">raw_quantity</span> <span class="ow">in</span> <span class="n">definition_quantities</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">definition_quantities</span><span class="p">[</span><span class="n">raw_quantity</span><span class="p">][</span><span class="s1">&#39;latex&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_latex_format</span><span class="p">(</span><span class="n">raw_quantity</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="RVariable.get_latex_raw_branch"><a class="viewcode-back" href="../../index.html#HEA.definition.RVariable.get_latex_raw_branch">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_latex_raw_branch</span><span class="p">(</span><span class="n">latex_particle</span><span class="p">,</span> <span class="n">latex_raw_quantity</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the latex name of the raw branches (i.e., quantity and particle), without including the function in the label</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        latex_particle: str or list(str)</span>
+<span class="sd">            latex name of particle or list of latex names of particles</span>
+<span class="sd">        latex_raw_quantity: str or list(str)</span>
+<span class="sd">            latex name of a raw quantity or list of latex names of raw quantities</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        latex_raw_branch: str or tuple(str)</span>
+<span class="sd">            * if ``self.raw_branch`` is one branch, returns ``&quot;{self.latex_quantity}({self.latex_particle})&quot;`` or just ``self.latex_quantity`` if no the rVariable has no particle.</span>
+<span class="sd">            * if ``self.latex_quantity`` is a tuple of quantities, returns a tuple of latex names of variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># If ``latex_raw_quantity`` is a list (recursion)</span>
+        <span class="k">if</span> <span class="n">assertion</span><span class="o">.</span><span class="n">is_list_tuple</span><span class="p">(</span><span class="n">latex_raw_quantity</span><span class="p">):</span>
+            <span class="c1"># Repeat the name of the particle in the case it is the same (i.e., there is one particle specified but several quantities)</span>
+            <span class="n">latex_particles</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">el_to_list</span><span class="p">(</span><span class="n">latex_particle</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">latex_raw_quantity</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">RVariable</span><span class="o">.</span><span class="n">get_latex_raw_branch</span><span class="p">(</span><span class="n">sub_latex_particle</span><span class="p">,</span> <span class="n">sub_latex_raw_quantity</span><span class="p">)</span> <span class="k">for</span> <span class="n">sub_latex_particle</span><span class="p">,</span> <span class="n">sub_latex_raw_quantity</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">latex_particles</span><span class="p">,</span> <span class="n">latex_raw_quantity</span><span class="p">))</span>
+        
+        
+        <span class="k">if</span> <span class="n">latex_particle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">latex_raw_quantity</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">latex_raw_quantity</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">latex_particle</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+    
+    
+<div class="viewcode-block" id="RVariable.get_particle_raw_quantity_from_raw_branch"><a class="viewcode-back" href="../../index.html#HEA.definition.RVariable.get_particle_raw_quantity_from_raw_branch">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_particle_raw_quantity_from_raw_branch</span><span class="p">(</span><span class="n">raw_branch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get the name of the particle and of the raw physical quantity from the raw branch name</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        branch : str</span>
+<span class="sd">            name of the branch (for instance: ``&#39;B0_M&#39;``)</span>
+<span class="sd">            (cannot be a tuple in this function!)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        particle : str</span>
+<span class="sd">            name of the particle (``&#39;B0&#39;``, ``&#39;tau&#39;``, ...), key in the dictionnary latex_particles</span>
+<span class="sd">        raw_quantity : str</span>
+<span class="sd">            name of the raw physical quantity (``&#39;P&#39;``, ``&#39;M&#39;``, ...)</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        the particle is in the dictionnary latex_particles in ``{loc[&#39;project&#39;]}/definition.py``</span>
+<span class="sd">        </span>
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; get_particle_raw_quantity_from_branch(&#39;B0_M&#39;)</span>
+<span class="sd">        (&#39;B0&#39;, &#39;M&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; get_particle_raw_quantity_from_branch(&#39;BDT&#39;)</span>
+<span class="sd">        (None, &#39;BDT&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="n">assertion</span><span class="o">.</span><span class="n">is_list_tuple</span><span class="p">(</span><span class="n">raw_branch</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">RVariable</span><span class="o">.</span><span class="n">get_particle_raw_quantity_from_branch</span><span class="p">(</span><span class="n">sub_raw_branch</span><span class="p">)</span> <span class="k">for</span> <span class="n">sub_raw_branch</span> <span class="ow">in</span> <span class="n">raw_branch</span><span class="p">)</span>
+        
+        <span class="n">list_particles</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">latex_particles</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    
+        <span class="c1">## Get the name of the particle and deduce the name of the var</span>
+        <span class="n">particle</span> <span class="o">=</span> <span class="n">raw_branch</span>
+        <span class="n">marker</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">marker_before</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># We must have: branch = ``&quot;{particle}_{raw_quantity}&quot;`</span>
+        <span class="c1"># As long as particle is not in the list of the name of particles</span>
+        <span class="c1"># get the next &#39;_&#39; (starting from the end)</span>
+        <span class="c1"># cut branch in before &#39;_&#39; and after &#39;_&#39;</span>
+        <span class="c1"># What is before should be the name of the particle</span>
+        <span class="c1"># unless we need to select the next &#39;_&#39; to get the name of the particle</span>
+        <span class="c1"># because this &#39;_&#39; is part of the name of the raw quantity</span>
+        <span class="k">while</span> <span class="n">particle</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">list_particles</span> <span class="ow">and</span> <span class="n">marker</span> <span class="o">!=</span> <span class="n">marker_before</span><span class="p">:</span>
+            <span class="n">marker_before</span> <span class="o">=</span> <span class="n">marker</span>
+            <span class="n">cut_branch</span> <span class="o">=</span> <span class="n">raw_branch</span><span class="p">[:</span><span class="n">marker</span><span class="p">]</span>
+            <span class="n">marker</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cut_branch</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">cut_branch</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="c1"># find the last &#39;_&#39;</span>
+            <span class="n">particle</span> <span class="o">=</span> <span class="n">raw_branch</span><span class="p">[:</span><span class="n">marker</span><span class="p">]</span>
+
+        <span class="c1"># if there were a &#39;_&#39; in branch, we assume the separation was done</span>
+        <span class="k">if</span> <span class="n">marker</span> <span class="o">!=</span> <span class="n">marker_before</span><span class="p">:</span>
+            <span class="n">raw_quantity</span> <span class="o">=</span> <span class="n">raw_branch</span><span class="p">[</span><span class="n">marker</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+            <span class="k">return</span> <span class="n">particle</span><span class="p">,</span> <span class="n">raw_quantity</span>
+
+        <span class="c1"># if we did not find a particle : the raw quantity is the raw branch itself</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">raw_branch</span></div>
+    
+<div class="viewcode-block" id="RVariable.get_particle_raw_quantity_name_function_from_branch"><a class="viewcode-back" href="../../index.html#HEA.definition.RVariable.get_particle_raw_quantity_name_function_from_branch">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_particle_raw_quantity_name_function_from_branch</span><span class="p">(</span><span class="n">branch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get the particle, the raw quantity and the function from the name branch</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        branch : str</span>
+<span class="sd">            branch name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        particle     : str</span>
+<span class="sd">            Particle name (e.g., ``&#39;B0&#39;``, ``&#39;Dst&#39;``, ...)</span>
+<span class="sd">        raw_quantity : str or tuple(str)</span>
+<span class="sd">            name of the raw quantity or tuple of raw quantities (e.g., ``&#39;M&#39;``, ``&#39;BDT&#39;``, ...)</span>
+<span class="sd">        name_function : str</span>
+<span class="sd">            name of the function applied to the data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># function</span>
+        <span class="k">if</span> <span class="s1">&#39;:&#39;</span> <span class="ow">in</span> <span class="n">branch</span><span class="p">:</span>
+            <span class="n">full_raw_branch</span><span class="p">,</span> <span class="n">name_function</span> <span class="o">=</span> <span class="n">branch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">name_function</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">full_raw_branch</span> <span class="o">=</span> <span class="n">branch</span>
+        
+        <span class="c1"># full_raw_branch might be &#39;B0_M&#39;, &#39;BDT&#39;, or if there are more than 1 variable, &#39;B0_M,BDT&#39; </span>
+        <span class="c1"># We get all the variables separately</span>
+        <span class="n">raw_branches</span> <span class="o">=</span> <span class="n">full_raw_branch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># We find the particle and raw_quantity of each</span>
+        <span class="c1"># We check if they all refer to the same particle</span>
+        <span class="n">particles</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">raw_branches</span><span class="p">)</span>
+        <span class="n">raw_quantities</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">raw_branches</span><span class="p">)</span>
+        
+        <span class="n">common_particle</span> <span class="o">=</span> <span class="kc">True</span>
+        
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">raw_branch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">raw_branches</span><span class="p">):</span>
+            <span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">raw_quantities</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">RVariable</span><span class="o">.</span><span class="n">get_particle_raw_quantity_from_raw_branch</span><span class="p">(</span><span class="n">raw_branch</span><span class="p">)</span>
+            
+            <span class="n">common_particle</span> <span class="o">=</span> <span class="n">common_particle</span> <span class="ow">and</span> <span class="p">(</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="n">particles</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        
+        <span class="n">particles</span> <span class="o">=</span> <span class="n">particles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">common_particle</span> <span class="k">else</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">particles</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_quantities</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">raw_quantities</span> <span class="o">=</span> <span class="n">raw_quantities</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> 
+        <span class="k">return</span> <span class="n">particles</span><span class="p">,</span> <span class="n">raw_quantities</span><span class="p">,</span> <span class="n">name_function</span></div>
+        
+<div class="viewcode-block" id="RVariable.get_latex_raw_variable_unit_from_particle_raw_quantity"><a class="viewcode-back" href="../../index.html#HEA.definition.RVariable.get_latex_raw_variable_unit_from_particle_raw_quantity">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_latex_raw_variable_unit_from_particle_raw_quantity</span><span class="p">(</span><span class="n">particle</span><span class="p">,</span> <span class="n">raw_quantity</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get the latex label of the particle, the variable and its unit, from the couple ``(particle, raw_quantity)``</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        particle     : str or None</span>
+<span class="sd">            name of the particle</span>
+<span class="sd">        raw_quantity : str or None</span>
+<span class="sd">            name of the raw quantity</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        latex_particle     : str</span>
+<span class="sd">            Latex label of the particle (is returned only if get_particle is ``True``)</span>
+<span class="sd">        latex_raw_variable : str</span>
+<span class="sd">            Latex label of the raw variable</span>
+<span class="sd">        unit : str</span>
+<span class="sd">            unit of the raw quantity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">particle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">particle</span> <span class="ow">in</span> <span class="n">latex_particles</span><span class="p">:</span>
+            <span class="n">name_particle</span> <span class="o">=</span> <span class="n">latex_particles</span><span class="p">[</span><span class="n">particle</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">name_particle</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">raw_quantity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">variables_params</span><span class="p">:</span>
+                <span class="n">latex_raw_variable</span> <span class="o">=</span> <span class="n">definition_variables</span><span class="p">[</span><span class="n">variable</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+                <span class="n">unit</span> <span class="o">=</span> <span class="n">definition_variables</span><span class="p">[</span><span class="n">variable</span><span class="p">][</span><span class="s1">&#39;unit&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">latex_raw_variable</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">unit</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="n">name_var</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">latex_raw_variable</span> <span class="o">=</span> <span class="n">_latex_format</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name_particle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">latex_raw_variable</span> <span class="o">=</span> <span class="n">_latex_format</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">get_particle</span><span class="p">:</span>
+                    <span class="n">latex_raw_variable</span> <span class="o">=</span> <span class="n">name_variable</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">latex_raw_variable</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name_variable</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">name_particle</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># variable is None</span>
+            <span class="n">name_variable</span> <span class="o">=</span> <span class="n">branch</span>
+            <span class="n">unit</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">latex_raw_variable</span><span class="p">,</span> <span class="n">unit</span></div>
+    
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span>  <span class="nf">__get_latex_variable</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">latex_raw_variable</span><span class="p">,</span> <span class="n">name_function</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        3.1. The latex name might be provided in the ``definition_quantities`` dictionnary with the key ``raw_variable`` (if not None)</span>
+<span class="sd">        3.2. If there is a function, if the dictionnary ``latex_functions`` contains the name of the function, it means that another way to specify the application of the function to the variable is provided, it has to be used in preference. For instance, we have chosen to show the division function with the ``\\frac{}{}`` latex operator.</span>
+<span class="sd">        3.3. If the latex name is not provided in this dictionnary, the latex name is just ``&quot;{name_function} of the {latex_raw_variable}&quot;`` or ``&quot;{name_function} of the {latex_raw_variable[0]} and {latex_raw_variable[1]}&quot;`` if there are more than 1 quantity</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        variable: str</span>
+<span class="sd">            name of the variable</span>
+<span class="sd">        latex_raw_variable: str</span>
+<span class="sd">            latex name(s) of the raw variables (no function applied to it)</span>
+<span class="sd">        name_function: str</span>
+<span class="sd">            name of the function applied to the variable</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        latex_variable: str</span>
+<span class="sd">            latex name of the varaible</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Case 3.1</span>
+        <span class="k">if</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">definition_quantities</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">definition_quantities</span><span class="p">[</span><span class="n">variable</span><span class="p">][</span><span class="s1">&#39;latex&#39;</span><span class="p">]</span>
+        
+        <span class="c1"># Case 3.2:</span>
+        <span class="k">elif</span> <span class="n">name_function</span> <span class="ow">in</span> <span class="n">latex_functions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">latex_functions</span><span class="p">[</span><span class="n">name_function</span><span class="p">](</span><span class="n">latex_raw_variable</span><span class="p">)</span>
+        
+        <span class="c1"># Case 3.3</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">latex_raw_variables</span> <span class="o">=</span> <span class="n">el_to_list</span><span class="p">(</span><span class="n">latex_raw_variable</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">latex_raw_variables_text</span> <span class="o">=</span> <span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">latex_raw_variables</span><span class="p">)</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name_function</span><span class="si">}</span><span class="s2"> of the </span><span class="si">{</span><span class="n">latex_raw_variables_text</span><span class="si">}</span><span class="s2">&quot;</span>
+    
+    
+<div class="viewcode-block" id="RVariable.set_latex_upper_case"><a class="viewcode-back" href="../../index.html#HEA.definition.RVariable.set_latex_upper_case">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">set_latex_upper_case</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        string: str</span>
+<span class="sd">            string that will be processed</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            string with a upper case for the first letter if</span>
+<span class="sd">            </span>
+<span class="sd">                * the first character is not ``$`` (latex)</span>
+<span class="sd">                * the second character is not an upper case (to take into account names such as ``sPlot``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">string</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;$&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">string</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isupper</span><span class="p">():</span>
+            <span class="n">string</span> <span class="o">=</span> <span class="n">string</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="n">string</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">return</span> <span class="n">string</span></div>
+    
+    <span class="c1">## STATIC METHODS FOR USE OUTSIDE =========================================================</span>
+    
+<div class="viewcode-block" id="RVariable.get_latex_branch_unit_from_branch"><a class="viewcode-back" href="../../index.html#HEA.definition.RVariable.get_latex_branch_unit_from_branch">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_latex_branch_unit_from_branch</span><span class="p">(</span><span class="n">branch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get the latex name and the unit associated with a branch.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        branch : str</span>
+<span class="sd">            branch whose latex name is needed to be got</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        latex_branch: str</span>
+<span class="sd">            latex name of the branch</span>
+<span class="sd">        unit : str</span>
+<span class="sd">            unit of the branch</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rVariable</span> <span class="o">=</span> <span class="n">RVariable</span><span class="o">.</span><span class="n">from_branch</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rVariable</span><span class="o">.</span><span class="n">latex_branch</span><span class="p">,</span> <span class="n">rVariable</span><span class="o">.</span><span class="n">unit</span></div>
+        
+    
+         
+    
+<div class="viewcode-block" id="RVariable.get_branch_from_raw_branch_name_function"><a class="viewcode-back" href="../../index.html#HEA.definition.RVariable.get_branch_from_raw_branch_name_function">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_branch_from_raw_branch_name_function</span><span class="p">(</span><span class="n">raw_branch</span><span class="p">,</span> <span class="n">name_function</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get the raw name of the branch used in this library</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        raw_branch    : str or tuple(str)</span>
+<span class="sd">            name of a branch or tuple of name of branches </span>
+<span class="sd">        name_function : str or None</span>
+<span class="sd">            name of the function</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; _get_name_var(&#39;branch&#39;, &#39;function&#39;)</span>
+<span class="sd">        &#39;branch:function&#39;</span>
+<span class="sd">        &gt;&gt;&gt; _get_name_var([&#39;branch1&#39;, &#39;branch2&#39;], &#39;function&#39;)</span>
+<span class="sd">        &#39;branch1,branch2:function&#39;</span>
+<span class="sd">        &gt;&gt;&gt; _get_name_var(&#39;branch&#39;)</span>
+<span class="sd">        &#39;branch&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_branch</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">raw_branch</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">raw_branches</span> <span class="o">=</span> <span class="n">el_to_list</span><span class="p">(</span><span class="n">raw_branch</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">raw_branches</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">name_function</span></div></div>
+    
+
+<div class="viewcode-block" id="print_used_branches_per_particles"><a class="viewcode-back" href="../../index.html#HEA.definition.print_used_branches_per_particles">[docs]</a><span class="k">def</span> <span class="nf">print_used_branches_per_particles</span><span class="p">(</span><span class="n">branches</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Print a latex table with the used branches per particle.</span>
+<span class="sd">    </span>
+<span class="sd">    If a particle involves exactly the sames branches, gather the particles together</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    branches : list(str)</span>
+<span class="sd">        list of used branches</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">branches_per_particles</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Retrieve the variables in the form of a dictionnary particle : list of variables</span>
+    <span class="k">for</span> <span class="n">sub_branch</span> <span class="ow">in</span> <span class="n">branches</span><span class="p">:</span>
+        <span class="n">rVariable</span> <span class="o">=</span> <span class="n">RVariable</span><span class="o">.</span><span class="n">from_branch</span><span class="p">(</span><span class="n">sub_branch</span><span class="p">)</span>
+        <span class="n">particle</span> <span class="o">=</span> <span class="n">rVariable</span><span class="o">.</span><span class="n">particle</span>
+        <span class="n">branch</span>   <span class="o">=</span> <span class="n">rVariable</span><span class="o">.</span><span class="n">branch</span>
+
+        <span class="k">if</span> <span class="n">branch</span> <span class="o">==</span> <span class="s1">&#39;$p_T$&#39;</span><span class="p">:</span>
+            <span class="n">branch</span> <span class="o">=</span> <span class="s1">&#39;Transverse momentum &#39;</span> <span class="o">+</span> <span class="n">branch</span>
+
+        <span class="k">if</span> <span class="n">particle</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">branches_per_particles</span><span class="p">:</span>
+            <span class="n">branches_per_particles</span><span class="p">[</span><span class="n">particle</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="n">branches_per_particles</span><span class="p">[</span><span class="n">particle</span><span class="p">]</span> <span class="o">=</span> <span class="n">branches_per_particles</span><span class="p">[</span><span class="n">particle</span><span class="p">]</span> <span class="o">|</span> <span class="p">{</span><span class="n">branch</span><span class="p">}</span>
+
+
+    <span class="c1"># gather the particles that have the same set of variables</span>
+    <span class="n">branches_per_particles_short</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">particle</span><span class="p">,</span> <span class="n">particle_branches</span> <span class="ow">in</span> <span class="n">branches_per_particles</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">saved</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">saved_particle</span><span class="p">,</span> <span class="n">saved_particle_branches</span> <span class="ow">in</span> <span class="n">branches_per_particles_short</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># check if the set of branches is already saved somewhere</span>
+            <span class="k">if</span> <span class="n">particle_branches</span> <span class="o">==</span> <span class="n">saved_particle_branches</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">saved_particle</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                    <span class="n">saved_particle_tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">saved_particle</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">particle_saved_tuple</span> <span class="o">=</span> <span class="n">particle_saved</span>
+                <span class="n">branches_per_particles_short</span><span class="p">[</span><span class="n">particle_saved_tuple</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">particle</span><span class="p">])]</span> <span class="o">=</span> <span class="n">particle_branches</span>
+                <span class="k">del</span> <span class="n">branches_per_particles_short</span><span class="p">[</span><span class="n">saved_particle</span><span class="p">]</span>
+                <span class="n">saved</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">saved</span><span class="p">:</span>
+            <span class="n">branches_per_particles_short</span><span class="p">[</span><span class="n">particle</span><span class="p">]</span> <span class="o">=</span> <span class="n">particle_branches</span>
+
+    <span class="c1"># Built the table</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">begin</span><span class="si">{tabular}{ll}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Particle &amp; Variable </span><span class="se">\\\\</span><span class="s1"> </span><span class="se">\\</span><span class="s1">hline </span><span class="se">\\</span><span class="s1">hline&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">particle</span><span class="p">,</span> <span class="n">particle_branches</span> <span class="ow">in</span> <span class="n">branches_per_particles_short</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">row_latex</span> <span class="o">=</span> <span class="n">get_latex_column_table</span><span class="p">(</span><span class="n">particle</span><span class="p">)</span>
+        <span class="n">row_latex</span><span class="o">+=</span> <span class="s1">&#39; &amp; &#39;</span>
+        <span class="n">row_latex</span><span class="o">+=</span> <span class="n">get_latex_column_table</span><span class="p">(</span><span class="n">particle_branches</span><span class="p">)</span>
+        <span class="n">row_latex</span><span class="o">+=</span> <span class="s1">&#39; </span><span class="se">\\\\</span><span class="s1"> \hline&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">row_latex</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">end</span><span class="si">{tabular}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="get_branches_from_raw_branches_functions"><a class="viewcode-back" href="../../index.html#HEA.definition.get_branches_from_raw_branches_functions">[docs]</a><span class="k">def</span> <span class="nf">get_branches_from_raw_branches_functions</span><span class="p">(</span><span class="n">raw_branches_functions</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; From a list of raw branches with the functions that will be applied to each quantity afterwards,</span>
+<span class="sd">    returns the list of the branches</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_quantities_functions :  list(str or (str, str) or (tuple, str)</span>
+<span class="sd">        list of </span>
+<span class="sd">        </span>
+<span class="sd">            * branches</span>
+<span class="sd">            * tuple ``(raw_branch, name_function)``, where ``name_function`` is the name of the function applied to the branch</span>
+<span class="sd">            * tuple ``(raw_branch, name_function)``, where ``raw_branches`` is a tuple of raw branches and ``name_function`` is the name of the function applied to the raw branches.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    branches: list </span>
+<span class="sd">        list of all the branches</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">branches</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">raw_branch_function</span> <span class="ow">in</span> <span class="n">raw_branches_functions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_branch_function</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">raw_branch</span> <span class="o">=</span> <span class="n">raw_branch_function</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">name_function</span> <span class="o">=</span> <span class="n">raw_branch_function</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">raw_branch</span> <span class="o">=</span> <span class="n">raw_branch_function</span>
+            <span class="n">name_function</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">branch</span> <span class="o">=</span> <span class="n">RVariable</span><span class="o">.</span><span class="n">get_branch_from_raw_branch_name_function</span><span class="p">(</span><span class="n">raw_branch</span><span class="p">,</span> <span class="n">name_function</span><span class="p">)</span>
+        <span class="n">branches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">branches</span></div>
+    
+    
+    
+<div class="viewcode-block" id="get_raw_branches_from_raw_branches_functions"><a class="viewcode-back" href="../../index.html#HEA.definition.get_raw_branches_from_raw_branches_functions">[docs]</a><span class="k">def</span> <span class="nf">get_raw_branches_from_raw_branches_functions</span><span class="p">(</span><span class="n">raw_branches_functions</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; From a list of raw branches with the functions that will be applied to each quantity afterwards,</span>
+<span class="sd">    returns the list of the needed branches that need to be loaded from a root file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------    </span>
+<span class="sd">    raw_quantities_functions :  list(str or (str, str) or (tuple, str)</span>
+<span class="sd">        list of </span>
+<span class="sd">        </span>
+<span class="sd">            * branches</span>
+<span class="sd">            * tuple ``(raw_branch, name_function)``, where ``name_function`` is the name of the function applied to the branch</span>
+<span class="sd">            * tuple ``(raw_branch, name_function)``, where ``raw_branches`` is a tuple of raw branches and ``name_function`` is the name of the function applied to the raw branches.</span>
+
+<span class="sd">    returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    raw_branches: list</span>
+<span class="sd">        list of all the needed branches that need to be loaded from the root files</span>
+<span class="sd">        in order to create the branches specified in ``branches_functions``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">raw_branches</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">raw_branch_function</span> <span class="ow">in</span> <span class="n">raw_branches_functions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_branch_function</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">raw_branch</span> <span class="o">=</span> <span class="n">raw_branch_function</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">raw_branch</span> <span class="o">=</span> <span class="n">raw_branch_function</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_branch</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">raw_branches</span> <span class="o">+=</span> <span class="n">raw_branch</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">raw_branches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">raw_branch</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">raw_branches</span>      </div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Anthony Correia.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
