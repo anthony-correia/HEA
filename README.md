@@ -1,3 +1,4 @@
+The full documentation of the HEA package is available [here](https://hea.readthedocs.io/en/latest/index.html)
 - `HEA.definition`: 
     - contains global variables
     - function to define the names of the branches, retrieve the latex names and units, etc.
