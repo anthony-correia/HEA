@@ -21,7 +21,7 @@ def _dump(data, file_name=None, folder_name=None, library='json', byte_write=Fal
     ----------
     data      : python object
         element to be saved (can be a list)
-        if type_data is 'json', must be a dictionnary
+        if ``type_data`` is ``'json'``, must be a dictionnary
     file_name : str
         name of the pickle file
     folder_name : str
