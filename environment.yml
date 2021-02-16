@@ -1,19 +1,10 @@
 name: bd2dst3pi_env
-channels:
-  - conda-forge
-  - defaults
 dependencies:
   - root_pandas=0.7.0=py_0
   - matplotlib=3.3.3=py37h89c1867_0
-  - matplotlib-base=3.3.3=py37h4f6019d_0
-  - uncertainties=3.1.4=py_0
-  - uncertainties=3.1.4=py_0
-  - flake8=3.8.4=py_0
   - uncertainties=3.1.4=py_0
   - pip=20.2.4=py_0
   - python=3.7.8=h6f2ec95_1_cpython
-  - python-dateutil=2.8.1=py_0
-  - python_abi=3.7=1_cp37m
   - pip:
     - iminuit==1.4.9
     - tensorflow==2.3.1
@@ -28,4 +19,7 @@ dependencies:
     - pandas==1.1.4
     - scipy==1.5.4
     - sklearn==0.0
+    - sphinx==3.4.3
+    - sphinx-rtd-theme==0.5.1
+    - sphinxcontrib-napoleon==0.7
 
