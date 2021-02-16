@@ -1,8 +1,9 @@
 name: bd2dst3pi_env
 dependencies:
   - pip=20.2.4=py_0
-  - python=3.7.8=h6f2ec95_1_cpython
-  
+  - root_pandas=0.7.0=py_0
+  - matplotlib=3.3.3=py37h89c1867_0
+  - uncertainties=3.1.4=py_0
   - pip:
     - iminuit==1.4.9
     - tensorflow==2.3.1
@@ -20,6 +21,4 @@ dependencies:
     - sphinx==3.4.3
     - sphinx-rtd-theme==0.5.1
     - sphinxcontrib-napoleon==0.7
-    - root_pandas==0.7.0
-    - matplotlib==3.3.3
-    - uncertainties==3.1.4
+
