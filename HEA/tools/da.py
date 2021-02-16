@@ -4,7 +4,7 @@
 * Transform an element into a list
 * Check if a list is included in another
 * Add a key-value couple to a dictionnary if the key is not in the dictionnary
-- ...
+* ...
 """
 
 from HEA.tools import assertion

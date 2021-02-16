@@ -1,9 +1,6 @@
 HEA.config package
 ==================
 
-Package contents
-----------------
-
 .. automodule:: HEA.config
    :members:
    :undoc-members:

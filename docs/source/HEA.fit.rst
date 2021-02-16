@@ -1,9 +1,6 @@
 HEA.fit package
 ===============
 
-Package contents
-----------------
-
 .. automodule:: HEA.fit
    :members:
    :undoc-members:

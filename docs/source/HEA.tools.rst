@@ -1,9 +1,6 @@
 HEA.tools package
 =================
 
-Package contents
-----------------
-
 .. automodule:: HEA.tools
    :members:
    :undoc-members:

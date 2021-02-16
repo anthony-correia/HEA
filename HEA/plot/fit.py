@@ -243,7 +243,7 @@ def plot_fitted_curve(ax, model, plot_scaling, frac=None, line_width=2.5,
     label         : str
         label of the curve (for the legend)
     x             : numpy.numpy(float)
-        points of the x-axis where to evaluate the pdf of the model to plot
+        points of the x-axis where to evaluate the pdf of the model to plot.
         If not given, it is computed to be 1000 points between ``low`` and ``high``
     alpha         : float, between 0 and 1
         opacity of the curve
@@ -517,6 +517,7 @@ def plot_fitted_curves(ax, models, plot_scaling, low, high,
         and the other ones are their components (e.g., ``[model_PDG, signal_PDF, background_PDF]``)
         *  list of list of PDFs, if composite of composite of PDFs (e.g., ``[model_PDG, [signal_PDF, signal_compo1_PDF, signal_compo2_PDF], background_PDF]``)
         * ... (recursive)
+        
     low             : float
         low limit of the plot (x-axis)
     high            : float
@@ -526,12 +527,14 @@ def plot_fitted_curves(ax, models, plot_scaling, low, high,
         
         * list of the same size as ``models_names`` with the name of each PDF
         * If there is only one string for a list of models, it corresponds to the name of the first composite PDFs. The other PDFs are plotted but they aren't legended
+        
     models_types  : str
         type of each mode (one character for each model or for a list of models):
         
         * ``'m'`` : model (sum) ; should always be the FIRST ONE !!
         * ``'s'`` : signal
         * ``'b'`` : background
+        
         used in the legend to indicate if it is a signal or a background component
         If ``None``, it is put to ``['m', 's', 'b', 'b', ...]``
     fontsize_legend : float
@@ -679,11 +682,11 @@ def plot_hist_fit(df, branch, latex_branch=None, unit=None, weights=None,
         * if True, plot with bars
         * else, plot with points and error bars
     models        : zfit.pdf.BasePDF or list(zfit.pdf.BasePDF) or list(list(zfit.pdf.BasePDF)) or ...
-        passed to py:func:`plot_fitted_curves`
+        passed to :py:func:`plot_fitted_curves`
     models_names : str or list(str) or list(list(str))
-        passed to py:func:`plot_fitted_curves`
+        passed to :py:func:`plot_fitted_curves`
     models_types  : str
-        passed to py:func:`plot_fitted_curves` 
+        passed to :py:func:`plot_fitted_curves` 
     linewidth     : str
         width of the fitted curve line
     colors        : str
@@ -695,7 +698,7 @@ def plot_hist_fit(df, branch, latex_branch=None, unit=None, weights=None,
     bar_mode_pull: bool
         if ``True``, the pull diagram is plotted with bars instead of points + error bars
     show_leg      : bool
-        if True, show the legend
+        if ``True``, show the legend
     fontsize_leg  : float
         fontsize of the legend
     loc_leg       : str
@@ -703,17 +706,17 @@ def plot_hist_fit(df, branch, latex_branch=None, unit=None, weights=None,
     show_chi2     : bool
         if ``True``, show the :math:`\\chi^2` in the label of the x-axis of the pull diagram
     params        : dict[zfit.zfitParameter, float]
-        Result ``result.params`` of the minimisation of the loss function (given by :math:`HEA.fit.fit.launch_fit`)
+        Result ``result.params`` of the minimisation of the loss function (given by :py:func:`HEA.fit.fit.launch_fit`)
     latex_params  : 
-        Dictionnary with the name of the params.
+        Dictionnary with the name of the params. 
         Also indicated the branchs to show in the table among all the branchs in params
     colWidths     : [float, float, float, float]
         passed to :py:func:`plot_result_fit`
     fontsize_res   : float
         fontsize of the text in the result table
     loc_res       : str
-        position of the result table, loc argument specified in in plt.table 
-     fig_name      : str
+        position of the result table, loc argument specified in in ``plt.table``
+    fig_name      : str
         name of the saved file
     folder_name   : str
         name of the folder where to save the plot

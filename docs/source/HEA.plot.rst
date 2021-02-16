@@ -1,9 +1,6 @@
 HEA.plot package
 ================
 
-Package contents
-----------------
-
 .. automodule:: HEA.plot
    :members:
    :undoc-members:

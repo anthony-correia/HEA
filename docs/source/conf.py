@@ -12,7 +12,6 @@
 
 import commonmark
 
-from recommonmark.parser import CommonMarkParser
 import recommonmark
 
 import sphinx_rtd_theme
@@ -44,6 +43,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     "sphinx_rtd_theme",
+    'sphinx.ext.napoleon',
     "recommonmark",
     'sphinx.ext.mathjax',
     'sphinx.ext.autosectionlabel',
@@ -58,12 +58,6 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
-
-source_parsers = {
-    '.md': CommonMarkParser,
-}
-
-source_suffix = ['.rst', '.md']
 
 latex_engine = 'pdflatex'
 

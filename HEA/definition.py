@@ -3,7 +3,7 @@
     * ``definition_functions``: dict ``{{name_function}: function}``
     * ``latex_function``: dict ``{name_function}: function providing a latex representation``
 * Class ``RVariable`` to concoct the latex name of the branches, particles and physical quantities, from the python file ``loc['definition']`` that contains
-    * ``definition_quantities``: dict(dict) ``{quantity: {'latex': latex_quantity, 'unit': unit}}
+    * ``definition_quantities``: dict(dict) ``{quantity: {'latex': latex_quantity, 'unit': unit}}``
     * ``latex_particles``: dict ``{particle: latex_particle}``
 * Functions to get branches and raw branches from ``raw_branches_functions`` (*list(str or (str, str) or (tuple, str)*), list of 
 
@@ -69,7 +69,7 @@ class RVariable():
     -----
     The class ``RVariable`` allows to concoct the latex name of the branches, particles and physical quantities, from the python file ``loc['definition']`` that contains
     
-    * ``definition_quantities``: dict(dict) ``{quantity: {'latex': latex_quantity, 'unit': unit}}
+    * ``definition_quantities``: dict(dict) ``{quantity: {'latex': latex_quantity, 'unit': unit}}``
     * ``latex_particles``: dict ``{particle: latex_particle}``
     
     

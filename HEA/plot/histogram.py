@@ -530,10 +530,10 @@ def plot_hist_var (datas, branch, latex_branch=None, unit=None, data_names=None,
     data_names : str or list(str)
         name of the datasets
     **kwargs   : dict
-        passed to plot_hist
-   
-   Returns
-   -------
+        passed to :py:func:`plot_hist`
+    
+    Returns
+    -------
     fig : matplotlib.figure.Figure
         Figure of the plot (only if ``ax`` is not specified)
     ax : matplotlib.figure.Axes
@@ -564,7 +564,6 @@ def plot_divide(dfs, branch, latex_branch, unit, low=None, high=None, n_bins=100
     
     Parameters
     ----------
-    
     dfs             : dict(str:pandas.Dataframe)
         Dictionnary {name of the dataframe : pandas dataframe}
     branch          : str
