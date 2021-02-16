@@ -188,6 +188,5 @@ webencodings==0.5.1
 Werkzeug==1.0.1
 wrapt==1.12.1
 xgboost==1.2.1
-xrootd==5.0.2
 zfit==0.5.5
 zipp==3.4.0
