@@ -1,15 +1,15 @@
 name: bd2dst3pi_env
 channels:
   - conda-forge
+  - defaults
 dependencies:
   - pip=20.2.4=py_0
+  - uncertainties=3.1.4=py_0
+  - matplotlib=3.3.3=py37h89c1867_0
+  - root_pandas=0.7.0=py_0
   - pip:
-    - iminuit==1.4.9
-    - tensorflow==2.3.1
-    - snakemake==5.28.0
     - zfit==0.5.5
     - xgboost==1.2.1
-    - num2tex==0.8
     - uproot4==0.1.2
     - awkward1==0.4.3
     - hepstats==0.3.1
@@ -20,6 +20,3 @@ dependencies:
     - sphinx==3.4.3
     - sphinx-rtd-theme==0.5.1
     - sphinxcontrib-napoleon==0.7
-    - root_pandas==0.7.0
-    - matplotlib==3.3.3
-    - uncertaintie==3.1.4
