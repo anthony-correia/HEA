@@ -1,4 +1,6 @@
 name: bd2dst3pi_env
+channels:
+  - conda-forge
 dependencies:
   - pip=20.2.4=py_0
   - pip:
@@ -20,4 +22,4 @@ dependencies:
     - sphinxcontrib-napoleon==0.7
     - root_pandas==0.7.0
     - matplotlib==3.3.3
-    - uncertaintie=s=3.1.4
+    - uncertaintie==3.1.4
