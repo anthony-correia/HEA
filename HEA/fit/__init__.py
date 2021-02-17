@@ -7,11 +7,6 @@ Package in order to:
 * Get characteristics of zFit PDFs: :py:mod:`HEA.fit.PDF`
 """
 
-import os
-import sys
-basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-sys.path.insert(0, basedir)
-
 from HEA.fit.params import (
     retrieve_params,
     get_params_without_BDT, get_params_without_err,

@@ -46,9 +46,18 @@ def _load_loc_file():
 
 config = _load_loc_file()
 
-loc = config['location']
-default_fontsize = dict(config['fontsize'])
-default_project = config['project']
+loc = None
+default_fontsize = None
+default_project = None
+
+if 'location' in config:
+    loc = config['location']
+
+if 'fontsize' in config:
+    default_fontsize = dict(config['fontsize'])
+
+if 'project' in config:
+    default_project = config['project']
 
 for key in default_fontsize.keys():
     default_fontsize[key] = float(default_fontsize[key])
