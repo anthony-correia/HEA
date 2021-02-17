@@ -2,7 +2,7 @@
 Module for BDT:
 
 * Plot the distributions of the chosen variables in signal and background (super-imposed)
-* Prepare the signal and background sample (merge them, create a 'y' variable for learning, ...)
+* Prepare the signal and background sample (merge them, create a ``'y'`` variable for learning, ...)
 * Train the BDT with the specified classifier (adaboost or gradientboosting)
 * Plot the result of the tests (ROC curve, overtraining check with KS test)
 * Apply the BDT to the data and save the result
@@ -84,9 +84,9 @@ def signal_background(data1, data2, column=None, range_column=None, grid=True,
         if specified changes the y-axis label size
     ax           : matplotlib.axes.Axes
     sharex       : bool
-        if True, the X axis will be shared amongst all subplots.
+        if ``True``, the X axis will be shared amongst all subplots.
     sharey       : bool
-        if True, the Y axis will be shared amongst all subplots.
+        if ``True``, the Y axis will be shared amongst all subplots.
     figsize      : tuple
         the size of the figure to create in inches by default
     bins         : int,
@@ -660,7 +660,7 @@ def apply_BDT(df_tot, df_train, bdt, BDT_name=None,
     BDT_name      : str
         name of the BDT, used for the name of the saved files
     save_BDT      : bool
-        if True, save the BDT in a pickle file
+        if ``True``, save the BDT in a pickle file
     kind_data     : str
         name of the data where the BDT is applied to (e.g., ``'MC'``, ``'common'``, ...)
     """

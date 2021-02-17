@@ -255,7 +255,7 @@ class RVariable():
     def latex_quantity(self):
         """ str
 
-        1. If there are more than 1 particle, it is `None`. The latex name of the quantity is not well defined in this case!
+        1. If there are more than 1 particle, it is ``None``. The latex name of the quantity is not well defined in this case!
         2. if there is no function (i.e., the function is the identity), it is the ``latex_quantity_without_function`` argument
         3. if there is a function:
 
