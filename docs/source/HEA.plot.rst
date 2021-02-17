@@ -1,11 +1,6 @@
 HEA.plot package
 ================
 
-.. automodule:: HEA.plot
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Submodules
 ----------
 
@@ -37,6 +32,14 @@ HEA.plot.tools module
 ---------------------
 
 .. automodule:: HEA.plot.tools
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: HEA.plot
    :members:
    :undoc-members:
    :show-inheritance:

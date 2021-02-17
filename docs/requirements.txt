@@ -24,7 +24,6 @@ pandas == 1.1.4
 
 # HEA/pandas_root.py: 12
 # root_pandas == 0.7.0
-root_pandas == 0.7.0
 
 # HEA/BDT.py: 45
 scipy == 1.5.4
@@ -45,7 +44,7 @@ xgboost == 1.2.1
 # HEA/fit/PDF.py: 9,10
 # HEA/fit/fit.py: 12
 # HEA/plot/fit.py: 13,14,15
-zfit == 0.5.5
+# zfit == 0.5.5
 
 # Sphinx
 sphinx==3.4.3
