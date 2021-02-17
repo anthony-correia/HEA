@@ -4,9 +4,10 @@ version: 2
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
    configuration: docs/source/conf.py
+   fail_on_warning: false
 
 build:
-  image: stable
+  image: latest
 
 # Optionally set the version of Python and requirements required to build your docs
 python:
