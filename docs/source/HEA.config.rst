@@ -1,16 +1,11 @@
 HEA.config package
 ==================
 
-Module contents
----------------
-
 .. automodule:: HEA.config
    :members:
    :undoc-members:
    :show-inheritance:
 
-Submodules
-----------
 
 HEA.config.config module
 ------------------------

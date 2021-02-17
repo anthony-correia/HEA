@@ -1,17 +1,11 @@
 HEA.tools package
 =================
 
-Module contents
----------------
-
 .. automodule:: HEA.tools
    :members:
    :undoc-members:
    :show-inheritance:
 
-
-Submodules
-----------
 
 HEA.tools.assertion module
 --------------------------

@@ -11,12 +11,14 @@ from .dir import create_directory
 
 library_from_str = {
     'pickle': pickle,
-    'json' : json
+    'json': json
 }
 
-def _dump(data, file_name=None, folder_name=None, library='json', byte_write=False, **params):
+
+def _dump(data, file_name=None, folder_name=None,
+          library='json', byte_write=False, **params):
     """ Save the data in a file in ``{loc['out']}/{type_data}/``
-    
+
     Parameters
     ----------
     data      : python object
@@ -36,19 +38,19 @@ def _dump(data, file_name=None, folder_name=None, library='json', byte_write=Fal
     """
     directory = create_directory(loc[library], folder_name)
     path = f"{directory}/{file_name}.{library}"
-    
-    
-    with open(path, 'w' + byte_write*'b') as f:
+
+    with open(path, 'w' + byte_write * 'b') as f:
         library_from_str[library].dump(data, f, **params)
-    
+
     print(f"{library.title()} file saved in {path}")
 
-dump_pickle = partial(_dump, library='pickle', byte_write=True)    
-dump_json   = partial(_dump, library='json', sort_keys=True, indent=4)
+
+dump_pickle = partial(_dump, library='pickle', byte_write=True)
+dump_json = partial(_dump, library='json', sort_keys=True, indent=4)
 
 
 dump_pickle.__doc__ = """Dump a pickle file in ``{loc['pickle']}/`` (in byte mode)
-    
+
     Parameters
     ----------
     data      : python object
@@ -61,7 +63,7 @@ dump_pickle.__doc__ = """Dump a pickle file in ``{loc['pickle']}/`` (in byte mod
 """
 
 dump_json__doc__ = """Dump a json file in ``{loc['json']}/``
-    
+
     Parameters
     ----------
     data      : dict
@@ -73,9 +75,10 @@ dump_json__doc__ = """Dump a json file in ``{loc['json']}/``
         (if ``None``, there is no folder)
 """
 
+
 def _retrieve(file_name, folder_name=None, library='json', byte_read=False):
     """ Retrieve the content of a file
-    
+
     Parameters
     ----------
     file_name   : str
@@ -85,8 +88,8 @@ def _retrieve(file_name, folder_name=None, library='json', byte_read=False):
     library : str
         ``'json'`` or ``'pickle'``
     byte_read: bool
-        Read in byte mode    
-    
+        Read in byte mode
+
     Returns
     -------
     Python object or dic
@@ -95,29 +98,29 @@ def _retrieve(file_name, folder_name=None, library='json', byte_read=False):
         or python object stored in a pickle file\
         in ``{loc['pickle']}/{folder_name}/{name_data}.pickle``
     """
-    
+
     directory = create_directory(loc[library], folder_name)
     path = f"{directory}/{file_name}.{library}"
-    
-    with open(path, 'r' + byte_read*'b') as f:
+
+    with open(path, 'r' + byte_read * 'b') as f:
         params = library_from_str[library].load(f)
-    
+
     return params
-    
-    
+
+
 retrieve_pickle = partial(_retrieve, library='pickle', byte_read=True)
-retrieve_json   = partial(_retrieve, library='json', byte_read=False)
+retrieve_json = partial(_retrieve, library='json', byte_read=False)
 
 retrieve_pickle.__doc__ = """ Retrieve the content of a pickle file
-    
+
     Parameters
     ----------
     file_name   : str
         name of the file
     folder_name : str
         name of folder where the pickle file is (if ``None``, there is no folder)
-  
-    
+
+
     Returns
     -------
     Python object or dic
@@ -126,15 +129,15 @@ retrieve_pickle.__doc__ = """ Retrieve the content of a pickle file
 """
 
 retrieve_json.__doc__ = """ Retrieve the content of a json file
-    
+
     Parameters
     ----------
     file_name   : str
         name of the file
     folder_name : str
         name of folder where the json file is (if ``None``, there is no folder)
-  
-    
+
+
     Returns
     -------
     dict
@@ -143,15 +146,14 @@ retrieve_json.__doc__ = """ Retrieve the content of a json file
 """
 
 
-
 def get_latex_column_table(L):
     """ Return a sub latex column table from a list
-    
+
     Parameters
     ----------
     L : list
         List whose each element is a cellule of the sub latex column table
-    
+
     Returns
     -------
     latex_table : str
@@ -163,7 +165,7 @@ def get_latex_column_table(L):
             latex_table += l
             if i != len(L) - 1:
                 latex_table += ' \\\\ '
-        latex_table+= '\\end{tabular}'
+        latex_table += '\\end{tabular}'
     else:
         assert isinstance(L, str), print(f'\n \n {L}')
         latex_table = L

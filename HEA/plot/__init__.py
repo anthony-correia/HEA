@@ -1,5 +1,5 @@
 """Package for plotting."""
-                      
+
 from HEA.plot.histogram import(
     plot_hist_alone, plot_hist, plot_hist_var, plot_hist_auto,
     plot_divide, plot_divide_auto,

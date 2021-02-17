@@ -25,23 +25,23 @@ Load the configuration file ``config.ini``.
 import os
 import configparser
 
+
 def _load_loc_file():
     """ Load the configuration file
     Returns
     -------
     configparser.Configparser
-        `config.ini` file, which contains 
+        `config.ini` file, which contains
         - the location where to save output files
         - the default fontsizes
     """
-    
+
     config = configparser.ConfigParser()
-    
+
     path = os.path.join(os.path.dirname(__file__), 'config.ini')
-    
+
     config.read(path)
     return config
-
 
 
 config = _load_loc_file()
@@ -61,4 +61,3 @@ if 'project' in config:
 
 for key in default_fontsize.keys():
     default_fontsize[key] = float(default_fontsize[key])
-    

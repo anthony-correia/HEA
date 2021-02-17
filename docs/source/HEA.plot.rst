@@ -1,16 +1,11 @@
 HEA.plot package
 ================
 
-Module contents
----------------
-
 .. automodule:: HEA.plot
    :members:
    :undoc-members:
    :show-inheritance:
 
-Submodules
-----------
 
 HEA.plot.fit module
 -------------------

@@ -6,28 +6,27 @@ Plot lines:
 """
 
 
+from HEA.tools.string import list_into_string
+import HEA.plot.tools as pt
+from HEA.config import default_fontsize
+from HEA.tools.da import el_to_list, flatten_2Dlist
 from uncertainties import unumpy
 import numpy as np
 import matplotlib.pyplot as plt
 
-#Gives us nice LaTeX fonts in the plots
+# Gives us nice LaTeX fonts in the plots
 from matplotlib import rc, rcParams
-rc('font',**{'family':'serif','serif':['Roman']})
+rc('font', **{'family': 'serif', 'serif': ['Roman']})
 rc('text', usetex=True)
 rcParams['axes.unicode_minus'] = False
 
-from HEA.tools.da import el_to_list, flatten_2Dlist
-from HEA.config import default_fontsize
-import HEA.plot.tools as pt
-from HEA.tools.string import list_into_string
 
-
-#################################################################################################
-######################################## Tool function ##########################################
-################################################################################################# 
+##########################################################################
+######################################## Tool function ###################
+##########################################################################
 
 def _el_or_list_to_2D_list(l, type_el=np.ndarray):
-    """ Transform an element or a list into a 2D list. 
+    """ Transform an element or a list into a 2D list.
     Parameters
     ----------
     l       : type_el, or list(type_el) or list(list(type_el))
@@ -39,18 +38,19 @@ def _el_or_list_to_2D_list(l, type_el=np.ndarray):
     list(list(type_el))
         2D list
     """
-    if isinstance(l,type_el):
+    if isinstance(l, type_el):
         list_2D = [[l]]
-    elif isinstance(l[0],type_el):
+    elif isinstance(l[0], type_el):
         list_2D = [l]
     else:
         list_2D = l
-    
+
     return list_2D
+
 
 def add_value_labels(ax, lx, ly, labels, space_x=-10, space_y=5, labelsize=12):
     """ Annotate points with a text whose distance to the point is specified by (``space_x``, ``space_y``)
-    
+
     Parameters
     ----------
     ax          : matplotlib.axes.Axes
@@ -67,40 +67,42 @@ def add_value_labels(ax, lx, ly, labels, space_x=-10, space_y=5, labelsize=12):
         space in pixel from the point to the annotation text, projected in the y-axis
     labelsize   : float
         fontsize of the annotation
-    """  
-    assert len(lx)==len(ly)
-    assert len(labels)==len(lx)
+    """
+    assert len(lx) == len(ly)
+    assert len(labels) == len(lx)
 
     # For each bar: Place a label
     for x, y, label in zip(lx, ly, labels):
         # Vertical alignment for positive values
         ha = 'center'
-        va = 'center'       
-        if x!=0 and y!=0:    
+        va = 'center'
+        if x != 0 and y != 0:
             ax.annotate(
-                label,          
-                (x, y), #xycoords='data',         
-                xytext=(space_x, space_y),          # Vertically shift label by ``space``
-                textcoords='offset pixels', # Interpret ``xytext`` as offset in points
+                label,
+                (x, y),  # xycoords='data',
+                # Vertically shift label by ``space``
+                xytext=(space_x, space_y),
+                textcoords='offset pixels',  # Interpret ``xytext`` as offset in points
                 va=va, ha=ha,
-                size = labelsize)
+                size=labelsize)
 
-#################################################################################################
-###################################### Plotting function ########################################
-#################################################################################################  
+##########################################################################
+###################################### Plotting function #################
+##########################################################################
 
-def plot_xys (ax, x, ly, xlabel, labels=None, 
-              colors=['b','g','r','y'], 
-              fontsize=default_fontsize['label'], 
-              markersize=1,
-             linewidth=1., linestyle='-', factor_ymax=1., marker='.', 
-              elinewidth=None,
-              annotations=None, 
-              fontsize_annot=default_fontsize['annotation'], 
-              space_x=-15, space_y=5, 
-              pos_text_LHC=None):
+
+def plot_xys(ax, x, ly, xlabel, labels=None,
+             colors=['b', 'g', 'r', 'y'],
+             fontsize=default_fontsize['label'],
+             markersize=1,
+             linewidth=1., linestyle='-', factor_ymax=1., marker='.',
+             elinewidth=None,
+             annotations=None,
+             fontsize_annot=default_fontsize['annotation'],
+             space_x=-15, space_y=5,
+             pos_text_LHC=None):
     """ Plot the curve(s) in `ly` as a function of `x`, with `annotations`.
-    
+
     Parameters
     ----------
     ax               : matplotlib.axes.Axes
@@ -143,63 +145,65 @@ def plot_xys (ax, x, ly, xlabel, labels=None,
         passed to :py:func:`HEA.plot.tools.set_text_LHCb` as the ``pos`` argument.
     """
     colors = el_to_list(colors, len(ly))
-    
+
     plot_legend = False
-    
+
     for i, y in enumerate(ly):
         label = labels[i] if len(ly) > 1 else None
         x = np.array(x)
         y = np.array(y)
         x_n = unumpy.nominal_values(x)
         y_n = unumpy.nominal_values(y)
-        ax.errorbar(x_n, y_n, 
-                    xerr = unumpy.std_devs(x), yerr=unumpy.std_devs(y), 
-                    linestyle=linestyle, color=colors[i], 
+        ax.errorbar(x_n, y_n,
+                    xerr=unumpy.std_devs(x), yerr=unumpy.std_devs(y),
+                    linestyle=linestyle, color=colors[i],
                     markersize=markersize, elinewidth=elinewidth,
                     linewidth=linewidth, label=label, marker=marker)
-        
+
         if label is not None:
             plot_legend = True
-        
+
     ax.set_xlabel(xlabel, fontsize=fontsize)
-    
-    if len(ly)==1:
+
+    if len(ly) == 1:
         ax.set_ylabel(labels[0], fontsize=fontsize)
     else:
         ax.set_ylabel('value', fontsize=fontsize)
-    
+
     # Grid
     pt.show_grid(ax, which='major')
     pt.show_grid(ax, which='minor')
-        
-    # Ticks
-    pt.fix_plot(ax, factor_ymax=factor_ymax, show_leg=plot_legend, fontsize_leg=25, ymin_to_0=False, pos_text_LHC=pos_text_LHC)    
-    
-    
-    if annotations is not None:
-        assert len(ly)==1
-        add_value_labels(ax, x_n, y_n, annotations, labelsize=fontsize_annot, space_x=space_x, space_y=space_y)
 
-def plot_x_list_ys(x, y, name_x, names_y, latex_name_x=None, latex_names_y=None, 
+    # Ticks
+    pt.fix_plot(ax, factor_ymax=factor_ymax, show_leg=plot_legend,
+                fontsize_leg=25, ymin_to_0=False, pos_text_LHC=pos_text_LHC)
+
+    if annotations is not None:
+        assert len(ly) == 1
+        add_value_labels(ax, x_n, y_n, annotations,
+                         labelsize=fontsize_annot, space_x=space_x, space_y=space_y)
+
+
+def plot_x_list_ys(x, y, name_x, names_y, latex_name_x=None, latex_names_y=None,
                    fig_name=None, folder_name=None,
-                   log_scale=None, 
-                   save_fig=True, 
+                   log_scale=None,
+                   save_fig=True,
                    **kwgs):
     """ plot y or a list of y as a function of x. If they are different curves, their points should have the same abscissa.
-    
+
     Parameters
     ----------
     x                : list(float)
         abcissa of the points
-    y                : numpy.array(uncertainties.ufloat) or numpy.array(float) or list(numpy.array(uncertainties.ufloat)) or list(numpy.array(float)) or 
-        (list instead of numpy.array might work) 
+    y                : numpy.array(uncertainties.ufloat) or numpy.array(float) or list(numpy.array(uncertainties.ufloat)) or list(numpy.array(float)) or
+        (list instead of numpy.array might work)
         ordinate of the points of the curve(s)
     name_x           : str
         name of the x variable, used for then name of the saved figure
     name_y           : str or list(str)
         name of each list in ``l_y``, used for then name of the saved figure
     latex_name_x : str
-        latex name of the x variable, used to label the x-axis 
+        latex name of the x variable, used to label the x-axis
     latex_names_y    : str or list(str)
         surname of each list in ``l_y`` - used for labelling each curve
     fig_name         : str
@@ -212,7 +216,7 @@ def plot_x_list_ys(x, y, name_x, names_y, latex_name_x=None, latex_names_y=None,
         specifies which axis will be set in log scale
     **kwgs           : dict
         passed to ``plot_xys``
-    
+
     Returns
     -------
     fig : matplotlib.figure.Figure
@@ -220,39 +224,36 @@ def plot_x_list_ys(x, y, name_x, names_y, latex_name_x=None, latex_names_y=None,
     ax : matplotlib.figure.Axes or list(matplotlib.figure.Axes)
         Axis of the plot or list of axes of the plot
     """
-    
+
     if latex_name_x is None:
         latex_name_x = name_x
-            
-    groups_ly         = _el_or_list_to_2D_list(y)
-    groups_names_y    = _el_or_list_to_2D_list(names_y, str)
-    
-    
-    
+
+    groups_ly = _el_or_list_to_2D_list(y)
+    groups_names_y = _el_or_list_to_2D_list(names_y, str)
+
     if latex_names_y is not None:
         groups_latex_names_y = _el_or_list_to_2D_list(latex_names_y, str)
     else:
         groups_latex_names_y = groups_names_y
-    
-    
-    fig, axs = plt.subplots(len(groups_ly),1, figsize=(8,4*len(groups_ly)))
-    
+
+    fig, axs = plt.subplots(len(groups_ly), 1, figsize=(8, 4 * len(groups_ly)))
+
     for k, ly in enumerate(groups_ly):
-        if len(groups_ly)==1:
+        if len(groups_ly) == 1:
             ax = axs
         else:
             ax = axs[k]
-        
+
         # In the same groups_ly, we plot the curves in the same plot
-        plot_xys (ax, x, ly, xlabel=name_x, labels=groups_latex_names_y[k],
-                  **kwgs)
-        
+        plot_xys(ax, x, ly, xlabel=name_x, labels=groups_latex_names_y[k],
+                 **kwgs)
+
         pt.set_log_scale(ax, axis=log_scale)
-        
-    
+
     plt.tight_layout()
 
     if save_fig:
-        pt.save_fig(fig, fig_name, folder_name, f'{name_x}_vs_{list_into_string(flatten_2Dlist(names_y))}')
-    
+        pt.save_fig(fig, fig_name, folder_name,
+                    f'{name_x}_vs_{list_into_string(flatten_2Dlist(names_y))}')
+
     return fig, axs
