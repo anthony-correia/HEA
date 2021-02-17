@@ -1,5 +1,8 @@
 """Package for plotting."""
 
+import sys
+import os
+sys.path.insert(0, os.path.abspath("../.."))
                       
 from HEA.plot.histogram import(
     plot_hist_alone, plot_hist, plot_hist_var, plot_hist_auto,

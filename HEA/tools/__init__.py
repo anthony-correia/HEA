@@ -2,6 +2,10 @@
 Package with tool functions used within the library HEA.
 """
 
+import sys
+import os
+sys.path.insert(0, os.path.abspath("../.."))
+
 from HEA.tools.assertion import is_list_tuple
 
 from HEA.tools.da import el_to_list, list_included, show_dictionnary
