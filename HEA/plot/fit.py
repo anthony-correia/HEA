@@ -523,10 +523,10 @@ def plot_fitted_curves(ax, models, plot_scaling, low, high,
     high            : float
         high limit of the plot (x-axis)
     models_names : str or list(str) or list(list(str))
-        name of the models - used in the legend
-        
-        * list of the same size as ``models_names`` with the name of each PDF
-        * If there is only one string for a list of models, it corresponds to the name of the first composite PDFs. The other PDFs are plotted but they aren't legended
+        name of the models - used in the legend. 
+        List of the same size as ``models_names`` with the name of each PDF. 
+        If there is only one string for a list of models, it corresponds to the name of the first composite PDFs.
+        The other PDFs are plotted but they aren't legended.
         
     models_types  : str
         type of each mode (one character for each model or for a list of models):
@@ -535,8 +535,9 @@ def plot_fitted_curves(ax, models, plot_scaling, low, high,
         * ``'s'`` : signal
         * ``'b'`` : background
         
-        used in the legend to indicate if it is a signal or a background component
-        If ``None``, it is put to ``['m', 's', 'b', 'b', ...]``
+        used in the legend to indicate if it is a signal or a background component. 
+        If ``None``, it is put to ``['m', 's', 'b', 'b', ...]``.
+        
     fontsize_legend : float
         fontsize of the legend
     loc_leg         : str
