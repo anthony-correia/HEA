@@ -1,6 +1,14 @@
 HEA.config package
 ==================
 
+Module contents
+---------------
+
+.. automodule:: HEA.config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -20,10 +28,4 @@ HEA.config.create\_config module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
 
-.. automodule:: HEA.config
-   :members:
-   :undoc-members:
-   :show-inheritance:

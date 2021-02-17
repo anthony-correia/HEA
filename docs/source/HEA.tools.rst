@@ -1,6 +1,15 @@
 HEA.tools package
 =================
 
+Module contents
+---------------
+
+.. automodule:: HEA.tools
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 Submodules
 ----------
 
@@ -40,14 +49,6 @@ HEA.tools.string module
 -----------------------
 
 .. automodule:: HEA.tools.string
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: HEA.tools
    :members:
    :undoc-members:
    :show-inheritance:

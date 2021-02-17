@@ -16,7 +16,6 @@ import sphinx_rtd_theme
 import os
 import sys
 basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-print(os.path.join(os.path.dirname(__file__), '..', 'HEA'))
 sys.path.insert(0, basedir)
 
 sys.setrecursionlimit(5000)

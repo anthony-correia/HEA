@@ -1,6 +1,10 @@
 """Package for plotting."""
 
-
+import os
+import sys
+basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, basedir)
+                        
 from HEA.plot.histogram import(
     plot_hist_alone, plot_hist, plot_hist_var, plot_hist_auto,
     plot_divide, plot_divide_auto,

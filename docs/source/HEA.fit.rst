@@ -1,6 +1,15 @@
 HEA.fit package
 ===============
 
+Module contents
+---------------
+
+.. automodule:: HEA.fit
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   
+
 Submodules
 ----------
 
@@ -28,10 +37,4 @@ HEA.fit.params module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
 
-.. automodule:: HEA.fit
-   :members:
-   :undoc-members:
-   :show-inheritance:
