@@ -16,8 +16,10 @@ from numpy import log
 
 
 from .config import loc, default_fontsize
+import importlib.util
 
-try:import importlib.util
+try:
+    
     spec = importlib.util.spec_from_file_location("definition_project", loc['definition'])
     definition_project = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(definition_project)
