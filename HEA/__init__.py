@@ -8,7 +8,7 @@ HEA (High Energy Analysis) is a personal package to ease analyses of LHCb data:
 * Some tools are also available in :py:mod:`HEA.tools`. They are rather used within this package.
 """
 
-from .definition import (
+from HEA.definition import (
     RVariable, 
     get_branches_from_raw_branches_functions, 
     get_raw_branches_from_raw_branches_functions,
