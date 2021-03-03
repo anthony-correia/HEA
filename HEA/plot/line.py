@@ -6,7 +6,7 @@ Plot lines:
 """
 
 
-from HEA.tools.string import list_into_string
+from HEA.tools.string import list_into_string, _remove_latex
 import HEA.plot.tools as pt
 from HEA.config import default_fontsize
 from HEA.tools.da import el_to_list, flatten_2Dlist
@@ -91,16 +91,19 @@ def add_value_labels(ax, lx, ly, labels, space_x=-10, space_y=5, labelsize=12):
 ##########################################################################
 
 
-def plot_xys(ax, x, ly, xlabel, labels=None,
-             colors=['b', 'g', 'r', 'y'],
-             fontsize=default_fontsize['label'],
-             markersize=1,
-             linewidth=1., linestyle='-', factor_ymax=1., marker='.',
-             elinewidth=None,
-             annotations=None,
-             fontsize_annot=default_fontsize['annotation'],
-             space_x=-15, space_y=5,
-             pos_text_LHC=None):
+def plot_line_alone(ax, x, ly, xlabel, labels=None,
+                    colors=['b', 'g', 'r', 'y'],
+                    fontsize=default_fontsize['label'],
+                    markersize=1,
+                    linewidth=1., linestyle='-', factor_ymax=1., marker='.',
+                    elinewidth=None,
+                    annotations=None,
+                    fontsize_annot=default_fontsize['annotation'],
+                    space_x=-15, space_y=5,
+                    fontsize_leg=default_fontsize['legend'],
+                    pos_text_LHC=None, 
+                    ylabel='Value',
+                    **kwgs):
     """ Plot the curve(s) in `ly` as a function of `x`, with `annotations`.
 
     Parameters
@@ -115,8 +118,6 @@ def plot_xys(ax, x, ly, xlabel, labels=None,
         labels of the curves
     xlabel           : str
         label of the x-axis
-    labels           : str
-        label of the curves
     colors           : list(str)
         colors of each curve
     fontsize         : float
@@ -141,54 +142,72 @@ def plot_xys(ax, x, ly, xlabel, labels=None,
         space in pixel from the point to the annotation text, projected in the x-axis
     space_y          : float
         space in pixel from the point to the annotation text, projected in the y-axis
+    fontsize_leg : float
+        fontsize of the legend    
     pos_text_LHC    : dict, list or str
         passed to :py:func:`HEA.plot.tools.set_text_LHCb` as the ``pos`` argument.
+    ylabel: str
+        ylabel if there are several curves.
+    **kwgs: dict
+        passed to ``ax.plot()`` or ``ax.errorbar``
     """
+    
+    
     colors = el_to_list(colors, len(ly))
 
-    plot_legend = False
-
+    show_leg = False
+    
     for i, y in enumerate(ly):
         label = labels[i] if len(ly) > 1 else None
         x = np.array(x)
         y = np.array(y)
         x_n = unumpy.nominal_values(x)
         y_n = unumpy.nominal_values(y)
-        ax.errorbar(x_n, y_n,
-                    xerr=unumpy.std_devs(x), yerr=unumpy.std_devs(y),
-                    linestyle=linestyle, color=colors[i],
-                    markersize=markersize, elinewidth=elinewidth,
-                    linewidth=linewidth, label=label, marker=marker)
+        if (unumpy.std_devs(x)==0).all() and (unumpy.std_devs(y)==0).all():
+            ax.plot(x_n, y_n, linestyle=linestyle, color=colors[i],
+                    markersize=markersize, linewidth=linewidth,
+                    label=label, marker=marker, **kwgs
+                   )
+        else:
+            ax.errorbar(x_n, y_n,
+                        xerr=unumpy.std_devs(x), yerr=unumpy.std_devs(y),
+                        linestyle=linestyle, color=colors[i],
+                        markersize=markersize, elinewidth=elinewidth,
+                        linewidth=linewidth, label=label, marker=marker, 
+                        **kwgs)
 
         if label is not None:
-            plot_legend = True
+            show_leg = True
 
     ax.set_xlabel(xlabel, fontsize=fontsize)
 
     if len(ly) == 1:
         ax.set_ylabel(labels[0], fontsize=fontsize)
     else:
-        ax.set_ylabel('value', fontsize=fontsize)
+        ax.set_ylabel(ylabel, fontsize=fontsize)
 
     # Grid
     pt.show_grid(ax, which='major')
     pt.show_grid(ax, which='minor')
 
     # Ticks
-    pt.fix_plot(ax, factor_ymax=factor_ymax, show_leg=plot_legend,
-                fontsize_leg=25, ymin_to_0=False, pos_text_LHC=pos_text_LHC)
+    pt.fix_plot(ax, factor_ymax=factor_ymax, show_leg=False,
+                ymin_to_0=False, pos_text_LHC=pos_text_LHC)
 
+    if show_leg:
+        ax.legend(fontsize=fontsize_leg, markerscale=12.)
+        
     if annotations is not None:
         assert len(ly) == 1
         add_value_labels(ax, x_n, y_n, annotations,
                          labelsize=fontsize_annot, space_x=space_x, space_y=space_y)
 
 
-def plot_x_list_ys(x, y, name_x, names_y, latex_name_x=None, latex_names_y=None,
-                   fig_name=None, folder_name=None,
-                   log_scale=None,
-                   save_fig=True,
-                   **kwgs):
+def plot_lines(x, y, name_x, names_y, latex_name_x=None, latex_names_y=None,
+               fig_name=None, folder_name=None,
+               log_scale=None,
+               save_fig=True,
+               **kwgs):
     """ plot y or a list of y as a function of x. If they are different curves, their points should have the same abscissa.
 
     Parameters
@@ -215,7 +234,7 @@ def plot_x_list_ys(x, y, name_x, names_y, latex_name_x=None, latex_names_y=None,
     log_scale        : 'both', 'x' ot 'y'
         specifies which axis will be set in log scale
     **kwgs           : dict
-        passed to ``plot_xys``
+        passed to :py:func:`plot_line_alone`
 
     Returns
     -------
@@ -226,7 +245,7 @@ def plot_x_list_ys(x, y, name_x, names_y, latex_name_x=None, latex_names_y=None,
     """
 
     if latex_name_x is None:
-        latex_name_x = name_x
+        latex_name_x = _remove_latex(name_x)
 
     groups_ly = _el_or_list_to_2D_list(y)
     groups_names_y = _el_or_list_to_2D_list(names_y, str)
@@ -236,7 +255,7 @@ def plot_x_list_ys(x, y, name_x, names_y, latex_name_x=None, latex_names_y=None,
     else:
         groups_latex_names_y = groups_names_y
 
-    fig, axs = plt.subplots(len(groups_ly), 1, figsize=(8, 4 * len(groups_ly)))
+    fig, axs = plt.subplots(len(groups_ly), 1, figsize=(8, 6 * len(groups_ly)))
 
     for k, ly in enumerate(groups_ly):
         if len(groups_ly) == 1:
@@ -245,8 +264,8 @@ def plot_x_list_ys(x, y, name_x, names_y, latex_name_x=None, latex_names_y=None,
             ax = axs[k]
 
         # In the same groups_ly, we plot the curves in the same plot
-        plot_xys(ax, x, ly, xlabel=name_x, labels=groups_latex_names_y[k],
-                 **kwgs)
+        plot_line_alone(ax, x, ly, xlabel=latex_name_x, labels=groups_latex_names_y[k],
+                        **kwgs)
 
         pt.set_log_scale(ax, axis=log_scale)
 
@@ -257,3 +276,34 @@ def plot_x_list_ys(x, y, name_x, names_y, latex_name_x=None, latex_names_y=None,
                     f'{name_x}_vs_{list_into_string(flatten_2Dlist(names_y))}')
 
     return fig, axs
+
+
+def plot_lines_auto(x, y, name_x, names_y, **kwgs):
+    """ Retrieve the latex name of the branch and unit associated with ``x``.
+    Then, plot with py:func:`plot_lines`
+    
+    
+    x       : list(float)
+        passed to :py:func:`plot_lines`
+    y       : numpy.array(uncertainties.ufloat) or numpy.array(float) or list(numpy.array(uncertainties.ufloat)) or list(numpy.array(float)) or
+        passed to :py:func:`plot_lines`
+    name_x  : str
+        passed to :py:func:`plot_lines`
+    name_y  : str or list(str)
+        passed to :py:func:`plot_lines`
+    **kwgs  : dict
+        passed to :py:func:`plot_lines`
+    
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Figure of the plot
+    ax : matplotlib.figure.Axes or list(matplotlib.figure.Axes)
+        Axis of the plot or list of axes of the plot
+    """
+    latex_branch, unit = pt.get_latex_branches_units(name_x)
+    latex_name_x = pt.get_label_branch(latex_branch, unit)
+    return plot_lines(x, y, name_x, names_y, 
+                      latex_name_x=latex_name_x,
+                      **kwgs)
+

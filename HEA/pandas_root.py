@@ -12,7 +12,7 @@ import pandas as pd
 from root_pandas import read_root
 
 from HEA.tools.da import el_to_list
-from HEA.tools.dir import create_directory
+from HEA.tools.dir import create_directory, try_makedirs
 from HEA.config import loc
 from HEA.definition import definition_functions
 
@@ -64,41 +64,74 @@ def show_cut(df, cut, verbose=True):
     return df
 
 
-def load_dataframe(path, tree_name, columns, method='read_root'):
+def load_dataframe(paths, columns=None, tree_name='DecayTree', method='read_root', **kwds):
     """ load dataframe from a root file (also print the path of the root file)
 
     Parameters
     ----------
-    path      : str
+    paths     : str or list(str)
         location of the root file
     tree_name : str
         name of the tree where the data to be loaded is
-    columns   : list
-        columns of the root files that are loaded
+    columns   : list or None
+        columns of the root files that are loaded.
+        If ``None``, load everything
     method    : str
         method used to load the data: ``'read_root'`` or ``'uproot'``
-
+    **kwds    : dict
+        parameters passed to the function to read the root file 
+        (e.g., ``read_root``)
+    
     Returns
     -------
     pandas.DataFrame
         loaded pandas dataframe
     """
+    paths = el_to_list(paths)
+    df = pd.DataFrame() 
+    for path in paths:
+        print("Loading " + path)
 
-    print("Loading " + path)
+        if method == 'read_root':
+            df = df.append(read_root(path, tree_name, columns=columns, **kwds))
 
-    if method == 'read_root':
-        return read_root(path, tree_name, columns=columns)
+        elif method == 'uproot':
+            import uproot4  # not imported by default...
+            file = uproot4.open(path)[tree_name]
+            df = df.append(file.arrays(vars, library="pd"))
+            del file
 
-    elif method == 'uproot':
-        import uproot4  # not imported by default...
-        file = uproot4.open(path)[tree_name]
-        df = file.arrays(vars, library="pd")
-        del file
+    return df
 
-        return df
+def load_dataframe_YY_MM(path, YY=None, MM=None, **kwds):
+    """ Load the dataframe given by path 
+    for the years and polarisation given by ``YY`` and ``M``
+    
+    Parameters
+    ----------
+    
+    path   : str
+        path with ``'{MM}'``, ``'{YY}'`` 
+        to represent where to fill in the year (``YY``) and polarisation (``MM``)
+    YY     : int or list(int)
+        list of two last figures of the year to load
+    MM     : "up" or "down" or list("up" and "down")
+        list of polarisation to load
+    **kwds : dict
+        other parameters to pass to :py:func:`load_dataframe`
+    """
+    YY = el_to_list(YY)
+    MM = el_to_list(MM)
+    
+    paths = list({path.format(YY=yy, MM=mm) for yy in YY for mm in MM})
+    
+    return load_dataframe(paths, **kwds)
+            
+                
+    
 
 
-def load_saved_root(name_data, vars=None, folder_name="",
+def load_saved_root(name_data, columns=None, folder_name="",
                     tree_name='DecayTree', cut_BDT=None, method='read_root'):
     """
 
@@ -122,7 +155,7 @@ def load_saved_root(name_data, vars=None, folder_name="",
 
     complete_path = f"{loc['out']}/root/{folder_name}/{name_data}{text_cut_BDT}.root"
 
-    return load_dataframe(complete_path, tree_name, vars, method=method)
+    return load_dataframe(complete_path, tree_name=tree_name, columns=columns, method=method)
 
 
 def save_root(df, file_name, name_key, folder_name=None):
@@ -141,7 +174,7 @@ def save_root(df, file_name, name_key, folder_name=None):
     path = loc['out'] + 'root/'
     path = create_directory(path, folder_name)
     path += f"/{file_name}.root"
-
+    
     print(f"Root file saved in {path}")
     df.to_root(path, key=name_key)
 

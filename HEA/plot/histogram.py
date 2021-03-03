@@ -19,6 +19,14 @@ from HEA.tools.da import add_in_dic, el_to_list
 
 from HEA.config import default_fontsize
 from HEA.tools import string
+from HEA.tools.dist import (
+    get_count_err, 
+    get_bin_width, 
+    get_density_counts_err,
+    get_count_err_ratio
+)
+from HEA.tools.assertion import is_list_tuple
+
 
 # Gives us nice LaTeX fonts in the plots
 from matplotlib import rc, rcParams
@@ -31,59 +39,7 @@ rcParams['axes.unicode_minus'] = False
 ################################ subfunctions for plotting ###############
 ##########################################################################
 
-def get_bin_width(low, high, n_bins):
-    """return bin width
 
-    Parameters
-    ----------
-    low : Float
-        low value of the range
-    high : Float
-        high value of the range
-    n_bins : Int
-        number of bins in the given range
-
-    Returns
-    -------
-    Float
-        Width of the bins
-    """
-    return float((high - low) / n_bins)
-
-
-def get_count_err(data, n_bins, low, high, weights=None):
-    """ get counts and error for each bin
-
-    Parameters
-    ----------
-    data          : pandas.Series
-        data to plot
-    n_bins        : int
-        number of bins
-    low           : float
-        low limit of the distribution
-    high          : float
-        high limit of the distribution
-    weights       : pandas.Series, numpy.array
-        weights of each element in data
-
-    Returns
-    -------
-    counts  : np.array
-        number of counts in each bin
-    edges   : np.array
-        Edges of the bins
-    centres : np.array
-        Centres of the bins
-    err     : np.array
-        Errors in the count, for each bin
-    """
-    counts, edges = np.histogram(data, range=(
-        low, high), bins=n_bins, weights=weights)
-    centres = (edges[:-1] + edges[1:]) / 2.
-    err = np.sqrt(counts)
-
-    return counts, edges, centres, err
 
 
 def plot_hist_alone(ax, data, n_bins, low, high,
@@ -94,12 +50,12 @@ def plot_hist_alone(ax, data, n_bins, low, high,
                     orientation='vertical',
                     **params):
     """  Plot histogram
-
-    Parameters
-    ----------
+    
     * If ``bar_mode``: Points with error bars
     * Else: histogram with bars
 
+    Parameters
+    ----------
     ax            : matplotlib.axes.Axes
         axis where to plot
     data          : pandas.Series
@@ -156,19 +112,31 @@ def plot_hist_alone(ax, data, n_bins, low, high,
             label += ": "
         label += f" {n_candidates} events"
 
-    if density:
-        counts = counts / (n_candidates * bin_width)
-        err = err / (n_candidates * bin_width)
+    counts, err = get_density_counts_err(counts, bin_width, err, density=density)
+
 
     if bar_mode:
+        colors = el_to_list(color, 2)
         if orientation == 'vertical':
-            ax.bar(centres, counts, centres[1] - centres[0], color=color, alpha=alpha, edgecolor=None, label=label,
-                   **params)
-            ax.step(edges[1:], counts, color=color)
+            if colors[0] is not None:
+                ax.bar(centres, counts, centres[1] - centres[0], 
+                       color=colors[0], 
+                       alpha=alpha, edgecolor=None, 
+                       label=label,
+                       **params)
+            if colors[1] is not None:
+                ax.step(edges, np.concatenate([np.array([counts[0]]), counts]), 
+                        color=colors[1],
+                        label=label if colors[0] is None else None
+                       )
         elif orientation == 'horizontal':
-            ax.barh(centres, counts, centres[1] - centres[0], color=color, alpha=alpha, edgecolor=None, label=label,
-                    **params)
-            ax.step(counts, edges[:-1], color=color)
+            if colors[0] is not None:
+                ax.barh(centres, counts, centres[1] - centres[0], color=colors[1], 
+                        alpha=alpha, edgecolor=None, 
+                        label=label if colors[0] is None else None,
+                        **params)
+            if colors[1] is not None:
+                ax.step(np.concatenate([counts, np.array([counts[-1]])]), edges, color=colors[2])
     else:
         if orientation == 'vertical':
             ax.errorbar(centres, counts, yerr=err, color=color,
@@ -282,7 +250,7 @@ def set_label_2Dhist(ax, latex_branches, units,
 
 
 def set_label_divided_hist(ax, latex_branch, unit, bin_width,
-                           names_data, fontsize=default_fontsize['label']):
+                           data_names, fontsize=default_fontsize['label']):
     """
     Set the xlabel and ylabel of a "divided" histogram
 
@@ -296,7 +264,7 @@ def set_label_divided_hist(ax, latex_branch, unit, bin_width,
         unit of the quantity that was plotted
     bin_width     : float
         bin width of the histogram
-    names_data    : [str, str]
+    data_names    : [str, str]
         list of the 2 names of the data (for which a common branch was divided)
     fontsize      : float
         fontsize of the label
@@ -308,7 +276,7 @@ def set_label_divided_hist(ax, latex_branch, unit, bin_width,
                         data_name=None, fontsize=fontsize, axis='x')
 
     pre_label = (
-        "candidates[%s] / candidates[%s] \n") % (names_data[0], names_data[1])
+        "candidates[%s] / candidates[%s] \n") % (data_names[0], data_names[1])
 
     set_label_candidates_hist(ax, bin_width, pre_label=pre_label,
                               unit=unit, fontsize=25, axis='y')
@@ -389,6 +357,7 @@ def get_fig_ax(ax=None, orientation='vertical'):
 def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
               low=None, high=None, n_bins=100, colors=None, alpha=None,
               bar_mode=False, density=None, orientation='vertical',
+              labels=None,
               title=None, pos_text_LHC=None,
               fig_name=None, folder_name=None,
               fontsize_label=default_fontsize['label'],
@@ -420,12 +389,14 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
         color(s) used for the histogram(s)
     alpha           : str or list(str)
         transparancy(ies) of the histograms
-    bar_mode       : bool
+    bar_mode       : bool or list(bools)
         if True, plot with bars, else, plot with points and error bars
     density         : bool
         if True, divide the numbers of counts in the histogram by the total number of counts
     orientation     : 'vertical' or 'horizontal'
         orientation of the histogram
+    labels          : str or list(str)
+        labels to add to the histogram
     title           : str
         title of the figure to show at the top of the figure
     pos_text_LHC    : dict, list or str
@@ -485,12 +456,16 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
 
     weights = el_to_list(weights, len(dfs))
     alpha = el_to_list(alpha, len(dfs))
-
+    bar_mode = el_to_list(bar_mode, len(dfs))
+    labels = el_to_list(labels, len(dfs))
+    
     for i, (data_name, df) in enumerate(dfs.items()):
         if alpha[i] is None:
             alpha[i] = 0.5 if len(dfs) > 1 else 1
-        _, _, _, _ = plot_hist_alone(ax, df[branch], n_bins, low, high, colors[i], bar_mode,
-                                     alpha=alpha[i], density=density, label=data_name, weights=weights[i],
+        
+        label = string.add_text(data_name, labels[i], sep='')
+        _, _, _, _ = plot_hist_alone(ax, df[branch], n_bins, low, high, colors[i], bar_mode[i],
+                                     alpha=alpha[i], density=density, label=label, weights=weights[i],
                                      orientation=orientation,
                                      **params)
 
@@ -544,10 +519,11 @@ def plot_hist_var(datas, branch, latex_branch=None,
     """
 
     # data into list of data
-    if not isinstance(datas[0], np.ndarray) and not isinstance(
-            datas[0], Series):
+    if not is_list_tuple(datas):
         datas = [datas]
-
+    
+    if data_names is None:
+        data_names=""
     data_names = el_to_list(data_names, len(datas))
     assert len(data_names) == len(datas)
 
@@ -561,10 +537,55 @@ def plot_hist_var(datas, branch, latex_branch=None,
                      unit=unit, **kwargs)
 
 
-def plot_divide(dfs, branch, latex_branch, unit, low=None, high=None, n_bins=100,
+def plot_divide_alone(ax, data1, data2, 
+                      low, high, n_bins, 
+                      color='k', 
+                      label=None, 
+                      **kwargs):
+    """ Plot a "divide" histogram
+    
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        axis where to plot
+    data1:  array-like
+        Data 1
+    data2: array-like
+        Data 2
+    n_bins: int
+        number of bins in the histogram
+    low: float
+        low value of the histogram
+    high: float
+        high value of the histogram
+    color: str
+        color of the error bars
+    label: str
+        label of the plot (for the legend)
+    **kwargs: dict[str:2-list]
+        passed to :py:func:`HEA.tools.dist.get_count_err_ratio`
+    
+    """
+    division, bin_centres, err = get_count_err_ratio(
+        data1=data1,
+        data2=data2,
+        n_bins=n_bins,
+        low=low, high=high,
+        **kwargs
+    )
+    
+    ax.errorbar(bin_centres, division, yerr=err, fmt='o', color=color, label=label)
+    ax.plot([low, high], [1., 1.], linestyle='--', color='b', marker='')
+    
+    return division, bin_centres, err
+    
+    
+
+def plot_divide(dfs, branch, latex_branch, unit, low=None, high=None, 
+                n_bins=100, color='k', label=None,
                 fig_name=None, folder_name=None,
                 save_fig=True, ax=None,
-                pos_text_LHC=None):
+                pos_text_LHC=None, **kwargs):
     """ plot the (histogram of the dataframe 1 of branch)/(histogram of the dataframe 1 of branch) after normalisation
 
     Parameters
@@ -581,6 +602,10 @@ def plot_divide(dfs, branch, latex_branch, unit, low=None, high=None, n_bins=100
         low value of the distribution
     high            : float
         high value of the distribution
+    color           : str
+        color of the plotted data points
+    label           : str
+        label of the plotted data points
     n_bins          : int
         Desired number of bins of the histogram
     fig_name       : str
@@ -593,7 +618,9 @@ def plot_divide(dfs, branch, latex_branch, unit, low=None, high=None, n_bins=100
         axis where to plot
     pos_text_LHC    : dict, list or str
         passed to :py:func:`HEA.plot.tools.set_text_LHCb` as the ``pos`` argument.
-
+    **kwargs   : dict[str:2-list]
+        passed to :py:func:`HEA.tools.dist.get_count_err_ratio`
+        
     Returns
     -------
     fig : matplotlib.figure.Figure
@@ -613,31 +640,36 @@ def plot_divide(dfs, branch, latex_branch, unit, low=None, high=None, n_bins=100
     # Make the histogram, and get the bin centres and error on the counts in
     # each bin
     list_dfs = list(dfs.values())
-    names_data = list(dfs.keys())
-
-    counts1, bin_edges = np.histogram(
-        list_dfs[0][branch], n_bins, range=(low, high))
-    counts2, _ = np.histogram(list_dfs[1][branch], n_bins, range=(low, high))
-    bin_centres = (bin_edges[:-1] + bin_edges[1:]) / 2.
-
-    err1 = np.sqrt(counts1)
-    err2 = np.sqrt(counts2)
-
-    # division
-    with np.errstate(divide='ignore', invalid='ignore'):
-        division = counts1 * counts2.sum() / (counts2 * counts1.sum())
-    err = division * np.sqrt((err1 / counts1)**2 + (err2 / counts2)**2)
-
-    ax.errorbar(bin_centres, division, yerr=err, fmt='o', color='k')
-    ax.plot([low, high], [1., 1.], linestyle='--', color='b', marker='')
-
+    data_names = list(dfs.keys())
+    
+#     division, bin_centres, err = get_count_err_ratio(
+#         data1=list_dfs[0][branch],
+#         data2=list_dfs[1][branch],
+#         n_bins=n_bins,
+#         low=low, high=high,
+#         **kwargs
+#     )
+#     ax.errorbar(bin_centres, division, yerr=err, fmt='o', color=color, label=label)
+#     ax.plot([low, high], [1., 1.], linestyle='--', color='b', marker='')
+    
+    plot_divide_alone(
+        ax,
+        data1=list_dfs[0][branch],
+        data2=list_dfs[1][branch],
+        n_bins=n_bins,
+        low=low, high=high,
+        label=label,
+        color=color,
+        **kwargs
+    )
+    
     # Labels
     set_label_divided_hist(ax, latex_branch, unit,
-                           bin_width, names_data, fontsize=25)
+                           bin_width, data_names, fontsize=25)
 
     # Set lower and upper range of the x and y axes
     pt.fix_plot(ax, factor_ymax=1.1, show_leg=False,
-                fontsize_ticks=20., ymin_to0=False, pos_text_LHC=pos_text_LHC)
+                fontsize_ticks=20., ymin_to_0=False, pos_text_LHC=pos_text_LHC)
 
     # Save
     return end_plot_function(fig, save_fig=save_fig, fig_name=fig_name, folder_name=folder_name,

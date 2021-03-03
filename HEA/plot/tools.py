@@ -71,7 +71,7 @@ def _redefine_low_high(low, high, data):
         low value of the range
     high   : float or None
         high value of the range
-    data   : pandas.Series or list of pandas.Series
+    data   : pandas.Series or list(pandas.Series)
         for which we want to define the ``low``/``high`` value
 
     Returns
@@ -174,6 +174,32 @@ def _get_title_given_BDT_cut(title, cut_BDT):
 
 
 # Core of the plot -------------------------------------------------------
+
+def draw_vline(ax, x, label=None, color='b', **kwgs):
+    """ Draw a vertical line and its label (at the top of the figure)
+    
+    Parameters
+    ----------
+    ax    : matplotlib.axes.Axes
+        axis where to plot the line
+    x     : float
+        location of the vertical line
+    label : str
+        name of the line to show in the plot
+    **kwgs: dict
+        passed to ``ax.axvline()``
+    
+    """
+    
+    low_m_DstKpipi, high_m_DstKpipi = ax.get_xlim()
+    
+    ax.axvline(x, color=color, **kwgs)
+    
+    ax.text((x - low_m_DstKpipi) / (high_m_DstKpipi - low_m_DstKpipi), 1.01, label,
+        verticalalignment='bottom', horizontalalignment='center',
+        transform=ax.transAxes,
+        color=color, fontsize=20)
+
 def show_grid(ax, which='major', axis='both'):
     """show grid
 
@@ -364,7 +390,9 @@ def fix_plot(ax, factor_ymax=1.1, show_leg=True, fontsize_ticks=default_fontsize
     axis            : 'y' or 'x'
         if ``axis`` is ``'x'``, ``ymin_to_0`` and ``factor_ymax`` acts on the x-axis
     """
-
+    
+    set_text_LHCb(ax, pos=pos_text_LHC)
+    
     if factor_ymax is not None:
         change_range_axis(ax, factor_ymax, ymin_to_0, axis)
 
@@ -372,7 +400,7 @@ def fix_plot(ax, factor_ymax=1.1, show_leg=True, fontsize_ticks=default_fontsize
     if show_leg:
         ax.legend(fontsize=fontsize_leg, loc=loc_leg)
 
-    set_text_LHCb(ax, pos=pos_text_LHC)
+    
 
 
 def get_latex_branches_units(branches):
@@ -444,6 +472,31 @@ def _unit_between_brackets(unit, show_bracket=True):  # previously: redefine_uni
     return string.string_between_brackets(unit, bracket=bracket)
 
 
+def get_label_branch(latex_branch, unit=None, data_name=None):
+    """ Get- the label branch ``(data_name) [unit]``
+
+    Parameters
+    ----------
+    latex_branch  : str
+        latex name of the branch that was plotted
+    unit          : str
+        unit of the branch that was plotted
+    data_name     : str or None
+        Name of the data, in case it needs to be specified 
+        in the label of the axis between parentheses
+       
+    Returns
+    -------
+    label: str
+        label of the branch to put in the axis of a plot
+    """
+    unit_text = _unit_between_brackets(unit)
+    data_name_text = string.string_between_brackets(data_name, bracket='(')
+
+    label = "%s%s%s" % (latex_branch, data_name_text, unit_text)
+    
+    return label
+
 def set_label_branch(ax, latex_branch, unit=None, data_name=None,
                      fontsize=default_fontsize['label'], axis='x'):
     """ set the label branch ``(data_name) [unit]`` for the axis specified by ``'axis'``
@@ -467,6 +520,9 @@ def set_label_branch(ax, latex_branch, unit=None, data_name=None,
     data_name_text = string.string_between_brackets(data_name, bracket='(')
 
     label = "%s%s%s" % (latex_branch, data_name_text, unit_text)
+    
+    label = get_label_branch(latex_branch, unit=unit, data_name=data_name)
+    
     if axis == 'x' or axis == 'both':
         ax.set_xlabel(label, fontsize=fontsize)
     if axis == 'y' or axis == 'both':

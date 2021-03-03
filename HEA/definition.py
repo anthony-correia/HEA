@@ -36,6 +36,67 @@ from HEA.tools.da import el_to_list
 from HEA.tools.string import add_text, _latex_format, string_between_brackets
 from HEA.tools.serial import get_latex_column_table
 
+# Fit parameters ========================================================
+
+latex_params = {
+    'n_sig': {
+        'latex':'$n_{sig}$',
+        'cat'  :'yield'
+    },
+    'mu': {
+        'latex': '$\mu$',
+        'cat'  : 'main'
+    },
+    'muL':{
+        'latex':'$\\mu_L$',
+        'cat'  :'main'
+    },
+    'muR':{
+        'latex':'$\\mu_R$',
+        'cat'  :'main'
+    },
+    'sigma':{
+        'latex':'$\\sigma$',
+        'cat'  :'main'
+    },
+    'sigmaL':{
+        'latex':'$\\sigma_L$',
+        'cat'  :'main'
+    },
+    'sigmaR':{
+        'latex':'$\\sigma_R$',
+        'cat'  :'main'
+    },
+    'alphaL': {
+        'latex':'$\\alpha_L$',
+        'cat'  :'other'
+    },
+    'alphaR': {
+        'latex':'$\\alpha_R$',
+        'cat'  :'other'
+    },
+    'nL': {
+        'latex':'$n_L$',
+        'cat'  :'other'
+    },
+    'nR': {
+        'latex':'$n_R$',
+        'cat'  :'other'
+    },
+    'frac': {
+        'latex':'$f_{\\frac{L}{R}}$',
+        'cat'  :'other'
+    },
+    'n_bkg': {
+        'latex':'$n_{bkg}$',
+        'cat'  :'yield'
+    },
+    'lambda': {
+        'latex':'$\\lambda$',
+        'cat'  :'other'
+    },    
+}
+
 
 # Name of the functions and functions ====================================
 
@@ -299,7 +360,7 @@ class RVariable():
             * if ``self.latex_quantity`` is a tuple of quantities, returns a tuple of latex names of variables.
         """
         return self.get_latex_raw_branch(
-            self.latex_particle, self.latex_raw_quantity)
+            self.latex_particle, self.latex_raw_quantity, self.raw_branch)
 
     @property
     def latex_branch(self):
@@ -364,7 +425,7 @@ class RVariable():
             return tuple(RVariable.get_raw_branch(sub_particle, sub_raw_quantity)
                          for sub_particle, sub_raw_quantity in zip(particle, raw_variable))
 
-        return add_text(particle, raw_variable)
+        return add_text(particle, raw_variable, sep='_')
 
     @staticmethod
     def get_latex_particle(particle):
@@ -427,7 +488,7 @@ class RVariable():
             return _latex_format(raw_quantity)
 
     @staticmethod
-    def get_latex_raw_branch(latex_particle, latex_raw_quantity):
+    def get_latex_raw_branch(latex_particle, latex_raw_quantity, raw_branch):
         """ Return the latex name of the raw branches (i.e., quantity and particle), without including the function in the label
 
         Parameters
@@ -436,11 +497,18 @@ class RVariable():
             latex name of particle or list of latex names of particles
         latex_raw_quantity: str or list(str)
             latex name of a raw quantity or list of latex names of raw quantities
-        
+        raw_branch: str or list(str)
+            raw branches
         Returns
         -------
         latex_raw_branch: str or tuple(str)
-            * if ``self.raw_branch`` is one branch, returns ``"{self.latex_quantity}({self.latex_particle})"`` or just ``self.latex_quantity`` if no the rVariable has no particle.
+        
+            * if ``self.raw_branch`` is one branch, returns 
+                
+                * if ``self.raw_branch`` is in ``definition_quantities`` and its latex name is not None, just return its latex name directly from there
+                * else ``"{self.latex_quantity}({self.latex_particle})"``
+                * or just ``self.latex_quantity`` if no the rVariable has no particle.
+                
             * if ``self.latex_quantity`` is a tuple of quantities, returns a tuple of latex names of variables.
         """
 
@@ -450,10 +518,12 @@ class RVariable():
             # there is one particle specified but several quantities)
             latex_particles = tuple(el_to_list(
                 latex_particle, len(latex_raw_quantity)))
-            return tuple(RVariable.get_latex_raw_branch(sub_latex_particle, sub_latex_raw_quantity)
-                         for sub_latex_particle, sub_latex_raw_quantity in zip(latex_particles, latex_raw_quantity))
+            return tuple(RVariable.get_latex_raw_branch(sub_latex_particle, sub_latex_raw_quantity, sub_raw_branch)
+                         for sub_latex_particle, sub_latex_raw_quantity, sub_raw_branch in zip(latex_particles, latex_raw_quantity, raw_branch))
 
-        if latex_particle is None:
+        if  raw_branch in definition_quantities and definition_quantities[raw_branch]['latex'] is not None:
+            return definition_quantities[raw_branch]['latex']
+        elif latex_particle is None:
             return latex_raw_quantity
         else:
             return f"{latex_raw_quantity}({latex_particle})"

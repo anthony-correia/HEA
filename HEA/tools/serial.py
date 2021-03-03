@@ -4,6 +4,7 @@
 
 import pickle
 import json
+import joblib
 from functools import partial
 
 from HEA.config import loc
@@ -11,7 +12,8 @@ from .dir import create_directory
 
 library_from_str = {
     'pickle': pickle,
-    'json': json
+    'json': json,
+    'joblib': joblib
 }
 
 
@@ -29,7 +31,7 @@ def _dump(data, file_name=None, folder_name=None,
     folder_name : str
         name of folder where the json file is
         (if None, there is no folder)
-    library   : 'json' or 'pickle'
+    library   : 'json', 'pickle' or joblib
         library used to save the file
     byte_write: bool
         Write in byte mode
@@ -40,6 +42,8 @@ def _dump(data, file_name=None, folder_name=None,
     path = f"{directory}/{file_name}.{library}"
 
     with open(path, 'w' + byte_write * 'b') as f:
+        if library=='joblib':
+            f = f.name
         library_from_str[library].dump(data, f, **params)
 
     print(f"{library.title()} file saved in {path}")
@@ -47,6 +51,7 @@ def _dump(data, file_name=None, folder_name=None,
 
 dump_pickle = partial(_dump, library='pickle', byte_write=True)
 dump_json = partial(_dump, library='json', sort_keys=True, indent=4)
+dump_joblib = partial(_dump, library='joblib', byte_write=False)
 
 
 dump_pickle.__doc__ = """Dump a pickle file in ``{loc['pickle']}/`` (in byte mode)
@@ -103,6 +108,9 @@ def _retrieve(file_name, folder_name=None, library='json', byte_read=False):
     path = f"{directory}/{file_name}.{library}"
 
     with open(path, 'r' + byte_read * 'b') as f:
+        if library=='joblib':
+            f = f.name
+            
         params = library_from_str[library].load(f)
 
     return params
@@ -110,6 +118,7 @@ def _retrieve(file_name, folder_name=None, library='json', byte_read=False):
 
 retrieve_pickle = partial(_retrieve, library='pickle', byte_read=True)
 retrieve_json = partial(_retrieve, library='json', byte_read=False)
+retrieve_joblib = partial(_retrieve, library='joblib', byte_read=False)
 
 retrieve_pickle.__doc__ = """ Retrieve the content of a pickle file
 

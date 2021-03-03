@@ -10,6 +10,7 @@ from HEA.tools.da import el_to_list, add_in_dic
 from HEA.tools.serial import dump_json
 
 import zfit
+import timeit
 
 ##########################################################################
 ############################################# PDFs #######################
@@ -70,7 +71,7 @@ def sum_crystalball_or_gaussian(
         :math:`\\alpha_R` parameter of the left tail of the right distribution
     nL: zfit.Parameter
         :math:`n_L` parameter of the left tail of the left distribution
-    nL: zfit.Parameter
+    nR: zfit.Parameter
         :math:`n_R` parameter of the right tail of the right distribution
 
     Returns
@@ -225,7 +226,7 @@ def save_params(params, name_file, uncertainty=True,
     dump_json(param_results, name_file + '_params', folder_name=folder_name)
 
 
-def launch_fit(model, data, extended=False, verbose=True):
+def launch_fit(model, data, extended=False, verbose=True, show_time=True):
     """Fit the data with the model
 
     Parameters
@@ -238,7 +239,9 @@ def launch_fit(model, data, extended=False, verbose=True):
         Define or not an extended loss function
     verbose  : Bool
         print or not the result of the fit
-
+    show_time: Bool
+        print or not the time to perform the fit
+        
     Returns
     --------
     result: zfit.minimize.FitResult
@@ -246,6 +249,10 @@ def launch_fit(model, data, extended=False, verbose=True):
     param : Dict[ZfitParameter, float]
         Result ``result.params`` of the minimisation of the loss function (given by :py:func:`launch_fit`)
     """
+    
+    if show_time:
+        start = timeit.default_timer()
+    
 
     # Minimisation of the loss function
     if extended:
@@ -264,6 +271,11 @@ def launch_fit(model, data, extended=False, verbose=True):
     # (gaussian)
 
     param = result.params
+    
+    if show_time:
+        stop = timeit.default_timer()
+        print('Time to do the fit: ', stop - start)
+    
     if verbose:
         print(param)
     return result, param

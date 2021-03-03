@@ -7,6 +7,8 @@ from .histogram import plot_hist_alone, set_label_hist, get_bin_width
 from HEA.tools.da import add_in_dic, el_to_list, get_element_list
 from HEA.tools import string, assertion
 from HEA.config import default_fontsize
+from HEA.tools import dist
+from HEA.fit.params import get_ufloat_latex_from_param_latex_params
 from HEA.fit import PDF
 
 
@@ -17,8 +19,9 @@ from zfit.models.functor import SumPDF
 #from zfit.core.parameter import Parameter
 
 import numpy as np
-
 from pandas import DataFrame
+from uncertainties import ufloat
+
 
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -206,12 +209,12 @@ def plot_pull_diagram(ax, model, counts,
     print(f"Number of bins: {len(centres)}")
     print(f"Width of the bins: {centres[1]-centres[0]}")
     print("")
-    chi2 = PDF.get_reduced_chi2(fit, counts, ndof)
+    chi2 = dist.get_reduced_chi2(fit, counts, ndof)
     print("Number of d.o.f. in the model: ", ndof)
     print('Reduced chi2: ', chi2)
     print("")
-    print(f"Mean of the normalised residuals: {PDF.get_mean(pull)}")
-    print(f"Std of the normalised residuals: {PDF.get_std(pull)}")
+    print(f"Mean of the normalised residuals: {dist.get_mean(pull)}")
+    print(f"Std of the normalised residuals: {dist.get_std(pull)}")
 
     if show_chi2:
         ax.set_xlabel(f'(reduced $\\chi^2$={chi2:.2f})', fontsize=fontsize)
@@ -579,8 +582,8 @@ def plot_fitted_curves(ax, models, plot_scaling, low, high,
 # RESULT FIT =============================================================
 
 
-def plot_result_fit(ax, params, latex_params=None, fontsize=default_fontsize['legend'], colWidths=[
-                    0.06, 0.01, 0.05, 0.06], loc='upper right'):
+def plot_result_fit(ax, params, latex_params=None, fontsize=default_fontsize['legend'], 
+                    colWidths=[0.05, 0.01, 0.055, 0.1], loc='upper right'):
     """
     Plot the results of the fit in a table
 
@@ -605,8 +608,10 @@ def plot_result_fit(ax, params, latex_params=None, fontsize=default_fontsize['le
     loc           : str
         location of the table
     """
-    #result_fit = ""
-    result_fit = []
+    
+    result_fit_table = []
+    table_lines = {}
+    
     for p in list(params.keys()):  # loop through the parameters
 
         name_param = p.name
@@ -615,35 +620,51 @@ def plot_result_fit(ax, params, latex_params=None, fontsize=default_fontsize['le
         index = name_param.find(';')
         if index != -1:
             name_param = name_param[:index]
-
+        
+        
         # if latex_params not None, it specifies the branchs we want to show
         if (latex_params is None) or (name_param in latex_params):
             # Retrieve value and error
             value_param = params[p]['value']
             error_param = params[p]['minuit_hesse']['error']
-
-            # Retrieve alt name
+            
+            ufloat_value = ufloat(value_param, error_param)
+            
+            latex_param, ufloat_latex = get_ufloat_latex_from_param_latex_params(
+                    name_param, 
+                    ufloat_value, 
+                    latex_params
+                )
+            
+            latex_nominal, latex_error =  ufloat_latex.split('\\pm')
+            
+            line = [ latex_param, ":", latex_nominal, f'$\\pm~{latex_error}$']
+            
             if latex_params is not None:
-                surname_param = latex_params[name_param]
+                # Table --> name_param   :   value_param +/- error_param
+                table_lines[name_param] = line
             else:
-                surname_param = string._latex_format(name_param)
-
-            # Table --> name_param   :   value_param +/- error_param
-            size_int_part = len(str(int(value_param)))
-            if size_int_part >= 4:
-                value_param_text = f"{value_param:.0f}"
-            else:
-                value_param_text = f"{value_param:.4f}"
-            result_fit.append(
-                [surname_param, ":", value_param_text, f'$\\pm$ {error_param:.2g}'])
-
+                result_fit_table.append(line)
+                
+    # Create the table in the order given by ``latex_params``
+    
+    if latex_params is not None:
+        for name_param in latex_params.keys():
+            if name_param in table_lines:
+                line = table_lines[name_param]
+                result_fit_table.append(line)
+    
+        
+    
     # Plot the table with the fitted parameters in the upper right part of the
     # plot
-    table = ax.table(result_fit, loc=loc, edges='open', cellLoc='left',
+    
+        
+    table = ax.table(result_fit_table, loc=loc, edges='open', cellLoc='left',
                      colWidths=colWidths)
     table.auto_set_font_size(False)
     table.set_fontsize(fontsize)
-    table.scale(2, 2)
+    table.scale(1.5, 1.5)
 
 
 ##########################################################################
@@ -652,14 +673,14 @@ def plot_result_fit(ax, params, latex_params=None, fontsize=default_fontsize['le
 
 def plot_hist_fit(df, branch, latex_branch=None, unit=None, weights=None,
                   obs=None, n_bins=50, low_hist=None, high_hist=None,
-                  color='black', bar_mode=True,
+                  color='black', bar_mode=False,
                   models=None, models_names=None, models_types=None,
                   linewidth=2.5, colors=None,
                   title=None,
                   plot_pull=True, bar_mode_pull=True,
                   show_leg=None, fontsize_leg=default_fontsize['legend'], loc_leg='upper left',
                   show_chi2=False,
-                  params=None, latex_params=None, colWidths=[0.04, 0.01, 0.06, 0.06], fontsize_res=default_fontsize['legend'],
+                  params=None, latex_params=None, colWidths=[0.05, 0.01, 0.055, 0.1], fontsize_res=default_fontsize['legend'],
                   loc_res='upper right',
                   fig_name=None, folder_name=None, data_name=None,
                   save_fig=True, pos_text_LHC=None):
@@ -854,7 +875,7 @@ def plot_hist_fit_var(data, branch, latex_branch=None, unit=None, **kwargs):
 
 def plot_hist_fit_auto(df, branch, cut_BDT=None, **kwargs):
     """ Retrieve the latex name of the branch and unit. Set the folder name to the name of the datasets.
-    Then, plot 2d histogram with plot_hist_fit.
+    Then, plot 2d histogram with :py:func:`plot_hist_fit`.
 
     Parameters
     ----------

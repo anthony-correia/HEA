@@ -7,6 +7,6 @@ from HEA.plot.histogram import(
     plot_scatter2d, plot_scatter2d_auto
 )
 
-from HEA.plot.line import plot_x_list_ys
+from HEA.plot.line import plot_lines, plot_lines_auto
 
 from HEA.plot.tools import save_fig, set_text_LHCb
