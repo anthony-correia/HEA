@@ -11,6 +11,7 @@ from HEA.tools.serial import dump_json
 
 import zfit
 import timeit
+import numpy as np
 
 ##########################################################################
 ############################################# PDFs #######################
@@ -135,6 +136,34 @@ def define_zparams(initial_values, cut_BDT=None, num=None):
                                       floating=init['floating'])
 
     return zparams
+
+
+def wiggle_zparameters(zparams, params):
+    """ Randomly wiggle the zParameters 
+    within their uncertainty interval
+    
+    Parameters
+    ----------
+    zparams        : dict[str, zfit.Parameter]
+        Dictionnary of zfit Parameters 
+        whose keys are the name of the variables
+    params        : dict[zfit.zfitParameter, float]
+        Result ``'result.params'`` of the minimisation 
+        of the loss function 
+        (given by :py:func:`launch_fit`)
+    """
+    
+    for param in zparams.keys():
+        zparam = zparams[param]
+        if zparam in params:
+            value = params[zparam]['value']
+            error = params[zparam]['minuit_hesse']['error']
+            new_value = np.random.normal(loc=value, scale=error)
+            while np.sign(new_value)!=np.sign(value):
+                new_value = np.random.normal(loc=value, scale=error)
+            print(param, ':', value, 'becomes', new_value)
+            zparams[param].set_value(new_value)
+
 
 
 def check_fit(result):

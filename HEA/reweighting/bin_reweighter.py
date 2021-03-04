@@ -29,7 +29,11 @@ class BinReweighter():
     def __init__(self, data, MC, 
                  n_bins, name,
                  MC_weights=None, data_weights=None,
-                 column_ranges={}
+                 column_ranges={},
+                 MC_color=MC_color,
+                 reweighted_MC_color=reweighted_MC_color,
+                 data_color=data_color,
+                 folder_name=None
                  ):
         """ Produce a BinReweighter
         
@@ -52,6 +56,10 @@ class BinReweighter():
         column_ranges : dict(str: list(float or None, float or None))
             Dictionnary that contains the ranges of some columns
         """
+        
+        if folder_name is None:
+            folder_name = name
+        
         self.data = data
         self.MC = MC
         self.MC_weights = MC_weights
@@ -59,7 +67,11 @@ class BinReweighter():
         self.n_bins = n_bins
         self.name = name
         self.column_ranges = column_ranges
+        self.MC_color = MC_color
+        self.reweighted_MC_color = reweighted_MC_color
+        self.data_color = data_color
         self._trained_columns = []
+        self.folder_name = folder_name
         
         self.column_tcks = {}
      
@@ -239,7 +251,7 @@ class BinReweighter():
         if plot_original:
             samples_dict['MC'] = self.MC
             alpha.append(0.7)
-            colors.append([None, MC_color])
+            colors.append([None, self.MC_color])
             bar_modes.append(True)
             weights.append(None)
             
@@ -252,7 +264,7 @@ class BinReweighter():
         if plot_reweighted:
             samples_dict['Reweighted MC'] = self.MC
             alpha.append(0.4)
-            colors.append(reweighted_MC_color)
+            colors.append(self.reweighted_MC_color)
             bar_modes.append(True)
             weights.append(self.MC_weights)
             
@@ -264,16 +276,24 @@ class BinReweighter():
                 
         
         samples_dict['data'] = self.data
-        colors.append(data_color)
+        colors.append(self.data_color)
         bar_modes.append(False)
         weights.append(self.data_weights)
         alpha.append(1)
         labels.append(None)
+        
+        if self.data_weights is not None:
+            data_name = 'sWeighted_data'
+        
+        if plot_reweighted:
+            second_folder = f"bin_reweighted_MC_vs_{data_name}" 
+        else:
+            second_folder = f"MC_d_{data_name}"
             
         return hist.plot_hist_auto(samples_dict,
                                    column, 
                                    fig_name=column,
-                                   folder_name=self.name,
+                                   folder_name=f"{self.folder_name}/{second_folder}",
                                    n_bins=self.n_bins,
                                    low=low,
                                    high=high,
@@ -346,7 +366,7 @@ class BinReweighter():
         colors_dict = {}
                 
         if plot_original:
-            colors_dict['original'] = MC_color
+            colors_dict['original'] = self.MC_color
             weights_dict['original'] = [self.data_weights,
                                         None
                                        ]
@@ -358,7 +378,7 @@ class BinReweighter():
             )
             
         if plot_reweighted:
-            colors_dict['reweighted'] = reweighted_MC_color
+            colors_dict['reweighted'] = self.reweighted_MC_color
             weights_dict['reweighted'] = [self.data_weights,
                                           self.MC_weights]
             labels_dict['reweighted'] = "Reweighted MC, "
@@ -402,8 +422,15 @@ class BinReweighter():
             if spline is not None:
                 ax.plot(x, spline, color='k')
         
+        if self.data_weights is not None:
+            data_name = 'sWeighted_data'
         
-        pt.save_fig(fig, column, folder_name=f"{self.name}_d_data")
+        if plot_reweighted:
+            second_folder = f"bin_reweighted_MC_d_{data_name}" 
+        else:
+            second_folder = f"MC_d_{data_name}"
+            
+        pt.save_fig(fig, column, folder_name=f"{self.folder_name}/{second_folder}")
         
         return fig, ax
        
@@ -529,5 +556,5 @@ class BinReweighter():
         """
         
         for column in self.trained_columns:
-            dump_pickle(self.column_tcks[column], f"{column}_reweight_tck", self.name)
-            dump_pickle(self.trained_columns, f"tck_reweight_tck_columns", self.name)
+            dump_pickle(self.column_tcks[column], f"{self.name}_{column}_tck", self.folder_name)
+            dump_pickle(self.trained_columns, f"{self.name}_tck_columns", self.folder_name)
