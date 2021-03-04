@@ -60,6 +60,8 @@ def compute_chi2_sum(data1, data2,
     """ Return the sum of the chi2 distances between
     two distributions.
     
+    Parameters
+    ----------
     data1: pd.DataFrame
         Dataframe 1
     data1: pd.DataFrame
@@ -71,7 +73,8 @@ def compute_chi2_sum(data1, data2,
     columns: 
         Column names where to compute the chi2
     
-    Returns:
+    Returns
+    -------
     chi2_sum: float
         Sum of the chi2 of all the distributions specified
         by columns.

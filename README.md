@@ -1,5 +1,5 @@
-The full documentation of the HEA package is available [here](https://hea.readthedocs.io/en/latest/index.html)
-- `HEA.definition`: 
+The full documentation of the HEA package is available [here](https://hea.readthedocs.io/en/bd2dsttaunu/index.html).
+<!-- - `HEA.definition`: 
     - contains global variables
     - function to define the names of the branches, retrieve the latex names and units, etc.
 - `HEA.create_config`: create the configuration file
@@ -46,4 +46,4 @@ The full documentation of the HEA package is available [here](https://hea.readth
     - Plot the distribution of a variable together with his fitted PDF and the pull histogram
     - Compute the number of degrees of freedom of a model only from the zfit model
     - Compute the reduced chi2 of a model
-- `HEA.plot.line`: plot y vs x, or y1, y2, ... vs x (i.e., several curves as a function of x)
+- `HEA.plot.line`: plot y vs x, or y1, y2, ... vs x (i.e., several curves as a function of x) -->
