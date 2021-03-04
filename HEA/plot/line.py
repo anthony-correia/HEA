@@ -282,7 +282,8 @@ def plot_lines_auto(x, y, name_x, names_y, **kwgs):
     """ Retrieve the latex name of the branch and unit associated with ``x``.
     Then, plot with :py:func:`plot_lines`
     
-    
+    Parameters
+    ----------
     x       : list(float)
         passed to :py:func:`plot_lines`
     y       : numpy.array(uncertainties.ufloat) or numpy.array(float) or list(numpy.array(uncertainties.ufloat)) or list(numpy.array(float))
