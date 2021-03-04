@@ -26,7 +26,7 @@ HEA.reweighting.compare module
 HEA.reweighting.GBReweighter_tools module
 -----------------------------------------
 
-.. automodule:: HEA.tools.GBReweighter_tools
+.. automodule:: HEA.reweighting.GBReweighter_tools
    :members:
    :undoc-members:
    :show-inheritance:

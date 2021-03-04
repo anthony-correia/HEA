@@ -28,9 +28,9 @@ Subpackages
    HEA.reweighting
    HEA.tools
 
+
 Submodules
 ----------
-
 
 HEA.definition module
 ---------------------

@@ -20,9 +20,28 @@ class BinReweighter():
     
     Attributes
     ----------
-    reweighted : bool
-        Has the reweighting been applied to MC?
-    
+    data : pd.DataFrame
+        True data
+    MC   : pd.DataFrame
+        Simulated data to reweight
+    n_bins : int
+        number of bins in the histograms
+    name : str
+        name of the bin reweighted, used to save the tck's.
+    MC_weights : array-like
+        weights to be applied to MC
+    data_weights : array-like
+        weights to be applied to data
+    column_ranges : dict(str: list(float or None, float or None))
+        Dictionnary that contains the ranges of some columns
+    MC_color, data_color, reweighted_MC_color: str
+        colors used in the plots
+    folder_name : str
+        Used to create the name of the folder 
+        where to save the figures.
+    column_tcks : dict
+        Dictionnary that associates to a column the tck of the spline, 
+        which was used to compute the weights.
     """
     
         
@@ -46,15 +65,18 @@ class BinReweighter():
         n_bins : int
             number of bins in the histograms
         name : str
-            name of the bin reweighted.
-            Used to create the name of the folder 
-            where to save the figures.
+            name of the bin reweighted, used to save the tck's.
         MC_weights : array-like
             weights to be applied to MC
         data_weights : array-like
             weights to be applied to data
         column_ranges : dict(str: list(float or None, float or None))
             Dictionnary that contains the ranges of some columns
+        MC_color, data_color, reweighted_MC_color: str
+            colors used in the plots
+        folder_name : str
+            Used to create the name of the folder 
+            where to save the figures.
         """
         
         if folder_name is None:
