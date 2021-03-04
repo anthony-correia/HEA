@@ -23,19 +23,14 @@ Subpackages
 
    HEA.config
    HEA.fit
+   HEA.ML
    HEA.plot
+   HEA.reweighting
    HEA.tools
 
 Submodules
 ----------
 
-HEA.BDT module
---------------
-
-.. automodule:: HEA.BDT
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 HEA.definition module
 ---------------------
@@ -44,6 +39,7 @@ HEA.definition module
    :members:
    :undoc-members:
    :show-inheritance:
+
 
 HEA.pandas\_root module
 -----------------------
