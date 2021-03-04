@@ -99,7 +99,7 @@ class BinReweighter():
      
     @property
     def trained_columns(self):
-        """ Columns whose weights have been applied.
+        """ Columns which weights have been applied to.
         """
         return self._trained_columns
     
