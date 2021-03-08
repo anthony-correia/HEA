@@ -218,10 +218,64 @@ class BinReweighter():
         chi2 = str_number_into_latex(f"{chi2:.2g}")
         return '$\\chi^2 = {}$'.format(chi2)
     
+    def get_fig_folder_name(self, column, plot_reweighted,
+                            mode='vs',
+                            inter=None):
+        """ Get the figure name and the folder name of 
+        the figure that needs to be saved.
+        
+        Parameters
+        ----------
+        column: str
+            name of the variable which is plotted
+        plot_reweighed: bool
+            is the reweighted data plotted?
+        mode: 'vs' or 'd'
+            If 'vs', superimposed plot. If 'd',
+            divide plot.
+        inter: int or None
+            if not None, save the figure in a folder 
+            ending with ``'_inter'``,
+            and and ``_{inter}`` at the end of the name
+            of the figure.
+            This allows to save intermediate figures.
+        
+        Returns
+        -------
+        fig_name: str
+            name of the figure
+        second_folder: str
+            name of the second folder
+            where to save the plot
+        """
+        if self.data_weights is not None:
+            data_name = 'sWeighted_data'
+        else:
+            data_name = 'data'
+        
+        if plot_reweighted or inter is not None:
+            second_folder = f"bin_reweighted_MC_{mode}_{data_name}" 
+        else:
+            if self.MC_weights is None:
+                second_folder = f"MC_{mode}_{data_name}"
+            else:
+                second_folder = f"sWeighted_vs_{data_name}"
+        
+        if inter is not None:
+            second_folder = second_folder + '_inter'
+            text_inter = f"_{inter}"
+        else:
+            text_inter = ""
+        
+        fig_name = column + text_inter
+        
+        return fig_name, second_folder
+        
     def plot_hist(self, column, 
                   plot_reweighted=None,
                   plot_original=True,
-                  low=None, high=None):
+                  low=None, high=None,
+                  inter=None):
         """ Plot the normalised histogram of column 
         for MC and data
         
@@ -239,6 +293,9 @@ class BinReweighter():
         high : float
             high value of the distribution.
             If ``None``, taken from the dict. ``column_ranges``.
+        inter: int
+            passed to 
+            :py:func:`HEA.reweighting.bin_reweighter.BinReweighter.get_fig_folder_name`
         
         Returns
         -------
@@ -271,7 +328,7 @@ class BinReweighter():
         
         
         if plot_original:
-            samples_dict['MC'] = self.MC
+            samples_dict['Original MC'] = self.MC
             alpha.append(0.7)
             colors.append([None, self.MC_color])
             bar_modes.append(True)
@@ -304,24 +361,25 @@ class BinReweighter():
         alpha.append(1)
         labels.append(None)
         
-        if self.data_weights is not None:
-            data_name = 'sWeighted_data'
-        
-        if plot_reweighted:
-            second_folder = f"bin_reweighted_MC_vs_{data_name}" 
-        else:
-            second_folder = f"MC_d_{data_name}"
+               
+        fig_name, second_folder = self.get_fig_folder_name(
+            column, plot_reweighted,
+            mode='vs',
+            inter=inter)
             
         return hist.plot_hist_auto(samples_dict,
                                    column, 
-                                   fig_name=column,
+                                   fig_name=fig_name,
                                    folder_name=f"{self.folder_name}/{second_folder}",
                                    n_bins=self.n_bins,
                                    low=low,
                                    high=high,
                                    bar_mode=bar_modes,
                                    colors=colors,
-                                   pos_text_LHC={'ha': 'left'},
+                                   factor_ymax=1.5,
+                                   pos_text_LHC={'ha': 'left',
+                                           'type': 'data_MC',
+                                           'fontsize':20},
                                    alpha=alpha,
                                    weights=weights,
                                    labels=labels
@@ -333,6 +391,7 @@ class BinReweighter():
                    plot_original=True,
                    low=None, high=None,
                    plot_spline=None,
+                   inter=None,
                    **kwargs):
         """ Plot ``MC[column][bin i]/data[column][bin i]``
         
@@ -350,6 +409,12 @@ class BinReweighter():
         high : float
             high value of the distribution.
             If ``None``, taken from the dict. ``column_ranges``.
+        inter: int
+            if not None, save the figure in a folder 
+            ending with ``'_inter'``,
+            and and ``_{inter}`` at the end of the name
+            of the figure.
+            This allows to save intermediate figures.
         **kwargs : dict
             passed to 
             :py:func:`HEA.plot.histogram.plot_divide_alone`
@@ -379,8 +444,8 @@ class BinReweighter():
             plot_reweighted = True
         
         dfs = {
-            'MC': self.MC,
-            'data': self.data
+            'data': self.data,
+            'MC': self.MC
         }
         
         labels_dict = {}
@@ -431,9 +496,12 @@ class BinReweighter():
                                     data_names=list(dfs.keys())
                                    )
         
-        pt.fix_plot(ax, factor_ymax=1.1, show_leg=True,
+        pt.fix_plot(ax, factor_ymax=1.4, show_leg=True,
                     ymin_to_0=False,
-                    pos_text_LHC='right', loc_leg='upper left')
+                    pos_text_LHC={'ha': 'right', 
+                                  'type': 'data_MC',
+                                 'fontsize': 20}
+                    , loc_leg='upper left')
         
         # Spline
         if plot_spline is None:
@@ -444,18 +512,48 @@ class BinReweighter():
             if spline is not None:
                 ax.plot(x, spline, color='k')
         
-        if self.data_weights is not None:
-            data_name = 'sWeighted_data'
-        
-        if plot_reweighted:
-            second_folder = f"bin_reweighted_MC_d_{data_name}" 
-        else:
-            second_folder = f"MC_d_{data_name}"
-            
-        pt.save_fig(fig, column, folder_name=f"{self.folder_name}/{second_folder}")
+        fig_name, second_folder = self.get_fig_folder_name(
+            column, plot_reweighted,
+            mode='d',
+            inter=inter)
+                
+        pt.save_fig(fig, fig_name, folder_name=f"{self.folder_name}/{second_folder}")
         
         return fig, ax
        
+    def plot_MC_weights(self, n_bins=None, inter=None):
+        """ Plot the weight distribution, if it exists
+        
+        """
+        
+        if n_bins is None:
+            n_bins = self.n_bins
+        
+        if self.MC_weights is None:
+            print("There are no MC weights!")
+            return
+        
+        if inter is not None:
+            text_inter = f'_{inter}'
+            folder_text_inter = '_inter'
+        text_inter = ""
+        folder_text_inter = ""
+        
+        return hist.plot_hist_var(self.MC_weights,
+                                  'Reweighting weights', 
+                                  fig_name='reweighting_weight'+text_inter,
+                                  folder_name=f"{self.folder_name}/bin_reweight_MC"+folder_text_inter,
+                                  n_bins=n_bins,
+                                  bar_mode=True,
+                                  colors=self.reweighted_MC_color,
+                                  factor_ymax=1.2,
+                                  pos_text_LHC={'ha': 'right',
+                                          'type': 'data_MC',
+                                          'fontsize':20},
+                                 )
+        
+        
+        
     ## COMPUTE WEIGHTS ======================================================
     def fit_spline(self, column, k=3, 
                     recompute=False):

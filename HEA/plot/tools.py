@@ -292,7 +292,7 @@ def set_log_scale(ax, axis='both'):
 
 
 def set_text_LHCb(
-        ax, text=default_project['text_plot'], fontsize=default_fontsize['text'], pos=None):
+        ax, text=default_project['text_plot_data'], fontsize=default_fontsize['text'], pos=None):
     """ Put a text on a plot
 
     Parameters
@@ -306,20 +306,26 @@ def set_text_LHCb(
     pos      : dict, list or str
         Three possibilities
 
-        - dictionnary with these keys
+        * dictionnary with these keys
 
-            - ``'x'``: position of the text along the x-axis
-            - ``'y'``: position of the text along the y-axis
-            - ``'ha'``: horizontal alignment
-            - ``fontsize``: fontsize of the text
-            - ``text`` : text to plot
+            * ``'x'``: position of the text along the x-axis
+            * ``'y'``: position of the text along the y-axis
+            * ``'ha'``: horizontal alignment
+            * ``fontsize``: fontsize of the text
+            * ``text`` : text to plot
+            * ``type``: if ``text`` is ``None``, ``type`` might
+            decide the text to put, taking the value from the *config.ini* file.
+            
+                * if ``'data'``: ``default_project['text_plot_data']``
+                * if ``'MC'``: ``default_project['text_plot_data']``
+                * if ``'data_MC'`` or ``'MC_data'`` : ``default_project['text_plot_data_MC']``
+                
+        * list: ``[x, y, ha]``
 
-        - list: ``[x, y, ha]``
+        * str: alignment ``'left'`` or ``'right'``.
 
-        - str: alignment ``'left'`` or ``'right'``.
-
-            - if 'left', ``x = 0.02`` and ``y = 0.95``
-            - if 'right', ``x = 0.98`` and ``y = 0.95``.
+            * if 'left', ``x = 0.02`` and ``y = 0.95``
+            * if 'right', ``x = 0.98`` and ``y = 0.95``.
 
         These values are also the default values for the dictionnary input mode.
         These parameters are passed to ``ax.text()``.
@@ -339,7 +345,15 @@ def set_text_LHCb(
             elif ha == 'right':
                 x = 0.98 if 'x' not in info else info['x']
                 y = 0.95 if 'y' not in info else info['y']
-
+            
+            if 'type' in pos:
+                if pos['type']=='data':
+                    text = default_project['text_plot_data']
+                elif pos['type']=='MC':
+                    text = default_project['text_plot_data']
+                elif pos['type']=='data_MC' or pos['type']=='MC_data':
+                    text = default_project['text_plot_data_MC']
+                    
             add_in_dic('fontsize', pos, fontsize)
             add_in_dic('text', pos, text)
 

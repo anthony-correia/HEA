@@ -1,5 +1,5 @@
 """
-Package for Reweighting
+Package for Reweighting. 
 """
 
 from HEA.reweighting.bin_reweighter import (
