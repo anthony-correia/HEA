@@ -5,7 +5,7 @@ HEA (High Energy Analysis) is a personal package to ease analyses of LHCb data:
 * Produce plots with : :py:mod:`HEA.plot`
 * Perform fits with :py:mod:`HEA.fit`
 * Train a Boosted Decision Tree and test it with :py:mod:`HEA.ML`
-* Reweight with :py:mod:`HEA.reweight`
+* Reweight with :py:mod:`HEA.reweighting`
 * Some tools are also available in :py:mod:`HEA.tools`. They are rather used within this package.
 """
 

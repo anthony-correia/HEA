@@ -94,9 +94,32 @@ latex_params = {
     'lambda': {
         'latex':'$\\lambda$',
         'cat'  :'other'
-    },    
+    },
+    'a': {
+        'latex': '$a$',
+        'cat': 'other'
+    },
+    'b': {
+        'latex': '$b$',
+        'cat': 'other'
+    },
+    'f': {
+        'latex': '$f$',
+        'cat': 'other'
+    },
+    'r': {
+        'latex': '$r$',
+        'cat': 'other'
+    },
+    'sigma': {
+        'latex': '$\\sigma$',
+        'cat': 'main'
+    },
+    'xi': {
+        'latex': '$\\xi$',
+        'cat': 'other'
+    }   
 }
-
 
 # Name of the functions and functions ====================================
 

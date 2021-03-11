@@ -6,8 +6,7 @@
 
 import numpy as np
 
-from zfit.core.parameter import ComposedParameter
-from zfit.models.functor import SumPDF
+
 
 ##########################################################################
 ################################# number of d.o.f. of a model ############
@@ -101,6 +100,9 @@ def get_n_dof_model_old(model):
     n_dof: int
         number of d.o.f. in the model
     """
+    from zfit.core.parameter import ComposedParameter
+    from zfit.models.functor import SumPDF
+    
     n_dof, _ = __get_n_dof_model_recurs_old(model, params_seen=[])
     return n_dof
 
@@ -124,6 +126,23 @@ def get_n_dof_model(model):
     
     return n_dof
         
-    
+def get_n_dof_model(model):
+    """ Get the number of d.o.f. of a zfit model. (new version!)
+    A d.o.f. corresponds to a floated parameter in the model.
 
+    Parameters
+    ----------
+    model: zfit.pdf.BasePDF
+        Model (PDF)
+
+    Returns
+    -------
+    n_dof: int
+        number of d.o.f. in the model
+    """
+    n_dof = 0
+    for param in model.get_params(): # loop over all the parameters
+        n_dof += param.floating
+    
+    return n_dof    
 

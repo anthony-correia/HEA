@@ -9,9 +9,117 @@ from HEA.tools.dir import create_directory
 from HEA.config import loc
 from uncertainties import ufloat
 from HEA.tools.string import _latex_format
+from HEA.tools.da import el_to_list
 
 
-def retrieve_params(file_name, folder_name=None):
+def params_into_dict(result_params, uncertainty=True, remove=None,
+                    method='zfit', remove_semicolon=True):
+    """
+    Parameters
+    ----------
+    result_params : dict[zfit.zfitParameter, float] or RooFitResult
+        Result ``'result.params'`` of the minimisation of the loss function (given by :py:func:`launch_fit`)
+    uncertainty   : bool
+        do we retrieve the uncertainty (error) on the variable?
+    remove        : list[str] or str or None
+        if not ``None``, string to be removed from the names of the parameters
+    method        : 'zfit' or 'root'
+    
+    Returns
+    -------
+    params_dict : dict
+        dictionnary of the result of the fit.
+        Associates to a fitted parameter (key)
+        a dictionnary that contains its value (key: 'v')
+        and its error(key: 'e')   
+    """
+    
+    if remove is not None:
+        remove = el_to_list(remove)
+    
+    params_dict = {}
+    if method=='zfit':
+        for p in list(result_params.keys()):  # loop through the parameters
+            # Retrieve name, value and error
+            name_param = p.name
+            
+            if remove_semicolon:
+                pos_semicolon = name_param.find(';')
+                if pos_semicolon!=-1:
+                    new_name_param = name_param[:pos_semicolon]
+            else:
+                new_name_param = name_param
+            if remove is not None:
+                for t in remove:
+                    new_name_param = new_name_param.replace(t, '')
+                    
+            params_dict[new_name_param] = {}
+            value_param = result_params[p]['value']
+            params_dict[new_name_param]['v'] = value_param
+            
+            if uncertainty:
+                error_param = result_params[p]['minuit_hesse']['error']
+                params_dict[new_name_param]['e'] = error_param
+    
+    elif method=='root':
+        params_dict = {}
+        for p in result_params.floatParsFinal():
+            name = p.GetTitle()
+    
+            if remove is not None:
+                for t in remove:
+                    name_param = name_param.replace(t, '')
+
+            value = p.getVal()
+            err = p.getError()
+            params_dict[name] = {
+                'v': value,
+                'e': err
+                }
+    return params_dict
+            
+def save_params(param_results, name_file,
+                dic_add=None, folder_name=None, 
+                method='zfit', remove=None):
+    """ Save the parameters of the fit in ``{loc['json']}/{name_file}_params.json``
+
+    Parameters
+    ----------
+    param_results : 
+        dictionnary of the result of the fit.
+        Associates to a fitted parameter (key)
+        a dictionnary that contains its value (key: 'v')
+        and its error(key: 'e')
+    name_file     : str
+        name of the file that will be saved
+    uncertainty   : bool
+        if True, save also the uncertainties (variables that contain '_err' in their name)
+    dic_add       : dict or None
+        other parameters to be saved in the json file
+    folder_name   : str
+        name of the folder
+    remove        : list[str] or str or None
+        if not ``None``, string to be removed from the names of the parameters
+    """
+    
+
+    if remove is not None:
+        remove = el_to_list(remove)
+        params_result_r = {}
+        for key, value in param_results.items():
+            for t in remove:
+                name_param = key.replace(t, '')
+            
+            params_result_r[name_param] = value
+    
+    if dic_add is not None:
+        for key, value in dic_add.items():
+            param_results[key] = value
+            
+    dump_json(param_results, name_file + '_params', folder_name=folder_name)
+
+
+def retrieve_params(file_name, folder_name=None, only_val=True):
     """ Retrieve the parameters saved in a json file
 
     Parameters
@@ -21,10 +129,9 @@ def retrieve_params(file_name, folder_name=None):
     folder_name : str
         name of folder where the json file is
         (if None, there is no folder)
-    library : str
-        `'json'` or `'pickle'`
-    byte_read: bool
-        Read in byte mode
+    only_val: bool
+        if True, import only the variables with their values,
+        and not their errors
 
     Returns
     -------
@@ -32,8 +139,20 @@ def retrieve_params(file_name, folder_name=None):
         dictionnary that contains the parameters stored in the json file
         in ``{loc['json']}/{folder_name}/{name_data}_params.json``
     """
-    return retrieve_json(file_name=file_name + '_params',
-                         folder_name=folder_name)
+    params =  retrieve_json(file_name=file_name + '_params',
+                            folder_name=folder_name)
+    
+    if only_val:
+        params_vals = {}
+        for name_param in params.keys():
+            if 'v' in  params[name_param] and 'e' in  params[name_param]:
+                params_vals[name_param] = params[name_param]['v']
+        
+        return params_vals
+    else:
+        return params
+    
+    
 
 
 def get_params_without_BDT(df_params, retrieve_err=False):
@@ -93,7 +212,7 @@ def get_params_without_BDT(df_params, retrieve_err=False):
 
 
 def get_params_without_err(params):
-    """ get the list of variables from the dictionnary of fitted parameters (including errors)
+    """ get the list of variables from the dictionnary of fitted parameters
 
     Parameters
     ----------
@@ -106,14 +225,7 @@ def get_params_without_err(params):
         list of variables (excluding the error variables, whose name contain the ``'_err'`` string.
     """
 
-    keys = list(params.keys())
-    variables = []
-
-    for key in keys:
-        if not key.endswith('_err'):
-            variables.append(key)
-
-    return variables
+    return params.keys()
 
 def get_str_from_ufloat_mode(ufloat_number, cat='other'):
     """ Get the string format of the ufloat, 
@@ -279,14 +391,15 @@ def json_to_latex_table(name_json, path, latex_params, show=True):
 
     # Open the json file
     directory = create_directory(loc['json'], path)
-    params = retrieve_params(name_json, folder_name=path)
+    params = retrieve_params(name_json, folder_name=path, only_val=False)
     params = get_params_without_BDT(params, True)
 
     # Load the variables into ufloats
     ufloats = {}
     for param in params:
-        if f'{param}_err' in params:
-            ufloats[param] = ufloat(params[param], params[f"{param}_err"])
+        if 'v' in params[param] and 'e' in params[param]:
+            ufloats[param] = ufloat(params[param]['v'], params[param]['e'])
+    
     # Write the .tex file
     directory = create_directory(loc['tables'], path)
     file_path = f'{directory}/{name_json}_params.tex'

@@ -39,16 +39,34 @@ rcParams['axes.unicode_minus'] = False
 ################################ subfunctions for plotting ###############
 ##########################################################################
 
+def get_edges_from_centres(centres):
+    """ Get the bin edges of a histogram from
+    the bin centres. The bins are supposed to be
+    equal-sized.
+    
+    Parameters
+    ----------
+    centres: array-like
+        Bin centres of a histogram
+    
+    Returns
+    -------
+    edges: array-like
+        Bin edges of the histogram
+    """
+    edges = centres - (centres[1] - centres[0]) / 2
+    edges = np.append(edges, edges[-1])
+    
+    return edges
 
-
-
-def plot_hist_alone(ax, data, n_bins, low, high,
-                    color, bar_mode=True, alpha=1,
-                    density=False,
-                    label=None, show_ncounts=False,
-                    weights=None,
-                    orientation='vertical',
-                    **params):
+def plot_hist_alone_from_hist(ax, counts, err, color,
+                              edges=None,
+                              centres=None,
+                              bar_mode=True, alpha=1,
+                              label=None, show_ncounts=False,
+                              weights=None,
+                              orientation='vertical',
+                              **params):
     """  Plot histogram
     
     * If ``bar_mode``: Points with error bars
@@ -58,16 +76,14 @@ def plot_hist_alone(ax, data, n_bins, low, high,
     ----------
     ax            : matplotlib.axes.Axes
         axis where to plot
-    data          : pandas.Series
-        data to plot
-    n_bins        : int
-        number of bins
-    low           : float
-        low limit of the distribution
-    high          : float
-        high limit of the distribution
-    color         : str
-        color of the distribution
+    counts  : np.array
+        number of counts in each bin
+    edges   : np.array
+        Edges of the bins
+    centres : np.array
+        Centres of the bins
+    err     : np.array
+        Errors in the count, for each bin
     bar_mode     : bool
 
         * if ``True``, plot with bars
@@ -75,8 +91,6 @@ def plot_hist_alone(ax, data, n_bins, low, high,
 
     alpha         : float between 0 and 1
         transparency of the bar histogram
-    density       : bool
-        if ``True``, divide the numbers of counts in the histogram by the total number of counts
     label         : str
         label of the histogram
     show_ncounts : bool
@@ -87,22 +101,20 @@ def plot_hist_alone(ax, data, n_bins, low, high,
         orientation of the histogram
     **params     : dict
         parameters passed to the ``ax.bar``, or ``ax.barh`` or ``ax.errorbar`` functions
-
-    Returns
-    -------
-    counts  : np.array
-        number of counts in each bin
-    edges   : np.array
-        Edges of the bins
-    centres : np.array
-        Centres of the bins
-    err     : np.array
-        Errors in the count, for each bin
     """
 
-    counts, edges, centres, err = get_count_err(
-        data, n_bins, low, high, weights=weights)
-    bin_width = get_bin_width(low, high, n_bins)
+    n_bins = len(counts)
+    
+    if centres is None:
+        centres = (edges[:-1] + edges[1:]) / 2.
+    elif edges is None:
+        edges = centres - (centres[1] - centres[0]) / 2
+        edges = np.append(edges, edges[-1])
+    
+    low = edges[0]
+    high = edges[-1]
+    
+    bin_width = edges[1] - edges[0]
     n_candidates = counts.sum()
 
     if show_ncounts:
@@ -111,10 +123,7 @@ def plot_hist_alone(ax, data, n_bins, low, high,
         else:
             label += ": "
         label += f" {n_candidates} events"
-
-    counts, err = get_density_counts_err(counts, bin_width, err, density=density)
-
-
+    
     if bar_mode:
         colors = el_to_list(color, 2)
         if orientation == 'vertical':
@@ -144,11 +153,71 @@ def plot_hist_alone(ax, data, n_bins, low, high,
         elif orientation == 'horizontal':
             ax.errorbar(counts, centres, xerr=err, color=color,
                         ls='', marker='.', label=label)
+    
     if orientation == 'vertical':
         ax.set_xlim(low, high)
     elif orientation == 'horizontal':
         ax.set_ylim(low, high)
 
+    return counts, edges, centres, err    
+
+
+def plot_hist_alone(ax, data, n_bins, low, high,
+                    color, 
+                    weights=None, density=False,
+                    **params):
+    """  Plot histogram
+    
+    * If ``bar_mode``: Points with error bars
+    * Else: histogram with bars
+
+    Parameters
+    ----------
+    ax            : matplotlib.axes.Axes
+        axis where to plot
+    data          : pandas.Series
+        data to plot
+    n_bins        : int
+        number of bins
+    low           : float
+        low limit of the distribution
+    high          : float
+        high limit of the distribution
+    color         : str
+        color of the distribution   
+    weights       : pandas.Series, numpy.array
+        weights of each element in data
+    density       : bool
+        if ``True``, divide the numbers of counts in the histogram by the total number of counts
+    **params     : dict
+        parameters passed to the 
+        :py:func:`plot_hist_alone_from_hist`
+
+    Returns
+    -------
+    counts  : np.array
+        number of counts in each bin
+    edges   : np.array
+        Edges of the bins
+    centres : np.array
+        Centres of the bins
+    err     : np.array
+        Errors in the count, for each bin
+    """
+
+    counts, edges, centres, err = get_count_err(
+        data, n_bins, low, high, weights=weights)
+    bin_width = get_bin_width(low, high, n_bins)
+    n_candidates = counts.sum()
+
+    counts, err = get_density_counts_err(counts, bin_width, err, density=density)
+
+    plot_hist_alone_from_hist(ax, edges=edges, counts=counts, 
+                              err=err,
+                              color=color,
+                              centres=centres,
+                              **params)
+    
     return counts, edges, centres, err
 
 
@@ -464,8 +533,10 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
             alpha[i] = 0.5 if len(dfs) > 1 else 1
         
         label = string.add_text(data_name, labels[i], sep='')
-        _, _, _, _ = plot_hist_alone(ax, df[branch], n_bins, low, high, colors[i], bar_mode[i],
-                                     alpha=alpha[i], density=density, label=label, weights=weights[i],
+        _, _, _, _ = plot_hist_alone(ax, df[branch], n_bins, low, high, 
+                                     color=colors[i], bar_mode=bar_mode[i],
+                                     alpha=alpha[i], density=density, 
+                                     label=label, weights=weights[i],
                                      orientation=orientation,
                                      **params)
 
@@ -963,7 +1034,7 @@ def plot_hist2d_auto(df, branches, **kwargs):
     branches  : [str, str]
         names of the two branches
     **kwargs  : dict
-        arguments passed in :py:func:`plot_hist_2D` (except ``branches``, ``latex_branches`` and ``units``)
+        arguments passed in :py:func:`plot_hist2D` (except ``branches``, ``latex_branches`` and ``units``)
 
     Returns
     -------
@@ -1006,5 +1077,6 @@ def plot_scatter2d_auto(dfs, branches, **kwargs):
     pt._set_folder_name_from_data_name(kwargs, list(dfs.keys()))
 
     latex_branches, units = pt.get_latex_branches_units(branches)
+    
     return plot_scatter2d(
         dfs, branches, latex_branches=latex_branches, units=units, **kwargs)

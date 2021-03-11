@@ -8,6 +8,7 @@
 from HEA.tools.dir import create_directory
 from HEA.tools.da import el_to_list, add_in_dic
 from HEA.tools.serial import dump_json
+from HEA.fit.params import params_into_dict
 
 import zfit
 import timeit
@@ -210,51 +211,7 @@ def check_fit(result):
         fit_ok = False
 
     return fit_ok
-
-
-def save_params(params, name_file, uncertainty=True,
-                dic_add=None, folder_name=None, remove=None):
-    """ Save the parameters of the fit in ``{loc['json']}/{name_file}_params.json``
-
-    Parameters
-    ----------
-    params        : dict[zfit.zfitParameter, float]
-        Result ``'result.params'`` of the minimisation of the loss function (given by :py:func:`launch_fit`)
-    name_file     : str
-        name of the file that will be saved
-    uncertainty   : bool
-        if True, save also the uncertainties (variables that contain '_err' in their name)
-    dic_add       : dict or None
-        other parameters to be saved in the json file
-    folder_name   : str
-        name of the folder
-    remove        : list[str] or str or None
-        if not ``None``, string to be removed from the names of the parameters
-    """
-    if remove is not None:
-        remove = el_to_list(remove, 1)
-
-    param_results = {}
-    for p in list(params.keys()):  # loop through the parameters
-        # Retrieve name, value and error
-        name_param = p.name
-        if remove is not None:
-            for t in remove:
-                name_param = name_param.replace(t, '')
-
-        value_param = params[p]['value']
-        param_results[name_param] = value_param
-        if uncertainty:
-            error_param = params[p]['minuit_hesse']['error']
-            param_results[name_param + '_err'] = error_param
-
-    if dic_add is not None:
-        for key, value in dic_add.items():
-            param_results[key] = value
-
-    dump_json(param_results, name_file + '_params', folder_name=folder_name)
-
-
+    
 def launch_fit(model, data, extended=False, verbose=True, show_time=True):
     """Fit the data with the model
 
@@ -273,16 +230,18 @@ def launch_fit(model, data, extended=False, verbose=True, show_time=True):
         
     Returns
     --------
-    result: zfit.minimize.FitResult
+    result : zfit.minimize.FitResult
         result of the minimisation of the likelihood
-    param : Dict[ZfitParameter, float]
-        Result ``result.params`` of the minimisation of the loss function (given by :py:func:`launch_fit`)
+    params : dict
+        dictionnary of the result of the fit.
+        Associates to a fitted parameter (key)
+        a dictionnary that contains its value (key: 'v')
+        and its error(key: 'e')
     """
     
     if show_time:
         start = timeit.default_timer()
     
-
     # Minimisation of the loss function
     if extended:
         nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
@@ -307,4 +266,5 @@ def launch_fit(model, data, extended=False, verbose=True, show_time=True):
     
     if verbose:
         print(param)
-    return result, param
+        
+    return result, params_into_dict(param)
