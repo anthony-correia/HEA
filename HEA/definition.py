@@ -83,8 +83,12 @@ latex_params = {
         'latex':'$n_R$',
         'cat'  :'other'
     },
-    'frac': {
-        'latex':'$f_{\\frac{L}{R}}$',
+    'frac_L': {
+        'latex':'${frac}_{L}$',
+        'cat'  :'other'
+    },
+    'frac_R': {
+        'latex':'${frac}_{R}$',
         'cat'  :'other'
     },
     'n_bkg': {
@@ -94,7 +98,9 @@ latex_params = {
     'lambda': {
         'latex':'$\\lambda$',
         'cat'  :'other'
-    },
+    }
+}
+latex_params_HH = {
     'a': {
         'latex': '$a$',
         'cat': 'other'
@@ -103,23 +109,46 @@ latex_params = {
         'latex': '$b$',
         'cat': 'other'
     },
-    'f': {
-        'latex': '$f$',
+    'csi': {
+        'latex': '$\\xi$',
         'cat': 'other'
+    },  
+    'sigma': {
+        'latex': '$\\sigma$',
+        'cat': 'main'
     },
     'r': {
         'latex': '$r$',
         'cat': 'other'
     },
-    'sigma': {
-        'latex': '$\\sigma$',
-        'cat': 'main'
-    },
-    'xi': {
-        'latex': '$\\xi$',
+    'f': {
+        'latex': '$f$',
         'cat': 'other'
-    }   
+    },
 }
+latex_params_HH_PDF = {}
+for key, value in latex_params_HH.items():
+    for PDF in ['HORNS', 'HILL']:  
+        latex_params_HH_PDF[key+f'_{PDF.lower()}'] = value.copy()
+        latex = value['latex']
+        
+        latex_add_PDF = '_{' + PDF + '}'
+        latex_param = f"${latex.replace('$', '')}{latex_add_PDF}$"
+        
+        latex_params_HH_PDF[key+f'_{PDF.lower()}']['latex'] = latex_param
+
+latex_params_HH = {
+    'frac_hill': {
+        'latex': '${frac}_{hill}$',
+        'cat': 'other'
+    },
+    'frac_horn': {
+        'latex': '${frac}{horn}$',
+        'cat': 'other'
+    },
+}
+        
+latex_params = {**latex_params, **latex_params_HH, **latex_params_HH_PDF}
 
 # Name of the functions and functions ====================================
 

@@ -149,10 +149,10 @@ def plot_hist_alone_from_hist(ax, counts, err, color,
     else:
         if orientation == 'vertical':
             ax.errorbar(centres, counts, yerr=err, color=color,
-                        ls='', marker='.', label=label)
+                        ls='', marker='.', label=label, **params)
         elif orientation == 'horizontal':
             ax.errorbar(counts, centres, xerr=err, color=color,
-                        ls='', marker='.', label=label)
+                        ls='', marker='.', label=label, **params)
     
     if orientation == 'vertical':
         ax.set_xlim(low, high)

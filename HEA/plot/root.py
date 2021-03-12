@@ -17,7 +17,6 @@ from HEA.config import default_fontsize
 
 
 
-
 def rooData_into_hist(data, models=None):
     """ Get the histogram of data and models,
     ready to be plotted with matplotlib.
@@ -129,7 +128,7 @@ def listsfromhist(hist, overunder=False, normpeak=False, xscale=1.0):
 def plot_hist_fit_root(data, models=None, latex_branch=None, unit=None,
                       weights=None, 
                       color='black', bar_mode=False,
-                      models_types=None, models_names=None,
+                      models_names=None,
                       linewidth=2.5, colors=None,
                       bar_mode_pull=True,
                       params=None, latex_params=None, 
@@ -212,8 +211,13 @@ def plot_hist_fit_root(data, models=None, latex_branch=None, unit=None,
     rooVariable = data.get().first()
     branch = rooVariable.GetName()
     
+    
     # Get the histograms
     x, y, y_err, model_hists = rooData_into_hist(data, models)
+    
+    models = el_to_list(models)
+    for model in models:
+        models_types = model.GetTitle()
     
     
     edges = h.get_edges_from_centres(x)
@@ -332,6 +336,7 @@ def plot_hist_fit_root_auto(data, models, cut_BDT=None, **kwargs):
     branch = rooVariable.GetName()
     
     latex_branch, unit, kwargs = pf._core_plot_hist_fit_auto(branch, cut_BDT, kwargs)
+    del kwargs['title']
     
     return plot_hist_fit_root(data, models=models, 
                               latex_branch=latex_branch, unit=unit,

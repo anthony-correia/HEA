@@ -80,7 +80,7 @@ def params_into_dict(result_params, uncertainty=True, remove=None,
             
 def save_params(param_results, name_file,
                 dic_add=None, folder_name=None, 
-                method='zfit', remove=None):
+                remove=None):
     """ Save the parameters of the fit in ``{loc['json']}/{name_file}_params.json``
 
     Parameters
