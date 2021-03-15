@@ -432,6 +432,7 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
               fontsize_label=default_fontsize['label'],
               save_fig=True, ax=None,
               factor_ymax=None,
+              fontsize_leg=default_fontsize['legend'],
               show_leg=None, loc_leg='best',
               **params):
     """ Save the histogram(s) of branch of the data given in ``dfs``
@@ -482,6 +483,8 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
         multiplicative factor of ymax
     ax            : matplotlib.axes.Axes
         axis where to plot
+    fontsize_leg    : float
+        fontsize of the legend
     show_leg        : bool
         True if the legend needs to be shown
     loc_leg         : str
@@ -555,7 +558,9 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
     elif orientation == 'horizontal':
         axis_y = 'x'
     pt.fix_plot(ax, factor_ymax=factor_ymax, show_leg=show_leg,
-                pos_text_LHC=pos_text_LHC, loc_leg=loc_leg, axis=axis_y)
+                fontsize_leg=fontsize_leg,
+                pos_text_LHC=pos_text_LHC, 
+                loc_leg=loc_leg, axis=axis_y)
 
     return end_plot_function(fig, save_fig=save_fig, fig_name=fig_name, folder_name=folder_name,
                              default_fig_name=f'{branch}_{string.list_into_string(data_names)}',

@@ -3,9 +3,11 @@ General tool functions used with ROOT
 """
 
 import pandas as pd
-from ROOT import TChain
+import os.path as op
+from ROOT import TChain, TFile
 
 from HEA.tools.da import el_to_list
+from HEA.tools.dir import try_makedirs
 
 def load_tree(paths, branches, cuts=None,
               verbose=True):
@@ -81,3 +83,27 @@ def tree_to_df(tree, branch):
     df[branch] = array.ravel()
     
     return df
+
+def save_tree_root(data, file_name, path=None):
+    """ Save a rooDataset
+    
+    Parameters
+    ----------
+    data: RooDataSet
+        dataset to save
+    file_name: str
+        name of the root file
+    path : str
+        directory where to save the root file
+    """
+    try_makedirs(path) 
+    out_tree = data.GetClonedTree()
+    full_path = op.join(path, file_name)
+    out_file = TFile(full_path, "RECREATE")
+    out_tree.Write()
+    out_file.Write()
+    out_file.Close()
+    
+    print(f"Root file saved in {full_path}")
+    
+    

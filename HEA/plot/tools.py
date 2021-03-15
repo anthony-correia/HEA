@@ -350,7 +350,7 @@ def set_text_LHCb(
                 if pos['type']=='data':
                     text = default_project['text_plot_data']
                 elif pos['type']=='MC':
-                    text = default_project['text_plot_data']
+                    text = default_project['text_plot_MC']
                 elif pos['type']=='data_MC' or pos['type']=='MC_data':
                     text = default_project['text_plot_data_MC']
                     
@@ -374,12 +374,17 @@ def set_text_LHCb(
             y = pos[1]
             ha = pos[2]
 
-        return ax.text(x, y, text, verticalalignment='top', horizontalalignment=ha,
-                       transform=ax.transAxes, fontsize=fontsize)
+        return ax.text(x, y, text, verticalalignment='top', 
+                       horizontalalignment=ha,
+                       transform=ax.transAxes, 
+                       fontsize=fontsize)
 
 
-def fix_plot(ax, factor_ymax=1.1, show_leg=True, fontsize_ticks=default_fontsize['ticks'],
-             fontsize_leg=default_fontsize['legend'], loc_leg='best', ymin_to_0=True, pos_text_LHC=None, axis='y'):
+def fix_plot(ax, factor_ymax=1.1, show_leg=True, 
+             fontsize_ticks=default_fontsize['ticks'],
+             fontsize_leg=default_fontsize['legend'], 
+             loc_leg='best', ymin_to_0=True, 
+             pos_text_LHC=None, axis='y'):
     """ Some fixing of plot parameters (fontsize, ymax, legend)
 
     Parameters

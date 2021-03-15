@@ -158,7 +158,7 @@ def load_saved_root(name_data, columns=None, folder_name="",
     return load_dataframe(complete_path, tree_name=tree_name, columns=columns, method=method)
 
 
-def save_root(df, file_name, name_key, folder_name=None):
+def save_root(df, file_name, name_key, folder_name=None, path=None):
     """ save the dataframe in a .root file
 
     Parameters

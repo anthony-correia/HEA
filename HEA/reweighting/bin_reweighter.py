@@ -8,7 +8,10 @@ from HEA.tools import dist
 import HEA.plot.tools as pt
 import HEA.plot.histogram as hist
 from HEA.tools.string import str_number_into_latex
-from HEA.tools.serial import dump_pickle
+from HEA.tools.serial import (
+    dump_pickle, dump_json, 
+    retrieve_pickle, retrieve_json
+)
 
 MC_color = 'r'
 reweighted_MC_color = 'b'
@@ -52,7 +55,10 @@ class BinReweighter():
                  MC_color=MC_color,
                  reweighted_MC_color=reweighted_MC_color,
                  data_color=data_color,
-                 folder_name=None
+                 folder_name=None,
+                 data_label='Data',
+                 MC_label="Original MC",
+                 reweighted_MC_label="Reweighted MC"
                  ):
         """ Produce a BinReweighter
         
@@ -95,8 +101,33 @@ class BinReweighter():
         self._trained_columns = []
         self.folder_name = folder_name
         
+        self.data_label = data_label
+        self.MC_label = MC_label
+        self.reweighted_MC_label = reweighted_MC_label
+        
         self.column_tcks = {}
      
+    @staticmethod
+    def from_MC(MC, name,
+                n_bins=None,
+                MC_weights=None,
+                ):
+        """ Load the binreweighter with only data
+        """
+        data = None
+        data_weights = None
+        data_color = None
+        
+        return BinReweighter(
+            data=data, MC=MC, 
+            n_bins=n_bins, name=name,
+            MC_weights=MC_weights, 
+            data_weights=data_weights,
+            **kwargs
+        )
+        
+        
+    
     @property
     def trained_columns(self):
         """ Columns which weights have been applied to.
@@ -137,10 +168,13 @@ class BinReweighter():
             else:
                 high = None
         
+        
+        datasets = [self.MC[column]]
+        if self.data is not None:
+            datasets += [self.data[column]]
         low, high = pt._redefine_low_high(low=low, 
                                           high=high, 
-                                          data=[self.data[column], 
-                                                self.MC[column]])
+                                          data=datasets)
         
         return low, high
     
@@ -271,11 +305,11 @@ class BinReweighter():
         
         return fig_name, second_folder
         
-    def plot_hist(self, column, 
+    def plot_hist(self, column, show_chi2=True,
                   plot_reweighted=None,
                   plot_original=True,
                   low=None, high=None,
-                  inter=None):
+                  inter=None, **kwargs):
         """ Plot the normalised histogram of column 
         for MC and data
         
@@ -283,6 +317,8 @@ class BinReweighter():
         ----------
         column: str
             Name of the column to plot.
+        show_chi2 : bool
+            if True, show the chi2 between MC and LHCb data
         plot_reweighted: bool
             if the reweighted MC is plotted
         plot_not_reweighted: bool
@@ -328,45 +364,52 @@ class BinReweighter():
         
         
         if plot_original:
-            samples_dict['Original MC'] = self.MC
+            samples_dict[self.MC_label] = self.MC
             alpha.append(0.7)
             colors.append([None, self.MC_color])
             bar_modes.append(True)
             weights.append(None)
-            
-            labels.append(', ' +
-                self.get_chi2_latex(column, 
-                                    low=low, high=high, 
-                                    with_MC_weights=False)
-            )
+            if self.data is not None and show_chi2:
+                labels.append(', ' +
+                    self.get_chi2_latex(column, 
+                                        low=low, high=high, 
+                                        with_MC_weights=False)
+                )
+            else:
+                labels.append(None)
             
         if plot_reweighted:
-            samples_dict['Reweighted MC'] = self.MC
+            samples_dict[self.reweighted_MC_label] = self.MC
             alpha.append(0.4)
             colors.append(self.reweighted_MC_color)
             bar_modes.append(True)
             weights.append(self.MC_weights)
-            
-            labels.append( ', ' +
-                self.get_chi2_latex(column, 
-                                    low=low, high=high, 
-                                    with_MC_weights=True)
-            )
+            if self.data is not None and show_chi2:
+                labels.append( ', ' +
+                    self.get_chi2_latex(column, 
+                                        low=low, high=high, 
+                                        with_MC_weights=True)
+                )
+            else:
+                labels.append(None)
                 
-        
-        samples_dict['data'] = self.data
-        colors.append(self.data_color)
-        bar_modes.append(False)
-        weights.append(self.data_weights)
-        alpha.append(1)
-        labels.append(None)
+        if self.data is not None:
+            samples_dict[self.data_label] = self.data
+            colors.append(self.data_color)
+            bar_modes.append(False)
+            weights.append(self.data_weights)
+            alpha.append(1)
+            labels.append(None)
         
                
         fig_name, second_folder = self.get_fig_folder_name(
             column, plot_reweighted,
             mode='vs',
             inter=inter)
-            
+        
+        
+        LHC_text_type = 'data_MC' if self.data is not None else 'MC'
+        
         return hist.plot_hist_auto(samples_dict,
                                    column, 
                                    fig_name=fig_name,
@@ -378,11 +421,12 @@ class BinReweighter():
                                    colors=colors,
                                    factor_ymax=1.5,
                                    pos_text_LHC={'ha': 'left',
-                                           'type': 'data_MC',
+                                           'type': LHC_text_type,
                                            'fontsize':20},
                                    alpha=alpha,
                                    weights=weights,
-                                   labels=labels
+                                   labels=labels,
+                                   **kwargs
                                   )
     
     
@@ -429,6 +473,9 @@ class BinReweighter():
             (only if ``ax`` is not specified)
         
         """
+        
+        assert self.data is not None
+        
         assert (plot_reweighted or plot_original)
         
         low, high = self.get_low_high(column, low, high)
@@ -457,7 +504,7 @@ class BinReweighter():
             weights_dict['original'] = [self.data_weights,
                                         None
                                        ]
-            labels_dict['original'] = "Original MC, "
+            labels_dict['original'] = f"{self.MC_label}, "
             labels_dict['original'] += self.get_chi2_latex(
                 column,
                 low=low, high=high,
@@ -468,7 +515,7 @@ class BinReweighter():
             colors_dict['reweighted'] = self.reweighted_MC_color
             weights_dict['reweighted'] = [self.data_weights,
                                           self.MC_weights]
-            labels_dict['reweighted'] = "Reweighted MC, "
+            labels_dict['reweighted'] = f"{self.reweighted_MC_label}, "
             labels_dict['reweighted'] += self.get_chi2_latex(
                 column,
                 low=low, high=high,
@@ -671,10 +718,56 @@ class BinReweighter():
             self.apply_new_MC_weights(column, 
                                       fit_spline=True)
     
-    def save_tcks(self):
-        """ Save the ``tck`` of the splines for the applied sWeights.
+    def save_weights(self):
+        """ Save the ``tck`` of the splines
         """
         
         for column in self.trained_columns:
-            dump_pickle(self.column_tcks[column], f"{self.name}_{column}_tck", self.folder_name)
-            dump_pickle(self.trained_columns, f"{self.name}_tck_columns", self.folder_name)
+            dump_pickle(self.column_tcks[column], 
+                        f"{self.name}_{column}_tck", self.folder_name)
+            
+        info_reweighting = {
+            'columns': self.trained_columns,
+            'n_bins' : self.n_bins,
+        }
+
+        dump_json(info_reweighting, f"{self.name}_info_reweighting", 
+                  self.folder_name)
+    
+    def load_weights(self, name, 
+                     folder_name):
+        """ Load the splines (in order to apply the weights in a 
+        possibly new dataset).
+        
+        Parameters
+        ----------
+        name: str
+            name of the the reweighter used to compute the spline
+            we are going to retrieve now
+        folder_name: str
+            folder name where the file is located. 
+        
+        Returns
+        -------
+        columns: list(str)
+            Ordered list of columns where the wieghts were computed
+        """
+        
+        ## Columns and number of bins
+        info_reweighting = retrieve_json(f"{name}_info_reweighting", 
+                                     folder_name)
+        
+        self.n_bins = info_reweighting['n_bins']
+        
+        for column in info_reweighting['columns']:
+            self.column_tcks[column] = \
+                retrieve_pickle(f"{name}_{column}_tck", 
+                                folder_name)
+        
+        return info_reweighting['columns']
+            
+            
+        
+        
+        
+        
