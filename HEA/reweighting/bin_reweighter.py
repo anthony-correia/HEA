@@ -309,7 +309,7 @@ class BinReweighter():
                   plot_reweighted=None,
                   plot_original=True,
                   low=None, high=None,
-                  inter=None, **kwargs):
+                  inter=None, factor_ymax=1.5, **kwargs):
         """ Plot the normalised histogram of column 
         for MC and data
         
@@ -419,13 +419,13 @@ class BinReweighter():
                                    high=high,
                                    bar_mode=bar_modes,
                                    colors=colors,
-                                   factor_ymax=1.5,
+                                   factor_ymax=factor_ymax,
                                    pos_text_LHC={'ha': 'left',
                                            'type': LHC_text_type,
                                            'fontsize':20},
                                    alpha=alpha,
                                    weights=weights,
-                                   labels=labels,
+                                   labels=labels, loc_leg='upper right',
                                    **kwargs
                                   )
     

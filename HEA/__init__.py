@@ -13,7 +13,7 @@ from HEA.definition import (
     RVariable,
     get_branches_from_raw_branches_functions,
     get_raw_branches_from_raw_branches_functions,
-    print_used_branches_per_particles
+    print_used_branches_per_particles,
 )
 
-from HEA.pandas_root import load_dataframe, load_dataframe_YY_MM
+from HEA.pandas_root import load_dataframe, load_dataframe_YY_MM, perform_cut

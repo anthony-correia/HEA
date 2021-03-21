@@ -15,7 +15,7 @@ from HEA.tools import string
 import HEA.fit.root as fr
 from HEA.config import default_fontsize
 
-
+from ROOT import RooFit
 
 def rooData_into_hist(data, models=None):
     """ Get the histogram of data and models,
@@ -59,18 +59,26 @@ def rooData_into_hist(data, models=None):
         models = el_to_list(models)
         model_hists = []
         
-        for i, model in enumerate(models):
-            model.plotOn(frame)
-            model_hist = frame.getObject(i + 1)
+        models[0].plotOn(frame)
+        model_hist = frame.getObject(1)
+        model_hists.append(model_hist)
+        
+        i = 2
+        for model in models[1:]:
+            models[0].plotOn(frame, RooFit.Components(model.GetName()))
+            model_hist = frame.getObject(i)
             model_hists.append(model_hist)
+            i+=1
     else:
         x_model = None
         y_models = None
         
     # Now, get the values for the models
+    if models is None:
+        return np.array(x), np.array(y), np.array(y_err[0])
+    else:
+        return np.array(x), np.array(y), np.array(y_err[0]), model_hists
     
-    return np.array(x), np.array(y), np.array(y_err[0]), model_hists
-
 #Create data array for plotting from the RooFit RooHist
 def listsfromhist(hist, overunder=False, normpeak=False, xscale=1.0):
     """ By Donal Hill!
@@ -126,7 +134,7 @@ def listsfromhist(hist, overunder=False, normpeak=False, xscale=1.0):
 
 
 def plot_hist_fit_root(data, models=None, latex_branch=None, unit=None,
-                      weights=None, 
+                      weights=None, PDF_names=None,
                       color='black', bar_mode=False,
                       models_names=None,
                       linewidth=2.5, colors=None,
@@ -137,7 +145,7 @@ def plot_hist_fit_root(data, models=None, latex_branch=None, unit=None,
                        fontsize_leg=default_fontsize['legend'],
                        loc_leg='upper left', show_leg=None,
                       save_fig=True, pos_text_LHC=None, 
-                       kwargs_res={},
+                       kwargs_res={}, fillbetween=True,
                        **kwargs):
     """ Plot complete histogram with fitted curve, pull histogram and results of the fits. Save it in the plot folder.
 
@@ -213,20 +221,20 @@ def plot_hist_fit_root(data, models=None, latex_branch=None, unit=None,
     
     
     # Get the histograms
-    x, y, y_err, model_hists = rooData_into_hist(data, models)
-    
-    models = el_to_list(models)
-    for model in models:
-        models_types = model.GetTitle()
-    
-    
+    if models is None:
+        x, y, y_err = rooData_into_hist(data, models)
+    else:
+        x, y, y_err, model_hists = rooData_into_hist(data, models)
+        models = el_to_list(models)
+        if models is not None:
+            for model in models:
+                models_types = model.GetTitle()
     edges = h.get_edges_from_centres(x)
-    plot_pull = (bar_mode_pull is not None)
+    plot_pull = (bar_mode_pull is not None) and (models is not None)
     fig, ax = pf.create_fig_plot_hist_fit(plot_pull)
     
     if latex_branch is None:
         latex_branch = string._latex_format(branch)
-      
     # Plot the histogram
     h.plot_hist_alone_from_hist(ax[0], counts=y, err=y_err, 
                               color=color,
@@ -239,34 +247,68 @@ def plot_hist_fit_root(data, models=None, latex_branch=None, unit=None,
     # Label
     bin_width = x[1] - x[0]
     h.set_label_hist(ax[0], latex_branch, unit, bin_width, fontsize=25)
-    
     # Ticks
     pt.set_label_ticks(ax[0])
     pt.set_text_LHCb(ax[0], pos=pos_text_LHC)
     
     # Plot fitted curve
-    model_hists = el_to_list(model_hists, len(model_hists))
-    models_names = el_to_list(models_names, len(model_hists))
-    models = el_to_list(models, len(model_hists))
-    colors = el_to_list(colors, len(model_hists))
-    if models_types is None:
-        models_types = 'n'
-    models_types = el_to_list(models_types, len(model_hists))
-    
-    x_model = np.linspace(start=edges[0], stop=edges[-1], num=1000)
-    
-    for model, model_hist, model_name, model_type, color in zip(models, model_hists, models_names, models_types, colors):
-        y_model = fr.evaluate_pdf_root(x_model, model_hist)
-        PDF_name = model.GetName()
+    if models is not None:
+        model_hists = el_to_list(model_hists, len(model_hists))
+        models_names = el_to_list(models_names, len(model_hists))
+        models = el_to_list(models, len(model_hists))
+        colors = el_to_list(colors, len(model_hists))
+        if models_types is None:
+            models_types = 'n'
+        models_types = el_to_list(models_types, len(model_hists))
         
+        if PDF_names != 'auto':
+            PDF_names = el_to_list(PDF_names, len(model_hists))
+            
         
-        pf.plot_fitted_curve_from_hist(ax[0], x_model, y_model,
-                                PDF_name=PDF_name,
-                                model_name=model_name, model_type=model_type,
-                                color=color, 
-                                linestyle='-', linewidth=2.5, 
-                                alpha=1,
-                                **kwargs)
+        x_model = np.linspace(start=edges[0], stop=edges[-1], num=1000)
+        
+        i = 0
+        print(colors)
+        
+        y_models = []
+        
+        for model_hist in model_hists:
+            y_models.append(fr.evaluate_pdf_root(x_model, model_hist))
+        
+        for i, model in enumerate(models):
+            if PDF_names is None:
+                PDF_name = None
+            elif PDF_names=="auto":
+                PDF_name = model.GetName()
+            else:
+                PDF_name = PDF_names[i]
+            
+            if fillbetween and i!=0: # plot the line of the full model (i=0)
+                pf.plot_fitted_curve_from_hist(
+                    ax[0], x_model, 
+                    [sum(y) for y in zip(*tuple(y_models[i:]))],
+                    PDF_name=PDF_name,
+                    model_name=models_names[i], 
+                    model_type=models_types[i],
+                    color=colors[i], 
+                    alpha=1, fillbetween=True,
+                    **kwargs)
+                    
+            else:
+                pf.plot_fitted_curve_from_hist(
+                    ax[0], x_model, y_models[i],
+                    PDF_name=PDF_name,
+                    model_name=models_names[i],
+                    model_type=models_types[i],
+                    color=colors[i], 
+                    linestyle='-', linewidth=2.5,
+                    alpha=1, fillbetween=False,
+                    **kwargs)
+            
+            
+            i+=1
+        
+            
     
     pt.change_range_axis(ax[0], factor_max=1.1)
     
@@ -314,7 +356,7 @@ def plot_hist_fit_root(data, models=None, latex_branch=None, unit=None,
         return fig, ax[0]
     
     
-def plot_hist_fit_root_auto(data, models, cut_BDT=None, **kwargs):
+def plot_hist_fit_root_auto(data, models=None, cut_BDT=None, **kwargs):
     """Retrieve the latex name of the branch and unit. 
     Set the folder name to the name of the datasets.
     Then, plot with :py:func:`plot_hist_fit_root`.

@@ -91,7 +91,7 @@ def _retrieve(file_name, folder_name=None, library='json', byte_read=False):
     folder_name : str
         name of folder where the file is (if ``None``, there is no folder)
     library : str
-        ``'json'`` or ``'pickle'``
+        ``'json'`` or ``'pickle'`` or ``'joblib``
     byte_read: bool
         Read in byte mode
 

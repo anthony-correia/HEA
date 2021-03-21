@@ -137,15 +137,14 @@ for key, value in latex_params_HH.items():
         
         latex_params_HH_PDF[key+f'_{PDF.lower()}']['latex'] = latex_param
 
-latex_params_HH = {
-    'frac_hill': {
+latex_params_HH_PDF['frac_hill'] = {
         'latex': '${frac}_{hill}$',
         'cat': 'other'
-    },
-    'frac_horn': {
+}
+
+latex_params_HH_PDF['frac_horn'] = {
         'latex': '${frac}{horn}$',
         'cat': 'other'
-    },
 }
         
 latex_params = {**latex_params, **latex_params_HH, **latex_params_HH_PDF}

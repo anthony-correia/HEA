@@ -145,7 +145,7 @@ def retrieve_params(file_name, folder_name=None, only_val=True):
     if only_val:
         params_vals = {}
         for name_param in params.keys():
-            if 'v' in  params[name_param] and 'e' in  params[name_param]:
+            if isinstance(params[name_param], dict) and 'v' in  params[name_param] and 'e' in  params[name_param]:
                 params_vals[name_param] = params[name_param]['v']
         
         return params_vals
@@ -391,13 +391,18 @@ def json_to_latex_table(name_json, path, latex_params, show=True):
 
     # Open the json file
     directory = create_directory(loc['json'], path)
-    params = retrieve_params(name_json, folder_name=path, only_val=False)
+    params = retrieve_params(name_json, 
+                             folder_name=path, 
+                             only_val=False)
     params = get_params_without_BDT(params, True)
 
     # Load the variables into ufloats
     ufloats = {}
     for param in params:
-        if 'v' in params[param] and 'e' in params[param]:
+        if isinstance(params[param], dict) \
+            and 'v' in params[param] \
+            and 'e' in params[param]:
+            
             ufloats[param] = ufloat(params[param]['v'], params[param]['e'])
     
     # Write the .tex file

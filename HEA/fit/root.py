@@ -17,17 +17,17 @@ from HEA.tools.da import el_to_list, add_in_dic
 from HEA.tools.string import add_text
 from HEA.tools.assertion import is_list_tuple
 
-ROOT.gROOT.LoadMacro(op.join(loc['libraries'], 
-                             "B2DHPartRecoPDFs/src/RooHILLdini.cpp"))
-ROOT.gROOT.LoadMacro(op.join(loc['libraries'], 
-                             "B2DHPartRecoPDFs/src/RooHORNSdini.cpp"))
+# ROOT.gROOT.LoadMacro(op.join(loc['libraries'], 
+#                              "B2DHPartRecoPDFs/src/RooHILLdini.cpp"))
+# ROOT.gROOT.LoadMacro(op.join(loc['libraries'], 
+#                              "B2DHPartRecoPDFs/src/RooHORNSdini.cpp"))
 
-ROOT.gROOT.LoadMacro(op.join(loc['libraries'],
-                             "B2DHPartRecoPDFs/src/RooHILLdini_misID.cpp"))                    
-ROOT.gROOT.LoadMacro(op.join(loc['libraries'],
-                             "B2DHPartRecoPDFs/src/RooHORNSdini_misID.cpp"))
+# ROOT.gROOT.LoadMacro(op.join(loc['libraries'],
+#                              "B2DHPartRecoPDFs/src/RooHILLdini_misID.cpp"))                    
+# ROOT.gROOT.LoadMacro(op.join(loc['libraries'],
+#                              "B2DHPartRecoPDFs/src/RooHORNSdini_misID.cpp"))
 
-from ROOT import RooCBShape, RooHILLdini, RooHORNSdini, RooAddPdf
+from ROOT import RooCBShape, RooAddPdf
     
 def evaluate_pdf_root(x, model_hist):
     """ Use interpolation to compute the value of the pdf
@@ -231,6 +231,8 @@ def get_PDF(PDF_name):
     if index!=-1:
         PDF_name = PDF_name[:index]
     
+    from ROOT import RooHILLdini, RooHORNSdini
+    
     name_to_PDF = {
         'HORNS': RooHORNSdini,
         'HILL' : RooHILLdini,
@@ -329,7 +331,7 @@ def get_n_dof_model_root(model, data):
 
 
 
-def launch_fit(pdf, data):
+def launch_fit(pdf, data, with_weights=False, extended=False):
     """ Fit a pdf to data
     
     Parameters
@@ -352,12 +354,21 @@ def launch_fit(pdf, data):
     
     """
     
-    result = pdf.fitTo(
-        data,
-        RooFit.Save(), RooFit.NumCPU(8,0), RooFit.Optimize(False), 
-        RooFit.Offset(True), RooFit.Minimizer("Minuit2", "migrad"),
-        RooFit.Strategy(2),
-    )
+    if with_weights:
+        result = pdf.fitTo(
+            data,
+            RooFit.Save(), RooFit.NumCPU(8,0), RooFit.Optimize(False), 
+            RooFit.Offset(True), RooFit.Minimizer("Minuit2", "migrad"),
+            RooFit.Strategy(2), RooFit.SumW2Error(True),
+            RooFit.Extended(extended)
+        )
+    else:
+        result = pdf.fitTo(
+            data,
+            RooFit.Save(), RooFit.NumCPU(8,0), RooFit.Optimize(False), 
+            RooFit.Offset(True), RooFit.Minimizer("Minuit2", "migrad"),
+            RooFit.Strategy(2), RooFit.Extended(extended)
+        )
     params = params_into_dict(result, method='root')
 
     return result, params

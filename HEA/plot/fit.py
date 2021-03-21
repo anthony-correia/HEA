@@ -35,7 +35,8 @@ model_names_types = {
     'm': 'model',
     's': 'signal',
     'b': 'background',
-    'n': None
+    'n': None,
+    '': None
 }
 
 # Alternative names for the models
@@ -300,7 +301,7 @@ def plot_fitted_curve_from_hist(ax, x, fit_counts,
                                 model_name=None, model_type=None,
                                 color='b', 
                                 linestyle='-',linewidth=2.5, 
-                                alpha=1,
+                                alpha=1, fillbetween=False,
                                 **kwargs):
     """
     Plot a fitted curve given by ``model``
@@ -345,9 +346,14 @@ def plot_fitted_curve_from_hist(ax, x, fit_counts,
         label = string.add_text(PDF_name, model_names_types[model_type], ' - ')
         label = string.add_text(label, model_name)  
     
-    return ax.plot(x, fit_counts, linewidth=linewidth, color=color,
-                   label=label,
-                   ls=linestyle, alpha=alpha, **kwargs)  
+    if fillbetween:
+        return ax.fill_between(x, fit_counts, label=label,
+                               color=color,
+                               alpha=alpha, **kwargs)  
+    else:
+        return ax.plot(x, fit_counts, linewidth=linewidth, color=color,
+                       label=label,
+                       ls=linestyle, alpha=alpha, **kwargs)  
 
 
 def plot_single_model(ax, x, model, plot_scaling,
@@ -567,7 +573,8 @@ def plot_fitted_curves(ax, models, plot_scaling, low, high,
 # RESULT FIT =============================================================
 
 
-def plot_result_fit(ax, params, latex_params=None, fontsize=default_fontsize['legend'], 
+def plot_result_fit(ax, params, latex_params=None,
+                    fontsize=default_fontsize['legend'], 
                     colWidths=[None, None, None, None], loc='upper right'):
     """
     Plot the results of the fit in a table
@@ -690,7 +697,6 @@ def create_fig_plot_hist_fit(plot_pull):
         * Axis of the histogram + fitted curves + table
         * Axis of the pull diagram (only if ``plot_pull`` is ``True``)
     """
-    
     if plot_pull:
         fig = plt.figure(figsize=(12, 10))
         gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1])

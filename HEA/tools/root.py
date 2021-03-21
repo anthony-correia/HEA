@@ -4,12 +4,14 @@ General tool functions used with ROOT
 
 import pandas as pd
 import os.path as op
-from ROOT import TChain, TFile
+from ROOT import TChain, TFile, RooWorkspace
 
 from HEA.tools.da import el_to_list
-from HEA.tools.dir import try_makedirs
+from HEA.tools.dir import try_makedirs, create_directory
+from HEA.config import loc
 
-def load_tree(paths, branches, cuts=None,
+def load_tree(paths, branches, tree_name='DecayTree',
+              cuts=None,
               verbose=True):
     """ Load and cut on a tree of data
     
@@ -19,6 +21,8 @@ def load_tree(paths, branches, cuts=None,
         path(s) of the root files
     branches: str or list(str)
         branch(es) to load
+    tree_name: str
+        name of the tree to load
     verbose: bool
         if ``True``, plot the number of events
         in the tree
@@ -35,7 +39,7 @@ def load_tree(paths, branches, cuts=None,
     branches = el_to_list(branches)
     
     # Create the tree
-    tree = TChain("DecayTree")
+    tree = TChain(tree_name)
     for path in paths:
         tree.Add(path)
     
@@ -105,5 +109,50 @@ def save_tree_root(data, file_name, path=None):
     out_file.Close()
     
     print(f"Root file saved in {full_path}")
+    
+def save_workspace(w, file_name, folder_name=None):
+    """ Save a workspace in a root file.
+    
+    Parameters
+    ----------
+    w: RooWorkspace
+        workspace to save
+    file_name: str
+        name of the root file to save
+    folder_name: str
+        name of the folderwhere to save the workspace
+    """
+    
+    path = op.join(loc['out'], 'root/')
+    path = create_directory(path, folder_name) 
+    full_path = op.join(path, f"{file_name}_ws.root")
+    w.writeToFile(full_path)
+    
+    print(f"Worspace save in {full_path}")
+    
+def load_workspace(file_name, folder_name=None):
+    """ Load a workspace from a root file.
+    
+    Parameters
+    ----------
+    file_name: str
+        name of the root file to save
+    folder_name: str
+        name of the folderwhere to save the workspace
+    
+    Returns
+    -------
+    w: RooWorkspace
+        workspace that is saved in the root file
+    """
+    path = op.join(loc['out'], 'root/')
+    path = create_directory(path, folder_name) 
+    full_path = op.join(path, f"{file_name}_ws.root")
+    
+    file = TFile(full_path)
+        
+    w = file.Get('w')
+    file.Close()
+    return w
     
     
