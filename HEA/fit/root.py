@@ -27,7 +27,7 @@ from HEA.tools.assertion import is_list_tuple
 # ROOT.gROOT.LoadMacro(op.join(loc['libraries'],
 #                              "B2DHPartRecoPDFs/src/RooHORNSdini_misID.cpp"))
 
-from ROOT import RooCBShape, RooAddPdf
+from ROOT import RooCBShape, RooAddPdf #, RooCrystalBall 
     
 def evaluate_pdf_root(x, model_hist):
     """ Use interpolation to compute the value of the pdf
@@ -203,6 +203,8 @@ def unpack_rooParams(rooParams, PDF_name):
     elif PDF_name=='CB':
         ordered_keys = ['mu', 'sigma', 'alpha', 'n']
     
+    elif PDF_name=='doubleCB':
+        ordered_keys = ['mu', 'sigma', 'alphaL', 'nL', 'alphaR', 'nR']
     ordered_rooParams = []
     for key in ordered_keys:
         key_dict = find_key_startswith(rooParams, key)
@@ -237,6 +239,7 @@ def get_PDF(PDF_name):
         'HORNS': RooHORNSdini,
         'HILL' : RooHILLdini,
         'CB'   : RooCBShape,
+#         'doubleCB': RooCrystalBall
     }
     
     return name_to_PDF[PDF_name]
@@ -370,9 +373,36 @@ def launch_fit(pdf, data, with_weights=False, extended=False):
             RooFit.Strategy(2), RooFit.Extended(extended)
         )
     params = params_into_dict(result, method='root')
-
+    
     return result, params
     
+def get_reduced_chi2_root(rooVariable, model, data_h):
+    """ Get the chi2 of a roofit fit
+    
+    Parameters
+    ----------
+    rooVariable: rooRealVar
+        Fitted variable of the dataset
+    model: RooRealPdf
+        Fitted pdf
+    data_h :  RooDataHist
+        Binned data
+    
+    
+    Returns
+    -------
+    reduced_chi2: float
+        Reduced :path:`\\chi^2` of the fit
+    """
+    # Get chi2 ----------------------------
+    frame = rooVariable.frame()
+    data_h.plotOn(frame)
+    model.plotOn(frame)
+    reduced_chi2 = frame.chiSquare()
+    print('******************************************')
+    print("chi2/ndof = %.2f" % reduced_chi2)
+    print('******************************************')
+    return reduced_chi2
     
 def save_fit_result_root(result, file_name, folder_name=None):
     """

@@ -55,11 +55,14 @@ def params_into_dict(result_params, uncertainty=True, remove=None,
                     
             params_dict[new_name_param] = {}
             value_param = result_params[p]['value']
-            params_dict[new_name_param]['v'] = value_param
+            
             
             if uncertainty:
+                params_dict[new_name_param]['v'] = value_param
                 error_param = result_params[p]['minuit_hesse']['error']
                 params_dict[new_name_param]['e'] = error_param
+            else:
+                params_dict[new_name_param] = value_param
     
     elif method=='root':
         params_dict = {}
@@ -72,10 +75,15 @@ def params_into_dict(result_params, uncertainty=True, remove=None,
 
             value = p.getVal()
             err = p.getError()
-            params_dict[name] = {
-                'v': value,
-                'e': err
-                }
+            
+            if uncertainty:
+                params_dict[name] = {
+                    'v': value,
+                    'e': err
+                    }
+            else:
+                params_dict[name] = value
+            
     return params_dict
             
 def save_params(param_results, name_file,

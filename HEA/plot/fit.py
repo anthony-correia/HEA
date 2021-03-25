@@ -3,7 +3,10 @@ Plot a histogram, with the fitted PDF, the pull diagram and the fitted parameter
 """
 
 import HEA.plot.tools as pt
-from HEA.plot.histogram import plot_hist_alone, set_label_hist, get_bin_width
+from HEA.plot.histogram import (
+    plot_hist_alone, set_label_hist, get_bin_width,
+    plot_hist_alone_from_hist
+)
 from HEA.tools.da import add_in_dic, el_to_list, get_element_list
 from HEA.tools import string, assertion
 from HEA.tools import dist
@@ -103,7 +106,7 @@ def frac_model(x, model, frac=1.):
 # PULL DIAGRAM ===========================================================
 
 
-def print_fit_info(centres, fit_counts, counts, pull, ndof):
+def print_fit_info(centres, fit_counts, counts, pull, ndof, err=None):
     """ Sohow
     
     * Number of bins and bin width
@@ -125,7 +128,7 @@ def print_fit_info(centres, fit_counts, counts, pull, ndof):
     print(f"Number of bins: {len(centres)}")
     print(f"Width of the bins: {centres[1]-centres[0]}")
     print("")
-    chi2 = dist.get_reduced_chi2(fit_counts, counts, ndof)
+    chi2 = dist.get_reduced_chi2(fit_counts, counts, ndof, err=err)
     print("Number of d.o.f. in the model: ", ndof)
     print('Reduced chi2: ', chi2)
     print("")
@@ -178,6 +181,7 @@ def plot_pull_diagram_from_hist(ax, fit_counts, counts,
     
     with np.errstate(divide='ignore', invalid='ignore'):  # ignore divide-by-0 warning
         pull = np.divide(counts - fit_counts, err)
+        
 
     # Plotting
     if bar_mode_pull:
@@ -301,7 +305,8 @@ def plot_fitted_curve_from_hist(ax, x, fit_counts,
                                 model_name=None, model_type=None,
                                 color='b', 
                                 linestyle='-',linewidth=2.5, 
-                                alpha=1, fillbetween=False,
+                                alpha=1, 
+                                mode=False,
                                 **kwargs):
     """
     Plot a fitted curve given by ``model``
@@ -346,14 +351,24 @@ def plot_fitted_curve_from_hist(ax, x, fit_counts,
         label = string.add_text(PDF_name, model_names_types[model_type], ' - ')
         label = string.add_text(label, model_name)  
     
-    if fillbetween:
+    if mode=='fillbetween':
         return ax.fill_between(x, fit_counts, label=label,
                                color=color,
                                alpha=alpha, **kwargs)  
+    elif mode=='bar':
+
+        return plot_hist_alone_from_hist(ax, fit_counts, err=None,
+                                           color=color,
+                                           centres=x,
+                                           bar_mode=True, alpha=alpha,
+                                           label=label, 
+                                           orientation='vertical',
+                                          **kwargs)
+        
     else:
         return ax.plot(x, fit_counts, linewidth=linewidth, color=color,
                        label=label,
-                       ls=linestyle, alpha=alpha, **kwargs)  
+                       ls=linestyle, alpha=alpha, **kwargs)
 
 
 def plot_single_model(ax, x, model, plot_scaling,
@@ -720,6 +735,7 @@ def plot_hist_fit(df, branch, latex_branch=None, unit=None, weights=None,
                   kwargs_res={},
                   fig_name=None, folder_name=None, data_name=None,
                   save_fig=True, pos_text_LHC=None,
+                  lim_pull=None,
                   **kwargs):
     """ Plot complete histogram with fitted curve, pull histogram and results of the fits. Save it in the plot folder.
 
@@ -856,6 +872,12 @@ def plot_hist_fit(df, branch, latex_branch=None, unit=None, weights=None,
         ndof = PDF.get_n_dof_model(model)
         print_fit_info(centres, fit_counts, counts, pull, ndof)
 
+        if lim_pull is not None:
+            if isinstance(lim_pull, float) or isinstance(lim_pull, int):
+                lim_pull = (-lim_pull,lim_pull)
+            ax[1].set_ylim(lim_pull)
+        
+        
     # Plot the fitted parameters of the fit
     if params is not None:
         plot_result_fit(ax[0], params, latex_params=latex_params,

@@ -17,6 +17,9 @@ from HEA.config import default_fontsize
 
 from ROOT import RooFit
 
+from HEA.tools.assertion import is_list_tuple
+from HEA.tools.da import add_in_dic
+
 def rooData_into_hist(data, models=None):
     """ Get the histogram of data and models,
     ready to be plotted with matplotlib.
@@ -135,17 +138,20 @@ def listsfromhist(hist, overunder=False, normpeak=False, xscale=1.0):
 
 def plot_hist_fit_root(data, models=None, latex_branch=None, unit=None,
                       weights=None, PDF_names=None,
+                       models_types=None,
                       color='black', bar_mode=False,
                       models_names=None,
                       linewidth=2.5, colors=None,
-                      bar_mode_pull=True,
+                      bar_mode_pull=True, 
                       params=None, latex_params=None, 
                       loc_res='upper right', 
                       fig_name=None, folder_name=None, data_name=None,
                        fontsize_leg=default_fontsize['legend'],
                        loc_leg='upper left', show_leg=None,
                       save_fig=True, pos_text_LHC=None, 
-                       kwargs_res={}, fillbetween=True,
+                       kwargs_res={}, stack=False,
+                       ndof=None, branch=None, data_label=None,
+                       lim_pull=None, recompute_err=False, 
                        **kwargs):
     """ Plot complete histogram with fitted curve, pull histogram and results of the fits. Save it in the plot folder.
 
@@ -214,22 +220,80 @@ def plot_hist_fit_root(data, models=None, latex_branch=None, unit=None,
     ax[1] : matplotlib.figure.Axes
         Axis of the pull diagram (only if ``plot_pull`` is ``True``)
     """
+        
+
+    given_counts = is_list_tuple(data)
+    models_given_by_counts = False
+    colors = el_to_list(colors)
+    
+    if stack:
+        model_bar_mode = False
     
     # Get the name of the branch
-    rooVariable = data.get().first()
-    branch = rooVariable.GetName()
+    if given_counts:
+        assert branch is not None
+    else:
+        rooVariable = data.get().first()
+        if branch is None:
+            branch = rooVariable.GetName()
     
     
     # Get the histograms
-    if models is None:
+    if is_list_tuple(data):
+        x = data[0]
+        y = data[1]
+        y_err = data[2]
+        
+        models_given_by_counts = is_list_tuple(models)
+        assert models_given_by_counts
+#         if models_given_by_counts:
+
+        if len(models)==1:
+            y_models = models[0]
+            y_models = el_to_list(y_models)
+            x_model = x
+            model_bar_mode = True
+            
+            
+        elif len(models)==3:
+            x_model, y_models, y_model_pull = models
+            y_models = el_to_list(y_models)
+        
+        n_models = len(y_models)
+        
+        if y_models[0] is None:
+            y_models[0] = np.array([sum(y) for y in zip(*tuple(y_models[1:]))])
+            if len(colors) < n_models:
+                colors = ['b'] + colors
+                models_names = el_to_list(models_names, n_models)
+                models = el_to_list(models, n_models)
+            if len(models_names) < n_models:
+                models_names = [None] + models_names
+            
+        if len(models)==1:
+            y_model_pull = y_models[0]
+        
+        
+        
+    elif models is None:
         x, y, y_err = rooData_into_hist(data, models)
     else:
+        models = el_to_list(models)        
         x, y, y_err, model_hists = rooData_into_hist(data, models)
-        models = el_to_list(models)
-        if models is not None:
+        model_hists = el_to_list(model_hists, len(model_hists))
+        n_models = len(model_hists)
+        
+        if models_types is None:
             for model in models:
                 models_types = model.GetTitle()
+    
+    if recompute_err:
+        y_err = np.sqrt(np.abs(y))
+    
     edges = h.get_edges_from_centres(x)
+    low = edges[0]
+    high = edges[-1]
+    
     plot_pull = (bar_mode_pull is not None) and (models is not None)
     fig, ax = pf.create_fig_plot_hist_fit(plot_pull)
     
@@ -241,7 +305,7 @@ def plot_hist_fit_root(data, models=None, latex_branch=None, unit=None,
                               centres=x,
                               bar_mode=False, alpha=0.1,
                               show_ncounts=False,
-                              weights=weights,
+                              weights=weights, label=data_label,
                               orientation='vertical')
     
     # Label
@@ -251,31 +315,33 @@ def plot_hist_fit_root(data, models=None, latex_branch=None, unit=None,
     pt.set_label_ticks(ax[0])
     pt.set_text_LHCb(ax[0], pos=pos_text_LHC)
     
+    
     # Plot fitted curve
     if models is not None:
-        model_hists = el_to_list(model_hists, len(model_hists))
-        models_names = el_to_list(models_names, len(model_hists))
-        models = el_to_list(models, len(model_hists))
-        colors = el_to_list(colors, len(model_hists))
+        models_names = el_to_list(models_names, n_models)
+        
         if models_types is None:
             models_types = 'n'
-        models_types = el_to_list(models_types, len(model_hists))
+        models_types = el_to_list(models_types, n_models)
         
         if PDF_names != 'auto':
-            PDF_names = el_to_list(PDF_names, len(model_hists))
-            
-        
-        x_model = np.linspace(start=edges[0], stop=edges[-1], num=1000)
-        
+            PDF_names = el_to_list(PDF_names, n_models)
+
         i = 0
-        print(colors)
         
-        y_models = []
+        if not models_given_by_counts:
+            y_models = []
+            
+            x_model = np.linspace(start=edges[0], stop=edges[-1], num=1000)
+            for model_hist in model_hists:
+                y_models.append(fr.evaluate_pdf_root(x_model, model_hist))
         
-        for model_hist in model_hists:
-            y_models.append(fr.evaluate_pdf_root(x_model, model_hist))
+        start = 0
+        if y_models[0] is None:
+            start = 1
         
-        for i, model in enumerate(models):
+        for i in range(start, n_models):
+            
             if PDF_names is None:
                 PDF_name = None
             elif PDF_names=="auto":
@@ -283,45 +349,53 @@ def plot_hist_fit_root(data, models=None, latex_branch=None, unit=None,
             else:
                 PDF_name = PDF_names[i]
             
-            if fillbetween and i!=0: # plot the line of the full model (i=0)
+            if stack: 
+                model_mode = 'bar' if model_bar_mode else 'fillbetween'
+            else:
+                model_mode = None
+            
+            if stack and i!=0: 
+                model_counts = np.array([sum(y) for y in zip(*tuple(y_models[i:]))])
                 pf.plot_fitted_curve_from_hist(
                     ax[0], x_model, 
-                    [sum(y) for y in zip(*tuple(y_models[i:]))],
+                    model_counts,
                     PDF_name=PDF_name,
                     model_name=models_names[i], 
                     model_type=models_types[i],
                     color=colors[i], 
-                    alpha=1, fillbetween=True,
-                    **kwargs)
+                    alpha=1,
+                    mode=model_mode,
+                    **kwargs
+                )
                     
-            else:
+            elif y_models[i] is not None: # plot the line of the full model (i=0)
+                
+                    
                 pf.plot_fitted_curve_from_hist(
                     ax[0], x_model, y_models[i],
                     PDF_name=PDF_name,
                     model_name=models_names[i],
                     model_type=models_types[i],
                     color=colors[i], 
-                    linestyle='-', linewidth=2.5,
-                    alpha=1, fillbetween=False,
-                    **kwargs)
+                    linestyle='-', linewidth=1.,
+                    alpha=1, 
+                    mode=model_mode,
+                    **kwargs
+                )
             
-            
-            i+=1
-        
-            
-    
     pt.change_range_axis(ax[0], factor_max=1.1)
     
     
     if plot_pull:
-        if isinstance(models, list):
-            model = models[0]
-        else:
-            model = models
+        if not models_given_by_counts:
+            if isinstance(models, list):
+                model = models[0]
+            else:
+                model = models
         
+            y_model_pull = fr.evaluate_pdf_root(x, model_hists[0])
+            
         color_pull = colors if not isinstance(colors, list) else colors[0]
-        
-        y_model_pull = fr.evaluate_pdf_root(x, model_hists[0])
         
         pull =  pf.plot_pull_diagram_from_hist(
                 ax=ax[1], 
@@ -330,9 +404,19 @@ def plot_hist_fit_root(data, models=None, latex_branch=None, unit=None,
                 color=color_pull,
                 bar_mode_pull=bar_mode_pull)
         
-        ndof = fr.get_n_dof_model_root(model, rooVariable)
-        pf.print_fit_info(centres=x, fit_counts=y_model_pull, counts=y, pull=pull, ndof=ndof)
-
+        if models_given_by_counts:
+            ndof = 0
+        elif ndof is None:
+            ndof = fr.get_n_dof_model_root(model, rooVariable)
+        pf.print_fit_info(centres=x, fit_counts=y_model_pull, counts=y, pull=pull, ndof=ndof, err=y_err)
+        ax[1].set_xlim(low, high)
+        
+        if lim_pull is not None:
+            if isinstance(lim_pull, float) or isinstance(lim_pull, int):
+                lim_pull = (-lim_pull,lim_pull)
+            ax[1].set_ylim(lim_pull)
+        
+        
     # Plot the fitted parameters of the fit
     if params is not None:
         pf.plot_result_fit(ax[0], params, latex_params=latex_params,
@@ -343,6 +427,8 @@ def plot_hist_fit_root(data, models=None, latex_branch=None, unit=None,
         show_leg = models_names is not None
     if show_leg:
         ax[0].legend(fontsize=fontsize_leg, loc=loc_leg)
+    
+    ax[0].set_xlim(low, high)
     
     
     # Save result
@@ -373,9 +459,19 @@ def plot_hist_fit_root_auto(data, models=None, cut_BDT=None, **kwargs):
     -------
     see :py:func:`plot_hist_fit_root`
     """
+    add_in_dic('branch', kwargs, None)
     
-    rooVariable = data.get().first()
-    branch = rooVariable.GetName()
+    given_counts = is_list_tuple(data)
+    
+    if given_counts:
+        assert kwargs['branch'] is not None
+        branch = kwargs['branch']
+    else:
+        rooVariable = data.get().first()
+        if kwargs['branch'] is None:
+            branch = rooVariable.GetName()
+        else:
+            branch = kwargs['branch']
     
     latex_branch, unit, kwargs = pf._core_plot_hist_fit_auto(branch, cut_BDT, kwargs)
     del kwargs['title']

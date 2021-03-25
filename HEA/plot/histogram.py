@@ -23,7 +23,8 @@ from HEA.tools.dist import (
     get_count_err, 
     get_bin_width, 
     get_density_counts_err,
-    get_count_err_ratio
+    get_count_err_ratio,
+    divide_counts
 )
 from HEA.tools.assertion import is_list_tuple
 
@@ -54,12 +55,13 @@ def get_edges_from_centres(centres):
     edges: array-like
         Bin edges of the histogram
     """
-    edges = centres - (centres[1] - centres[0]) / 2
-    edges = np.append(edges, edges[-1])
+    bin_width = centres[1] - centres[0]
+    edges = centres - bin_width / 2
+    edges = np.append(edges, centres[-1] + bin_width / 2)
     
     return edges
 
-def plot_hist_alone_from_hist(ax, counts, err, color,
+def plot_hist_alone_from_hist(ax, counts, err=None, color='b',
                               edges=None,
                               centres=None,
                               bar_mode=True, alpha=1,
@@ -108,8 +110,7 @@ def plot_hist_alone_from_hist(ax, counts, err, color,
     if centres is None:
         centres = (edges[:-1] + edges[1:]) / 2.
     elif edges is None:
-        edges = centres - (centres[1] - centres[0]) / 2
-        edges = np.append(edges, edges[-1])
+        edges = get_edges_from_centres(centres)
     
     low = edges[0]
     high = edges[-1]
@@ -434,6 +435,8 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
               factor_ymax=None,
               fontsize_leg=default_fontsize['legend'],
               show_leg=None, loc_leg='best',
+              ymin_to_0=True,
+              centres=None,
               **params):
     """ Save the histogram(s) of branch of the data given in ``dfs``
 
@@ -499,9 +502,26 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
     ax : matplotlib.figure.Axes
         Axis of the plot (only if ``ax`` is not specified)
     """
-    if not isinstance(dfs, dict):
-        dfs = {"": dfs}
-
+    
+    given_counts = centres is not None
+    
+    if given_counts:        
+        bin_width = centres[1] - centres[0]
+        low = centres[0] - bin_width / 2
+        high = centres[-1] + bin_width / 2
+        
+        
+    else:    
+        
+        if not isinstance(dfs, dict):
+            dfs = {"": dfs}
+        
+        # First loop to determine the low and high value
+        low, high = pt._redefine_low_high(
+            low, high, [df[branch] for df in dfs.values()])
+        bin_width = get_bin_width(low, high, n_bins)
+    
+        
     if density is None:
         density = len(dfs) > 1  # if there are more than 2 histograms
 
@@ -515,10 +535,7 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
 
     ax.set_title(title, fontsize=fontsize_label)
 
-    # First loop to determine the low and high value
-    low, high = pt._redefine_low_high(
-        low, high, [df[branch] for df in dfs.values()])
-    bin_width = get_bin_width(low, high, n_bins)
+    
 
     # colors
     if colors is None:
@@ -536,12 +553,22 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
             alpha[i] = 0.5 if len(dfs) > 1 else 1
         
         label = string.add_text(data_name, labels[i], sep='')
-        _, _, _, _ = plot_hist_alone(ax, df[branch], n_bins, low, high, 
-                                     color=colors[i], bar_mode=bar_mode[i],
-                                     alpha=alpha[i], density=density, 
-                                     label=label, weights=weights[i],
-                                     orientation=orientation,
-                                     **params)
+        
+        if given_counts:
+            plot_hist_alone_from_hist(ax, df[0], df[1], color=colors[i],
+                              centres=centres,
+                              bar_mode=bar_mode[i], alpha=alpha[i],
+                              label=label, 
+                              weights=weights[i],
+                              orientation=orientation,
+                              **params)
+        else:
+            _, _, _, _ = plot_hist_alone(ax, df[branch], n_bins, low, high, 
+                                         color=colors[i], bar_mode=bar_mode[i],
+                                         alpha=alpha[i], density=density, 
+                                         label=label, weights=weights[i],
+                                         orientation=orientation,
+                                         **params)
 
     # Some plot style stuff
     if factor_ymax is None:
@@ -560,7 +587,8 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
     pt.fix_plot(ax, factor_ymax=factor_ymax, show_leg=show_leg,
                 fontsize_leg=fontsize_leg,
                 pos_text_LHC=pos_text_LHC, 
-                loc_leg=loc_leg, axis=axis_y)
+                loc_leg=loc_leg, axis=axis_y,
+               ymin_to_0=ymin_to_0)
 
     return end_plot_function(fig, save_fig=save_fig, fig_name=fig_name, folder_name=folder_name,
                              default_fig_name=f'{branch}_{string.list_into_string(data_names)}',
@@ -614,9 +642,10 @@ def plot_hist_var(datas, branch, latex_branch=None,
 
 
 def plot_divide_alone(ax, data1, data2, 
-                      low, high, n_bins, 
+                      low=None, high=None, 
+                      n_bins=None, 
                       color='k', 
-                      label=None, 
+                      label=None, bin_centres=None,
                       **kwargs):
     """ Plot a "divide" histogram
     
@@ -624,10 +653,10 @@ def plot_divide_alone(ax, data1, data2,
     ----------
     ax : matplotlib.axes.Axes
         axis where to plot
-    data1:  array-like
-        Data 1
+    data1:  array-like or 2-list(array-like)
+        Data 1 or couple (counts, err)
     data2: array-like
-        Data 2
+        Data 2 or couple (counts, err)
     n_bins: int
         number of bins in the histogram
     low: float
@@ -642,19 +671,40 @@ def plot_divide_alone(ax, data1, data2,
         passed to :py:func:`HEA.tools.dist.get_count_err_ratio`
     
     """
-    division, bin_centres, err = get_count_err_ratio(
-        data1=data1,
-        data2=data2,
-        n_bins=n_bins,
-        low=low, high=high,
-        **kwargs
-    )
     
-    ax.errorbar(bin_centres, division, yerr=err, fmt='o', color=color, label=label)
-    ax.plot([low, high], [1., 1.], linestyle='--', color='b', marker='')
+    counts_provided = is_list_tuple(data1) and is_list_tuple(data2)
     
-    return division, bin_centres, err
+    if counts_provided:
+        counts1, err1 = data1
+        counts2, err2 = data2
+        division, err = divide_counts(
+            counts1, counts2, 
+            err1=err1, err2=err2, 
+            **kwargs
+        )
+                
+    else:
+        assert n_bins is not None
+        assert low is not None
+        assert high is not None
+        
+        division, bin_centres, err = get_count_err_ratio(
+            data1=data1,
+            data2=data2,
+            n_bins=n_bins,
+            low=low, high=high,
+            **kwargs
+        )
     
+    ax.axhline(1., linestyle='--', color='b', marker='')
+    ax.errorbar(bin_centres, division, yerr=err, fmt='o', 
+                color=color, label=label)
+    
+    
+    if counts_provided:
+        return division, err
+    else:
+        return division, bin_centres, err
     
 
 def plot_divide(dfs, branch, latex_branch, unit, low=None, high=None, 
@@ -717,16 +767,6 @@ def plot_divide(dfs, branch, latex_branch, unit, low=None, high=None,
     # each bin
     list_dfs = list(dfs.values())
     data_names = list(dfs.keys())
-    
-#     division, bin_centres, err = get_count_err_ratio(
-#         data1=list_dfs[0][branch],
-#         data2=list_dfs[1][branch],
-#         n_bins=n_bins,
-#         low=low, high=high,
-#         **kwargs
-#     )
-#     ax.errorbar(bin_centres, division, yerr=err, fmt='o', color=color, label=label)
-#     ax.plot([low, high], [1., 1.], linestyle='--', color='b', marker='')
     
     plot_divide_alone(
         ax,

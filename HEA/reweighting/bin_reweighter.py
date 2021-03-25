@@ -47,7 +47,6 @@ class BinReweighter():
         which was used to compute the weights.
     """
     
-        
     def __init__(self, data, MC, 
                  n_bins, name,
                  MC_weights=None, data_weights=None,
@@ -58,13 +57,14 @@ class BinReweighter():
                  folder_name=None,
                  data_label='Data',
                  MC_label="Original MC",
-                 reweighted_MC_label="Reweighted MC"
+                 reweighted_MC_label="Reweighted MC",
+                 normalise=True
                  ):
         """ Produce a BinReweighter
         
         Parameters
         ----------
-        data : pd.DataFrame
+        data : pd.DataFrame or dict[str: tuple]
             True data
         MC   : pd.DataFrame
             Simulated data to reweight
@@ -84,6 +84,7 @@ class BinReweighter():
             Used to create the name of the folder 
             where to save the figures.
         """
+        
         
         if folder_name is None:
             folder_name = name
@@ -105,8 +106,44 @@ class BinReweighter():
         self.MC_label = MC_label
         self.reweighted_MC_label = reweighted_MC_label
         
+        self.normalise = normalise
+        
         self.column_tcks = {}
-     
+        self.centres_columns = {}
+        self.data_counts_columns = {}
+        self.data_err_columns = {}
+        self.MC_counts_columns = {}
+        self.MC_err_columns = {}
+        self.reweighted_MC_counts_columns = {}
+        self.reweighted_MC_err_columns = {}    
+  
+    @staticmethod
+    def from_counts(centres_columns,
+                    data_counts_columns, data_err_columns,
+                    MC_counts_columns, MC_err_columns,
+                    MC=None, MC_weights=None,
+                    **kwargs
+                   ):
+        """ Load the bin reweighter using 'histogrammed' data.
+        """
+        
+        data = None
+        MC = None
+        n_bins = None
+        
+        self = BinReweighter(data, MC, n_bins, **kwargs)
+        
+        self.centres_columns = centres_columns
+        self.data_counts_columns = data_counts_columns
+        self.data_err_columns = data_err_columns
+        self.MC_counts_columns = MC_counts_columns
+        self.MC_err_columns = MC_err_columns
+        
+        self.reweighted_MC_counts_columns = {}
+        self.reweighted_MC_err_columns = {}
+        
+        return self
+        
     @staticmethod
     def from_MC(MC, name,
                 n_bins=None,
@@ -125,26 +162,44 @@ class BinReweighter():
             data_weights=data_weights,
             **kwargs
         )
-        
-        
-    
+
     @property
     def trained_columns(self):
         """ Columns which weights have been applied to.
         """
         return self._trained_columns
     
+    def load_reweighted_MC_counts(self, 
+                                  MC_counts_columns, 
+                                  MC_err_columns):
+        """ Load the reweighted MC via a histogram
+        (since the weights cannot be applied) directly
+        in a histogram but rather in data.   
         
+        Parameters
+        ----------
+        MC_counts_columns: dict
+            Associates a column with bin counts
+        MC_err_columns: dict
+            Associates a column with uncertainties 
+            in bin counts
+        """
+        for column in MC_counts_columns.keys():
+            counts = MC_counts_columns[column]
+            err = MC_err_columns[column]
+            
+            self.reweighted_MC_counts_columns[column] = counts
+            self.reweighted_MC_err_columns[column] = err
     
     ## HISTOGRAMS =============================================================
     
     def get_low_high(self, column, low=None, high=None):
-        """ get low and high value of a branch
+        """ get low and high value of a column
         
         Parameters
         ----------
         column: str
-            name of the branch in the dataframes
+            name of the column in the dataframes
             
             
         Returns
@@ -152,31 +207,118 @@ class BinReweighter():
         low: float or None
             ``low`` if it was initially not ``None``,
             or low value written in ``column_ranges``.
+            If the data is provided directly through
+            a histogram, it is ``edges[0]``.
         high: float or None
             ``high`` if it was initially not ``None``,
             or high value written in ``column_ranges``.
+            If the data is provided directly through
+            a histogram, it is ``edges[-1]``.
         """
-        if low is None:
-            if column in self.column_ranges:
-                low, _ = self.column_ranges[column]
-            else:
-                low = None
+        if self.counts_specified(column):
+            centres = self.centres_columns[column]
+            if low is None:
+                low =  centres[0] - (centres[1] - centres[0])/2
+                
+            if high is None:
+                high =  centres[-1] + (centres[1] - centres[0])/2
+        else:    
+            if low is None:
+                if column in self.column_ranges:
+                    low, _ = self.column_ranges[column]
+                else:
+                    low = None
 
-        if high is None:
-            if column in self.column_ranges:
-                _, high = self.column_ranges[column]
-            else:
-                high = None
+            if high is None:
+                if column in self.column_ranges:
+                    _, high = self.column_ranges[column]
+                else:
+                    high = None
         
         
-        datasets = [self.MC[column]]
-        if self.data is not None:
-            datasets += [self.data[column]]
-        low, high = pt._redefine_low_high(low=low, 
-                                          high=high, 
-                                          data=datasets)
+            datasets = [self.MC[column]]
+            if self.data is not None:
+                datasets += [self.data[column]]
+            low, high = pt._redefine_low_high(low=low, 
+                                              high=high, 
+                                              data=datasets)
         
         return low, high
+    
+    def counts_specified(self, column):
+        """ Is the column has been provided using a histogram?
+        (and not directly the data)
+        
+        Parameters
+        ----------
+        column: str
+            column
+            
+        Returns
+        -------
+        self.counts_specified: bool
+            ``True`` if ``column`` is in ``centres_columns``
+            and ``data_counts_columns`` and ``MC_counts_columns``            
+            ````
+        """
+        
+        return column in self.centres_columns \
+            and column in self.data_counts_columns \
+            and column in self.MC_counts_columns
+    
+    def get_data_counts(self, column):
+        """ Get the data counts and errors of binned data
+        
+        Parameters
+        ----------
+        column: str
+            column that we want to get the counts of
+            
+        Returns
+        -------
+        data_counts : array-like
+            counts in data
+        data_err: array-like
+            errors in counts in data
+        """
+        
+        data_counts = self.data_counts_columns[column]
+        data_err = self.data_err_columns[column]
+        
+        return data_counts, data_err
+        
+    def get_MC_counts(self, column, with_MC_weights=True):
+        """ Get the MC counts and errors of binned data
+        
+        Parameters
+        ----------
+        column: str
+            column that we want to get the counts of
+        with_MC_weights: bool
+            do we want the reweighted MC?
+            
+        Returns
+        -------
+        MC_counts : array-like
+            counts in MC
+        MC_err: array-like
+            errors in counts in MC
+        """
+        
+        if with_MC_weights \
+            and column in self.reweighted_MC_counts_columns\
+            and column in self.reweighted_MC_err_columns:
+                
+            MC_counts = self.reweighted_MC_counts_columns[column]
+            MC_err = self.reweighted_MC_err_columns[column]
+        else:
+            if with_MC_weights:
+                print("There is no reweighting weights yet.")
+            
+            MC_counts = self.MC_counts_columns[column]
+            MC_err = self.MC_err_columns[column]
+       
+        return MC_counts, MC_err
     
     def get_data_MC_ratio(self, column, 
                           low=None, high=None, 
@@ -186,7 +328,7 @@ class BinReweighter():
         Parameters
         ----------
         column: str
-            name of the branch in the dataframes
+            name of the column in the dataframes
         
         Returns
         -------
@@ -197,24 +339,42 @@ class BinReweighter():
         ratio_err: array-like
             Errors on the ratios
         """
+        if self.counts_specified(column):
+            
+            centres = self.centres_columns[column]
+            
+            counts1, err1 = self.get_data_counts(column)
+            counts2, err2 = self.get_MC_counts(column, with_MC_weights)
+            
+            ratio_counts, ratio_err = hist.divide_counts(
+                counts1, counts2,
+                err1, err2,
+                self.normalise
+            )
+            
+            return ratio_counts, centres, ratio_err
         
-        low, high = self.get_low_high(column)
-        
-        MC_weights = self.MC_weights if with_MC_weights else None
-        
-        return dist.get_count_err_ratio(
-            data1=self.data[column], 
-            data2=self.MC[column], 
-            n_bins=self.n_bins, 
-            low=low, high=high,
-            weights=[self.data_weights, 
-                     MC_weights], 
-        )
+        else:
+            low, high = self.get_low_high(column)
+
+            MC_weights = self.MC_weights if with_MC_weights else None
+
+            return dist.get_count_err_ratio(
+                data1=self.data[column], 
+                data2=self.MC[column], 
+                n_bins=self.n_bins, 
+                low=low, high=high,
+                weights=[self.data_weights, 
+                         MC_weights],
+                normalise=self.normalise
+            )
         
     
     ## PLOTTING ===============================================================
     
-    def get_chi2_latex(self, column, low, high, with_MC_weights=False):
+    def get_chi2_latex(self, column, low=None, high=None, 
+                       with_MC_weights=False,
+                      **kwargs):
         """ return ``$\\chi^2$ = <chi2 with two significant figures>``
         
         Parameters
@@ -227,7 +387,10 @@ class BinReweighter():
         high : float
             high value of the distribution.
             If ``None``, taken from the dict. ``column_ranges``.
-            
+        kwargs: 
+            passed to :py:func:`HEA.tools.dist.get_chi2_2samp`
+            and :py:func:`HEA.tools.dist.get_chi2_2counts`
+        
         with_MC_weights: bool
         
         Returns
@@ -238,16 +401,28 @@ class BinReweighter():
             
         """
         
-        low, high = self.get_low_high(column, low, high)
-        
-        MC_weights = self.MC_weights if with_MC_weights else None 
-        
-        chi2 = dist.get_chi2_2samp(data1=self.MC[column], 
-                              data2=self.data[column], 
-                              n_bins=self.n_bins, 
-                              low=low, high=high, 
-                              weights1=MC_weights, 
-                              weights2=self.data_weights)
+        if self.counts_specified(column):
+            counts1, err1 = self.get_data_counts(column)
+            counts2, err2 = self.get_MC_counts(column, with_MC_weights)
+            
+            chi2 = dist.get_chi2_2counts(
+                counts1, counts2,
+                err1, err2,
+                **kwargs
+            )
+            
+        else:
+            low, high = self.get_low_high(column, low, high)
+
+            MC_weights = self.MC_weights if with_MC_weights else None 
+
+            chi2 = dist.get_chi2_2samp(data1=self.MC[column], 
+                                       data2=self.data[column], 
+                                       n_bins=self.n_bins, 
+                                       low=low, high=high, 
+                                       weights1=MC_weights, 
+                                       weights2=self.data_weights,
+                                       **kwargs)
         
         chi2 = str_number_into_latex(f"{chi2:.2g}")
         return '$\\chi^2 = {}$'.format(chi2)
@@ -342,92 +517,157 @@ class BinReweighter():
             Axis of the plot 
             (only if ``ax`` is not specified)
         """
+        if not self.counts_specified(column) and df.data is None:
+            show_chi2 = False
+                
+        if self.counts_specified(column):
+            kwargs['centres'] = self.centres_columns[column]
+            low, high = None, None
+        else:
+            low, high = self.get_low_high(column, low, high)
         
-        # plot the reweighted MC data
+        # What to plot
         
-        low, high = self.get_low_high(column, low, high)
-        
-        if plot_reweighted and self.MC_weights is None:
-            print("No reweighting available for MC")
-            plot_reweighted = False
-            plot_original = True
-        if plot_reweighted is None and self.MC_weights is not None:
-            plot_reweighted = True           
+        if self.counts_specified(column):
+            if plot_reweighted \
+                and column not in self.reweighted_MC_counts_columns:
+                
+                print("No reweighted histogram available for MC")
+                plot_reweighted = False
+                plot_original = True
+                
+            if plot_reweighted is None and \
+                column in self.reweighted_MC_counts_columns:
+                
+                plot_reweighted = True
+                
+        else:
+            if plot_reweighted and self.MC_weights is None:
+                print("No reweighting available for MC")
+                plot_reweighted = False
+                plot_original = True
+            if plot_reweighted is None \
+                and self.MC_weights is not None:
+                
+                plot_reweighted = True           
                 
         samples_dict = {}
         
         alpha = []
         colors = []
         bar_modes = []
-        weights = []
         labels = []
         
+        if self.counts_specified(column):
+            weights = None
+        else:
+            weights = []
         
+        # Original MC
         if plot_original:
-            samples_dict[self.MC_label] = self.MC
+            if self.counts_specified(column):
+                MC_counts, MC_err = self.get_MC_counts(
+                    column, 
+                    with_MC_weights=False
+                )
+                
+                samples_dict[self.MC_label] = (MC_counts, MC_err)
+                
+            else:
+                samples_dict[self.MC_label] = self.MC
+                weights.append(None)
+            
+            if show_chi2:
+                labels.append(
+                    ', ' + self.get_chi2_latex(
+                        column, 
+                        low=low, high=high, 
+                        with_MC_weights=False)
+                )
+            
             alpha.append(0.7)
             colors.append([None, self.MC_color])
             bar_modes.append(True)
-            weights.append(None)
-            if self.data is not None and show_chi2:
-                labels.append(', ' +
-                    self.get_chi2_latex(column, 
-                                        low=low, high=high, 
-                                        with_MC_weights=False)
-                )
-            else:
-                labels.append(None)
             
+        else:
+            labels.append(None)
+        
+        # Reweighted MC
+        
         if plot_reweighted:
-            samples_dict[self.reweighted_MC_label] = self.MC
+            if self.counts_specified(column):
+                reweighted_MC_counts, reweighted_MC_err = \
+                    self.get_MC_counts(column, with_MC_weights=True)
+                
+                samples_dict[self.reweighted_MC_label] = \
+                    (reweighted_MC_counts, reweighted_MC_err)
+
+            else:    
+                samples_dict[self.reweighted_MC_label] = self.MC
+                weights.append(self.MC_weights)
+            
+            if show_chi2:
+                labels.append( ', ' +
+                              self.get_chi2_latex(
+                                  column, 
+                                  low=low, high=high,
+                                  with_MC_weights=True)
+                             )
+                                                  
             alpha.append(0.4)
             colors.append(self.reweighted_MC_color)
             bar_modes.append(True)
-            weights.append(self.MC_weights)
-            if self.data is not None and show_chi2:
-                labels.append( ', ' +
-                    self.get_chi2_latex(column, 
-                                        low=low, high=high, 
-                                        with_MC_weights=True)
-                )
-            else:
-                labels.append(None)
-                
-        if self.data is not None:
-            samples_dict[self.data_label] = self.data
-            colors.append(self.data_color)
-            bar_modes.append(False)
-            weights.append(self.data_weights)
-            alpha.append(1)
+        
+        else:
             labels.append(None)
         
-               
+        # Data
+        
+        if self.counts_specified(column):
+            data_counts, data_err = self.get_data_counts(column)
+            samples_dict[self.data_label] = (data_counts, data_err)
+
+        else:
+            if self.data is not None:
+                samples_dict[self.data_label] = self.data
+                weights.append(self.data_weights)
+        
+        if self.counts_specified(column) or self.data is not None:
+            bar_modes.append(False)
+            alpha.append(1)
+            labels.append(None)
+            colors.append(self.data_color)
+        
+        # Plot       
         fig_name, second_folder = self.get_fig_folder_name(
             column, plot_reweighted,
             mode='vs',
             inter=inter)
         
-        
-        LHC_text_type = 'data_MC' if self.data is not None else 'MC'
-        
-        return hist.plot_hist_auto(samples_dict,
-                                   column, 
-                                   fig_name=fig_name,
-                                   folder_name=f"{self.folder_name}/{second_folder}",
-                                   n_bins=self.n_bins,
-                                   low=low,
-                                   high=high,
-                                   bar_mode=bar_modes,
-                                   colors=colors,
-                                   factor_ymax=factor_ymax,
-                                   pos_text_LHC={'ha': 'left',
-                                           'type': LHC_text_type,
-                                           'fontsize':20},
-                                   alpha=alpha,
-                                   weights=weights,
-                                   labels=labels, loc_leg='upper right',
-                                   **kwargs
-                                  )
+        if self.data is not None or self.counts_specified(column):
+            LHC_text_type = 'data_MC'
+        else: 
+            LHC_text_type = 'MC'
+
+        return hist.plot_hist_auto(
+            samples_dict,
+            column, 
+            fig_name=fig_name,
+            folder_name=f"{self.folder_name}/{second_folder}",
+            n_bins=self.n_bins,
+            low=low,high=high,
+            bar_mode=bar_modes,
+            colors=colors,
+            factor_ymax=factor_ymax,
+            density=self.normalise,
+            pos_text_LHC={'ha': 'left',
+                          'type': LHC_text_type,
+                          'fontsize':20},
+            alpha=alpha,
+            weights=weights,
+            labels=labels, loc_leg='upper right',
+            **kwargs
+        )
     
     
     def plot_ratio(self, column, 
@@ -474,36 +714,49 @@ class BinReweighter():
         
         """
         
-        assert self.data is not None
+        if self.counts_specified(column):
+            centres = self.centres_columns[column]
+            bin_width = centres[1] - centres[0]
+            low = centres[0] - bin_width/2
+            high = centres[-1] + bin_width/2
+            
+            if plot_reweighted \
+                and column not in self.reweighted_MC_counts_columns:
+                
+                print("No reweighted histogram available for MC")
+                plot_reweighted = False
+                plot_original = True
+                
+            if plot_reweighted is None and \
+                column in self.reweighted_MC_counts_columns:
+                
+                plot_reweighted = True
+            
+            counts_err_dict = {}
+            
+        else:
+            assert self.data is not None
+            assert (plot_reweighted or plot_original)
+
+            low, high = self.get_low_high(column, low, high)
+            bin_width = hist.get_bin_width(low, high, self.n_bins)
         
-        assert (plot_reweighted or plot_original)
         
-        low, high = self.get_low_high(column, low, high)
-        bin_width = hist.get_bin_width(low, high, self.n_bins)
+            if plot_reweighted and self.MC_weights is None:
+                print("No reweighting available for MC")
+                plot_reweighted = False
+                plot_original = True
+
+            if plot_reweighted is None and self.MC_weights is not None:
+                plot_reweighted = True
         
-        
-        if plot_reweighted and self.MC_weights is None:
-            print("No reweighting available for MC")
-            plot_reweighted = False
-            plot_original = True
-        
-        if plot_reweighted is None and self.MC_weights is not None:
-            plot_reweighted = True
-        
-        dfs = {
-            'data': self.data,
-            'MC': self.MC
-        }
+            weights_dict = {}
         
         labels_dict = {}
-        weights_dict = {}
         colors_dict = {}
                 
         if plot_original:
             colors_dict['original'] = self.MC_color
-            weights_dict['original'] = [self.data_weights,
-                                        None
-                                       ]
             labels_dict['original'] = f"{self.MC_label}, "
             labels_dict['original'] += self.get_chi2_latex(
                 column,
@@ -511,37 +764,72 @@ class BinReweighter():
                 with_MC_weights=False
             )
             
+            if self.counts_specified(column):
+                counts_err_dict['original'] = self.get_MC_counts(
+                    column,
+                    with_MC_weights=False
+                )
+                
+            else:
+                weights_dict['original'] = [self.data_weights,
+                                            None
+                                           ]
+                
+            
         if plot_reweighted:
             colors_dict['reweighted'] = self.reweighted_MC_color
-            weights_dict['reweighted'] = [self.data_weights,
-                                          self.MC_weights]
             labels_dict['reweighted'] = f"{self.reweighted_MC_label}, "
             labels_dict['reweighted'] += self.get_chi2_latex(
                 column,
                 low=low, high=high,
                 with_MC_weights=True
             )
+            
+            if self.counts_specified(column):
+                counts_err_dict['reweighted'] = self.get_MC_counts(
+                    column,
+                    with_MC_weights=True
+                )
+            else:
+                weights_dict['reweighted'] = [self.data_weights,
+                                          self.MC_weights]
         
         fig, ax = hist.get_fig_ax()
         
         # Plotting
-        for type_MC in weights_dict.keys():        
-            _, bin_centres, _ = hist.plot_divide_alone(
-                ax, 
-                data1=self.data[column], 
-                data2=self.MC[column], 
-                low=low, high=high, n_bins=self.n_bins, 
-                color=colors_dict[type_MC], 
-                label=labels_dict[type_MC], 
-                weights=weights_dict[type_MC]
-            )
+        
+        data_counts, data_err = self.get_data_counts(column)
+        
+        if self.counts_specified(column):
+            for type_MC in counts_err_dict.keys():
+            
+                hist.plot_divide_alone(
+                    ax, 
+                    data1=(data_counts, data_err), 
+                    data2=counts_err_dict[type_MC],
+                    color=colors_dict[type_MC], 
+                    label=labels_dict[type_MC],
+                    bin_centres=centres,
+                )
+                
+        else:
+            for type_MC in weights_dict.keys():
+                _, bin_centres, _ = hist.plot_divide_alone(
+                    ax, 
+                    data1=self.data[column], 
+                    data2=self.MC[column], 
+                    low=low, high=high, n_bins=self.n_bins, 
+                    color=colors_dict[type_MC], 
+                    label=labels_dict[type_MC], 
+                    weights=weights_dict[type_MC]
+                )
         
         # Labels
+        data_names = ['data', 'MC']
         latex_branch, unit = pt.get_latex_branches_units(column)
         hist.set_label_divided_hist(ax, latex_branch, unit,
                                     bin_width, 
-                                    data_names=list(dfs.keys())
-                                   )
+                                    data_names=data_names)
         
         pt.fix_plot(ax, factor_ymax=1.4, show_leg=True,
                     ymin_to_0=False,
@@ -554,7 +842,11 @@ class BinReweighter():
         if plot_spline is None:
             plot_spline = column in self.column_tcks
         if plot_spline:
-            x = np.linspace(low, high, self.n_bins*4) + (high - low) / (4 * self.n_bins) / 2
+#             x = np.linspace(low, high, self.n_bins*4) 
+#             x+= (high - low) / (4 * self.n_bins) / 2
+            x = np.linspace(low, high, 1000)
+    
+    
             spline = self.get_spline(column, x)
             if spline is not None:
                 ax.plot(x, spline, color='k')
@@ -564,7 +856,9 @@ class BinReweighter():
             mode='d',
             inter=inter)
                 
-        pt.save_fig(fig, fig_name, folder_name=f"{self.folder_name}/{second_folder}")
+        pt.save_fig(fig, fig_name, 
+                    folder_name=f"{self.folder_name}/{second_folder}"
+                   )
         
         return fig, ax
        
@@ -629,9 +923,11 @@ class BinReweighter():
         """
         
         if recompute or (column not in self.column_tcks):
+            
             ratio_counts, bin_centres, ratio_err = \
                 self.get_data_MC_ratio(column, 
                                        with_MC_weights=True)
+            
             tck = splrep(x=bin_centres,
                          y=ratio_counts,
                          w=1/ratio_err, # lower error implies higher weight
@@ -672,6 +968,33 @@ class BinReweighter():
                 "with fit_spline")
             return None
         
+    def get_new_MC_weights(self, column, 
+                          MC=None, fit_spline=False):
+        """ From a spline fit, get the corresponding weights to
+        MC data.
+        To do so, apply the weight ``spine(value)`` to the event
+        whose column is equal to ``value``
+        
+        Parameters
+        ----------
+        column: str
+            Name of the MC column to align to data column
+        MC : pd.DataFrame, optional
+            Sample which the weights are computed for.
+            if not specified, ``MC`` attribute.
+        fit_spline: bool
+            If ``True``, perform the fit of the spline to
+            compute the MC weights.
+        Returns
+        -------
+        """
+        
+        if MC is None:
+            MC = self.MC
+        
+        return self.get_spline(column, MC[column])
+        
+    
     def apply_new_MC_weights(self, column, fit_spline=False):
         """ From a spline fit, apply the corresponding weights to
         MC data.
@@ -765,9 +1088,3 @@ class BinReweighter():
                                 folder_name)
         
         return info_reweighting['columns']
-            
-            
-        
-        
-        
-        

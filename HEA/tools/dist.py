@@ -6,7 +6,7 @@ from HEA.tools.string import list_into_string
 import numpy as np
 
 
-def get_chi2(fit_counts, counts):
+def get_chi2(fit_counts, counts, err=None):
     """ Get the :math:`\\chi^2` of a fit
 
     Parameters
@@ -21,16 +21,20 @@ def get_chi2(fit_counts, counts):
     returns : float
         :math:`\\chi^2` of the fit
     """
+    if err is None:
+        square_err = np.abs(counts)
+    else:
+        square_err = np.square(err)
+        
     diff = np.square(fit_counts - counts)
-
     #n_bins = len(counts)
-    diff = np.divide(diff, np.abs(counts),
+    diff = np.divide(diff, square_err,
                      out=np.zeros_like(diff), where=counts != 0)
     chi2 = np.sum(diff)  # sigma_i^2 = mu_i
     return chi2
 
 
-def get_reduced_chi2(fit_counts, counts, n_dof):
+def get_reduced_chi2(fit_counts, counts, n_dof, err=None):
     """ Get the reduced :math:`\\chi^2` of a fit
 
     Parameters
@@ -47,8 +51,9 @@ def get_reduced_chi2(fit_counts, counts, n_dof):
     returns    : float
         reduced :math:`\\chi^2` of the fit
     """
-    n_bins = np.abs(len(counts))
-    return get_chi2(fit_counts, counts) / (n_bins - n_dof)
+    n_bins = len(counts)
+
+    return get_chi2(fit_counts, counts, err=err) / (n_bins - n_dof)
 
 
 def get_mean(pull):
@@ -104,7 +109,7 @@ def get_bin_width(low, high, n_bins):
     return float((high - low) / n_bins)
 
 
-def get_count_err(data, n_bins, low, high, weights=None, **kwargs):
+def get_count_err(data, n_bins, low=None, high=None, weights=None, **kwargs):
     """ get counts and error for each bin
 
     Parameters
@@ -133,8 +138,13 @@ def get_count_err(data, n_bins, low, high, weights=None, **kwargs):
     err     : np.array
         Errors in the count, for each bin
     """
-    counts, edges = np.histogram(data, range=(
-        low, high), bins=n_bins, weights=weights, 
+    if low is None or high is None:
+        range_v=None
+    else:
+        range_v = (low, high)
+    
+    counts, edges = np.histogram(data, range=range_v, 
+                                 bins=n_bins, weights=weights, 
                                  **kwargs)
     centres = (edges[:-1] + edges[1:]) / 2.
     err = np.sqrt(np.abs(counts))
@@ -142,7 +152,8 @@ def get_count_err(data, n_bins, low, high, weights=None, **kwargs):
     return counts, edges, centres, err
 
 def get_count_err_ratio(data1, data2, 
-                        n_bins, low, high, 
+                        n_bins, low, high,
+                        normalise=True,
                         **kwargs):
     """ Get ``data1[bin i]/data2[bin i]`` histogram,
     with error and bin centres.
@@ -159,6 +170,9 @@ def get_count_err_ratio(data1, data2,
         low value of the histogram
     high: float
         high value of the histogram
+    normalise: bool
+        if True, normalise the counts before
+        dividing them
     **kwargs: dict[str:2-list]
         passed to :py:func:`np.histogram`
     
@@ -213,9 +227,43 @@ def get_count_err_ratio(data1, data2,
     
 
     # Division
-    division = counts1 * counts2.sum() / (counts2 * counts1.sum())
-    err = division * np.sqrt((err1 / counts1)**2 + (err2 / counts2)**2)
+    division , err = divide_counts(counts1, counts2, err1=err1, err2=err2, normalise=normalise)
     return division, bin_centres, err
+
+def divide_counts(counts1, counts2, err1=None, err2=None, normalise=False):
+    """ Divide counts1/counts1 and compute the error
+    
+    Parameters
+    ----------
+    counts1, counts2: array-like
+        number of counts in the bins
+    err1, err2 : array-like
+        error in the bin counts
+    normalise: bool
+        if ``True``, the counts are normalised before
+        taking their ratio
+    
+    Returns
+    -------
+    ratio_counts: array-like
+        ``counts1 / counts2``
+    ratio_err: 
+        Uncertainty in ``ratio_counts``
+    
+    """
+    
+    if err1 is None:
+        err1 = np.sqrt(counts1)
+    if err2 is None:
+        err2 = np.sqrt(counts2)
+    
+    if normalise:
+        division = counts1 * counts2.sum() / (counts2 * counts1.sum())
+    else:
+        division = counts1 / counts2
+        
+    err = division * np.sqrt((err1 / counts1)**2 + (err2 / counts2)**2)
+    return division, err
 
 
 def get_density_counts_err(counts, bin_width=None, err=None, density=True):
@@ -245,8 +293,9 @@ def get_density_counts_err(counts, bin_width=None, err=None, density=True):
     if bin_width is None:
         bin_width = 1
     
-    n_candidates = counts.sum()
+    
     if density:
+        n_candidates = counts.sum()
         counts = counts / (n_candidates * bin_width)
         err   = err / (n_candidates * bin_width) if err is not None else None
     else:
@@ -258,7 +307,10 @@ def get_density_counts_err(counts, bin_width=None, err=None, density=True):
     else:
         return counts, err
 
-def get_chi2_2samp(data1, data2, n_bins=20, low=None, high=None, weights1=None, weights2=None):
+def get_chi2_2samp(data1, data2, n_bins=20, 
+                   low=None, high=None, 
+                   weights1=None, weights2=None,
+                  **kwargs):
     """ Compute the chi2 distance between two histograms
     
     Parameters
@@ -273,6 +325,8 @@ def get_chi2_2samp(data1, data2, n_bins=20, low=None, high=None, weights1=None, 
         low value of the range
     high: float
         high of the range
+    **kwargs: 
+        passed to :py:func:`get_chi2_2counts`
     
     Returns
     -------
@@ -289,10 +343,32 @@ def get_chi2_2samp(data1, data2, n_bins=20, low=None, high=None, weights1=None, 
     counts1, _, _, err1 = get_count_err(data1, n_bins, low, high, weights=weights1)
     counts2, _, _, err2 = get_count_err(data2, n_bins, low, high, weights=weights2)
     
+    return get_chi2_2counts(counts1, counts2, err1, err2, **kwargs)
     
     
-    counts1, err1 = get_density_counts_err(counts1, err=err1, density=True)
-    counts2, err2 = get_density_counts_err(counts2, err=err2, density=True)
+
+def get_chi2_2counts(counts1, counts2, err1, err2, normalise=True):
+    """
+    Parameters
+    ----------
+    counts1, counts2: array-like
+        number of counts in the bins
+    err1, err2 : array-like
+        error in the bin counts
+    normalise: bool
+        if ``True``, the counts are normalised before
+        taking their ratio
+    
+    Returns
+    -------
+    chi2: float
+        chi2 between the two sample: 
+        :math:`\\chi^2 = \\sum_{\\text{bin i}} \\frac{(\\#1[i] - \\#2[i])^2}{\\#1[i] + \\#2[i]}`
+    """
+    
+    if normalise:
+        counts1, err1 = get_density_counts_err(counts1, err=err1, density=True)
+        counts2, err2 = get_density_counts_err(counts2, err=err2, density=True)
     
     diff = np.square(counts1 - counts2)
     

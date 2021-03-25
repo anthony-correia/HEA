@@ -31,7 +31,7 @@ except FileNotFoundError:
     definition_quantities = {}
     latex_particles = {}
 
-import HEA.tools.assertion as assertion
+from HEA.tools import assertion
 from HEA.tools.da import el_to_list
 from HEA.tools.string import add_text, _latex_format, string_between_brackets
 from HEA.tools.serial import get_latex_column_table
@@ -83,12 +83,16 @@ latex_params = {
         'latex':'$n_R$',
         'cat'  :'other'
     },
+    'frac': {
+        'latex':r'$\mathrm{frac}_{L}$',
+        'cat'  :'other'
+    },
     'frac_L': {
-        'latex':'${frac}_{L}$',
+        'latex':r'$\mathrm{frac}_{L}$',
         'cat'  :'other'
     },
     'frac_R': {
-        'latex':'${frac}_{R}$',
+        'latex':r'{\mathrm{frac}_{L}$',
         'cat'  :'other'
     },
     'n_bkg': {
