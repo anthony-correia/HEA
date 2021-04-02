@@ -41,6 +41,7 @@ def load_tree(paths, branches, tree_name='DecayTree',
     # Create the tree
     tree = TChain(tree_name)
     for path in paths:
+        print(f"Load {path}")
         tree.Add(path)
     
     # Only activate the interesting variables

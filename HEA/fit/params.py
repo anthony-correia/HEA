@@ -43,12 +43,12 @@ def params_into_dict(result_params, uncertainty=True, remove=None,
             # Retrieve name, value and error
             name_param = p.name
             
+            new_name_param = name_param
+            
             if remove_semicolon:
-                pos_semicolon = name_param.find(';')
+                pos_semicolon = new_name_param.find(';')
                 if pos_semicolon!=-1:
-                    new_name_param = name_param[:pos_semicolon]
-            else:
-                new_name_param = name_param
+                    new_name_param = new_name_param[:pos_semicolon]                
             if remove is not None:
                 for t in remove:
                     new_name_param = new_name_param.replace(t, '')

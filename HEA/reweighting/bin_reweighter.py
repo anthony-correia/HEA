@@ -27,7 +27,7 @@ class BinReweighter():
         True data
     MC   : pd.DataFrame
         Simulated data to reweight
-    n_bins : int
+    n_bins : int or dict
         number of bins in the histograms
     name : str
         name of the bin reweighted, used to save the tck's.
@@ -109,16 +109,16 @@ class BinReweighter():
         self.normalise = normalise
         
         self.column_tcks = {}
-        self.centres_columns = {}
+        self.edges_columns = {}
         self.data_counts_columns = {}
         self.data_err_columns = {}
         self.MC_counts_columns = {}
         self.MC_err_columns = {}
         self.reweighted_MC_counts_columns = {}
         self.reweighted_MC_err_columns = {}    
-  
+    
     @staticmethod
-    def from_counts(centres_columns,
+    def from_counts(edges_columns,
                     data_counts_columns, data_err_columns,
                     MC_counts_columns, MC_err_columns,
                     MC=None, MC_weights=None,
@@ -133,7 +133,7 @@ class BinReweighter():
         
         self = BinReweighter(data, MC, n_bins, **kwargs)
         
-        self.centres_columns = centres_columns
+        self.edges_columns = edges_columns
         self.data_counts_columns = data_counts_columns
         self.data_err_columns = data_err_columns
         self.MC_counts_columns = MC_counts_columns
@@ -193,6 +193,29 @@ class BinReweighter():
     
     ## HISTOGRAMS =============================================================
     
+    def get_n_bins(self, column):
+        """ Get the number of bins for the histogram of a column
+        
+        Parameters
+        ----------
+        column: str
+            column (e.g., `B0_M`)
+        
+        Returns
+        -------
+            Number of bins required for this histogram according to the attributes
+            of the class
+        """
+        
+        if self.n_bins is None or isinstance(self.n_bins, int):
+            return self.n_bins
+        else:
+            assert isinstance(self.n_bins, dict)
+            assert column in self.n_bins
+            
+            return self.n_bins[column]
+        
+    
     def get_low_high(self, column, low=None, high=None):
         """ get low and high value of a column
         
@@ -216,12 +239,12 @@ class BinReweighter():
             a histogram, it is ``edges[-1]``.
         """
         if self.counts_specified(column):
-            centres = self.centres_columns[column]
+            edges = self.edges_columns[column]
             if low is None:
-                low =  centres[0] - (centres[1] - centres[0])/2
+                low =  edges[0]
                 
             if high is None:
-                high =  centres[-1] + (centres[1] - centres[0])/2
+                high =  edges[-1]
         else:    
             if low is None:
                 if column in self.column_ranges:
@@ -257,12 +280,12 @@ class BinReweighter():
         Returns
         -------
         self.counts_specified: bool
-            ``True`` if ``column`` is in ``centres_columns``
+            ``True`` if ``column`` is in ``edges_columns``
             and ``data_counts_columns`` and ``MC_counts_columns``            
             ````
         """
         
-        return column in self.centres_columns \
+        return column in self.edges_columns \
             and column in self.data_counts_columns \
             and column in self.MC_counts_columns
     
@@ -334,14 +357,15 @@ class BinReweighter():
         -------
         ratio_counts: array-like
             ``MC[column][bin i]/MC[column][bin i]`` histogram
-        centres: array-like
-            Centres of the bins
+        edges: array-like
+            Edges of the bins
         ratio_err: array-like
             Errors on the ratios
         """
         if self.counts_specified(column):
             
-            centres = self.centres_columns[column]
+            edges = self.edges_columns[column]
+            centres = (edges[1:] + edges[:-1]) /2
             
             counts1, err1 = self.get_data_counts(column)
             counts2, err2 = self.get_MC_counts(column, with_MC_weights)
@@ -351,6 +375,7 @@ class BinReweighter():
                 err1, err2,
                 self.normalise
             )
+            
             
             return ratio_counts, centres, ratio_err
         
@@ -362,7 +387,7 @@ class BinReweighter():
             return dist.get_count_err_ratio(
                 data1=self.data[column], 
                 data2=self.MC[column], 
-                n_bins=self.n_bins, 
+                n_bins=self.get_n_bins(column), 
                 low=low, high=high,
                 weights=[self.data_weights, 
                          MC_weights],
@@ -418,7 +443,7 @@ class BinReweighter():
 
             chi2 = dist.get_chi2_2samp(data1=self.MC[column], 
                                        data2=self.data[column], 
-                                       n_bins=self.n_bins, 
+                                       n_bins=self.get_n_bins(column), 
                                        low=low, high=high, 
                                        weights1=MC_weights, 
                                        weights2=self.data_weights,
@@ -517,11 +542,11 @@ class BinReweighter():
             Axis of the plot 
             (only if ``ax`` is not specified)
         """
-        if not self.counts_specified(column) and df.data is None:
+        if not self.counts_specified(column) and self.data is None:
             show_chi2 = False
                 
         if self.counts_specified(column):
-            kwargs['centres'] = self.centres_columns[column]
+            kwargs['edges'] = self.edges_columns[column]
             low, high = None, None
         else:
             low, high = self.get_low_high(column, low, high)
@@ -584,6 +609,8 @@ class BinReweighter():
                         low=low, high=high, 
                         with_MC_weights=False)
                 )
+            else:
+                labels.append(None)
             
             alpha.append(0.7)
             colors.append([None, self.MC_color])
@@ -613,7 +640,8 @@ class BinReweighter():
                                   low=low, high=high,
                                   with_MC_weights=True)
                              )
-                                                  
+            else:
+                labels.append(None)                                      
             alpha.append(0.4)
             colors.append(self.reweighted_MC_color)
             bar_modes.append(True)
@@ -654,7 +682,7 @@ class BinReweighter():
             column, 
             fig_name=fig_name,
             folder_name=f"{self.folder_name}/{second_folder}",
-            n_bins=self.n_bins,
+            n_bins=self.get_n_bins(column),
             low=low,high=high,
             bar_mode=bar_modes,
             colors=colors,
@@ -715,10 +743,20 @@ class BinReweighter():
         """
         
         if self.counts_specified(column):
-            centres = self.centres_columns[column]
-            bin_width = centres[1] - centres[0]
-            low = centres[0] - bin_width/2
-            high = centres[-1] + bin_width/2
+            edges = self.edges_columns[column]
+            centres = (edges[1:] + edges[:-1]) / 2
+            
+            # Get bin width
+            bin_widths = edges[1:] - edges[:-1]
+            if np.all(bin_widths == bin_widths[0]):
+                bin_width = bin_widths[0]
+            else:
+                # if non-uniform bin width
+                # bin width not well defined
+                bin_width = None
+            
+            low = edges[0]
+            high = edges[-1]
             
             if plot_reweighted \
                 and column not in self.reweighted_MC_counts_columns:
@@ -735,11 +773,11 @@ class BinReweighter():
             counts_err_dict = {}
             
         else:
-            assert self.data is not None
-            assert (plot_reweighted or plot_original)
+#             assert self.data is not None
+#             assert (plot_reweighted or plot_original)
 
             low, high = self.get_low_high(column, low, high)
-            bin_width = hist.get_bin_width(low, high, self.n_bins)
+            bin_width = hist.get_bin_width(low, high, self.get_n_bins(column))
         
         
             if plot_reweighted and self.MC_weights is None:
@@ -771,9 +809,10 @@ class BinReweighter():
                 )
                 
             else:
-                weights_dict['original'] = [self.data_weights,
-                                            None
-                                           ]
+                weights_dict['original'] = [
+                    self.data_weights,
+                    None
+                ]
                 
             
         if plot_reweighted:
@@ -802,7 +841,6 @@ class BinReweighter():
         
         if self.counts_specified(column):
             for type_MC in counts_err_dict.keys():
-            
                 hist.plot_divide_alone(
                     ax, 
                     data1=(data_counts, data_err), 
@@ -810,6 +848,8 @@ class BinReweighter():
                     color=colors_dict[type_MC], 
                     label=labels_dict[type_MC],
                     bin_centres=centres,
+                    edges=edges,
+                    **kwargs
                 )
                 
         else:
@@ -818,10 +858,11 @@ class BinReweighter():
                     ax, 
                     data1=self.data[column], 
                     data2=self.MC[column], 
-                    low=low, high=high, n_bins=self.n_bins, 
+                    low=low, high=high, n_bins=self.get_n_bins(column), 
                     color=colors_dict[type_MC], 
                     label=labels_dict[type_MC], 
-                    weights=weights_dict[type_MC]
+                    weights=weights_dict[type_MC],
+                    **kwargs
                 )
         
         # Labels
@@ -868,7 +909,7 @@ class BinReweighter():
         """
         
         if n_bins is None:
-            n_bins = self.n_bins
+            n_bins = self.get_n_bins(column)
         
         if self.MC_weights is None:
             print("There are no MC weights!")
@@ -884,7 +925,7 @@ class BinReweighter():
                                   'Reweighting weights', 
                                   fig_name='reweighting_weight'+text_inter,
                                   folder_name=f"{self.folder_name}/bin_reweight_MC"+folder_text_inter,
-                                  n_bins=n_bins,
+                                  n_bins=self.get_n_bins(column),
                                   bar_mode=True,
                                   colors=self.reweighted_MC_color,
                                   factor_ymax=1.2,
@@ -1015,14 +1056,16 @@ class BinReweighter():
             self.fit_spline(column)
         
         ## Get the new weights
-        new_MC_weights = self.get_spline(column, self.MC[column])
-        if new_MC_weights is not None:
-            if self.MC_weights is None:
-                self.MC_weights = new_MC_weights
-            else:
-                self.MC_weights = self.MC_weights * new_MC_weights
-            
-            self._trained_columns.append(column)
+        
+        if self.MC is not None: 
+            new_MC_weights = self.get_spline(column, self.MC[column])
+            if new_MC_weights is not None:
+                if self.MC_weights is None:
+                    self.MC_weights = new_MC_weights
+                else:
+                    self.MC_weights = self.MC_weights * new_MC_weights
+        
+        self._trained_columns.append(column)
     
     def apply_new_MC_weights_from_columns(self, columns):
         """ From a list of columns, fit the corresponding splines 
@@ -1051,7 +1094,7 @@ class BinReweighter():
             
         info_reweighting = {
             'columns': self.trained_columns,
-            'n_bins' : self.n_bins,
+            'n_bins' : self.get_n_bins(column),
         }
 
         dump_json(info_reweighting, f"{self.name}_info_reweighting", 

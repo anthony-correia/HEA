@@ -4,6 +4,7 @@ Tool functions for distributions.
 
 from HEA.tools.string import list_into_string
 import numpy as np
+import pandas as pd
 
 
 def get_chi2(fit_counts, counts, err=None):
@@ -108,22 +109,60 @@ def get_bin_width(low, high, n_bins):
     """
     return float((high - low) / n_bins)
 
+def weighted_qcut(data, weights, q, **kwargs):
+    """Return weighted quantile cuts from a given series, values.
+    Adapted from
+    https://stackoverflow.com/questions/45528029/python-how-to-create-weighted-quantiles-in-pandas
+    """
+    assert isinstance(q, int)
+    quantiles = np.linspace(0, 1, q + 1)
 
-def get_count_err(data, n_bins, low=None, high=None, weights=None, **kwargs):
+    index_sort = data.argsort().values
+    sorted_data = np.array(data)[index_sort]
+
+    if weights is None:
+        sorted_weights = np.ones(len(data))
+    else:
+        sorted_weights = np.array(weights)[index_sort]
+
+    order = sorted_weights.cumsum()
+
+    df_p = pd.DataFrame()
+    df_p['data'] = sorted_data
+    df_p['weights'] = sorted_weights
+    df_p['weighted_qcut'] = pd.cut(order / order[-1], quantiles)
+
+    df_p_bins = df_p.groupby('weighted_qcut').agg({
+        'weights': 'sum',
+        'data': ['min', 'max']
+    })
+
+    edges = df_p_bins['data']['min'].values
+    edges = np.append(edges, df_p_bins['data']['max'].values[-1])
+    counts = df_p_bins['weights'].values.flatten()
+    return edges, counts
+
+
+def get_count_err(data, n_bins, low=None, high=None, weights=None,
+                  cumulative=False, density=False,
+                  quantile_bin=False,
+                  **kwargs):
     """ get counts and error for each bin
 
     Parameters
     ----------
     data          : pandas.Series
         data to plot
-    n_bins        : int
-        number of bins
+    n_bins        : int or array-like
+        number of bins or bin edges
     low           : float
         low limit of the distribution
     high          : float
         high limit of the distribution
     weights       : pandas.Series, numpy.array
         weights of each element in data
+    cumulative    : bool
+        if ``True``, return the cumulated event counts.
     **kwargs      : dict
         passed to ``np.histogram``
 
@@ -139,16 +178,77 @@ def get_count_err(data, n_bins, low=None, high=None, weights=None, **kwargs):
         Errors in the count, for each bin
     """
     if low is None or high is None:
-        range_v=None
+        range_v = None
     else:
         range_v = (low, high)
     
+    if quantile_bin:
+        assert isinstance(n_bins, int)
+        data_cut = data
+        weights_cut = weights
+        
+        if low is not None:
+            cut = data_cut > low
+            data_cut = data_cut[cut]
+            if weights is not None:
+                weights_cut = weights_cut[cut]
+        if high is not None:
+            cut = data_cut < high
+            data_cut = data_cut[cut]
+            if weights is not None:
+                weights_cut = weights_cut[cut]
+        
+        edges, counts = weighted_qcut(data_cut, 
+                                      weights_cut, q=n_bins)
+        
+#         if weights is None:
+#             out = pd.qcut(data_cut, q=n_bins)
+#         else:
+#             out = weighted_qcut(data_cut, weights, 
+#                                 q=n_bins, **kwargs)
+            
+#         histogram = out.value_counts(sort=False)
+        
+#         # edges
+#         # (haven't find any other way than a loop)
+#         edges = []
+#         for interval in histogram.index:
+#             edges.append(interval.left)
+#         edges.append(interval.right)
+#         edges = np.array(edges)
+        
+        if low is not None:
+            edges[0] = low
+        if high is not None:
+            edges[-1] = high
+        
+        n_bins = edges
+        
+        # counts
+#         counts = np.array(histogram.values)
+
     counts, edges = np.histogram(data, range=range_v, 
                                  bins=n_bins, weights=weights, 
                                  **kwargs)
+    
+    
     centres = (edges[:-1] + edges[1:]) / 2.
     err = np.sqrt(np.abs(counts))
-
+    
+    if density:
+        if quantile_bin:
+            bin_width = None
+        else:
+            bin_width = get_bin_width(low, high, n_bins)
+        counts, err = get_density_counts_err(counts, 
+                                             bin_width, err, 
+                                             density=density)
+        
+        
+    if cumulative:
+        counts = np.cumsum(counts)
+        err = np.cumsum(err)
+    
     return counts, edges, centres, err
 
 def get_count_err_ratio(data1, data2, 
@@ -295,13 +395,18 @@ def get_density_counts_err(counts, bin_width=None, err=None, density=True):
     
     
     if density:
-        n_candidates = counts.sum()
-        counts = counts / (n_candidates * bin_width)
-        err   = err / (n_candidates * bin_width) if err is not None else None
-    else:
-        counts = counts
-        err = err
-    
+        if density=="candidates":
+            n_candidates = counts.sum()
+            diviser = n_candidates
+        elif density=="bin_width":
+            diviser = bin_width
+        elif density=="both" or density==True:
+            n_candidates = counts.sum()
+            diviser = n_candidates * bin_width
+        
+        counts = counts / diviser
+        err   = err / diviser if err is not None else None
+
     if err is None:
         return counts
     else:

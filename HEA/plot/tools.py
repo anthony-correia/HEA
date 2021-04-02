@@ -175,7 +175,9 @@ def _get_title_given_BDT_cut(title, cut_BDT):
 
 # Core of the plot -------------------------------------------------------
 
-def draw_vline(ax, x, label=None, color='b', **kwgs):
+def draw_vline(ax, x, label=None, color='b', fontsize=20,
+               va='bottom', ha='center',
+               **kwgs):
     """ Draw a vertical line and its label (at the top of the figure)
     
     Parameters
@@ -191,14 +193,14 @@ def draw_vline(ax, x, label=None, color='b', **kwgs):
     
     """
     
-    low_m_DstKpipi, high_m_DstKpipi = ax.get_xlim()
+    low, high = ax.get_xlim()
     
     ax.axvline(x, color=color, **kwgs)
     
-    ax.text((x - low_m_DstKpipi) / (high_m_DstKpipi - low_m_DstKpipi), 1.01, label,
-        verticalalignment='bottom', horizontalalignment='center',
+    ax.text((x - low) / (high - low), 1.01, label,
+        verticalalignment=va, horizontalalignment=ha,
         transform=ax.transAxes,
-        color=color, fontsize=20)
+        color=color, fontsize=fontsize)
 
 def show_grid(ax, which='major', axis='both'):
     """show grid

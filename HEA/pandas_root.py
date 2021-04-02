@@ -18,6 +18,7 @@ from HEA.definition import definition_functions
 
 from HEA import RVariable
 from HEA.tools.serial import dump_json
+from HEA.tools.string import add_text
 
 import os.path as op
 
@@ -42,8 +43,9 @@ def assert_needed_variables(needed_variables, df):
     for needed_variable in needed_variables:
         assert needed_variable in df, f"{needed_variable} is not in the pandas dataframe"
 
-def perform_cut(df, cut, num_cut, verbose=True, data_name=None, folder_name=None):
-    """ Perform a cut on a Pandas dataframe and print the number of cut-out events
+def perform_cut(df, cut, *args, verbose=True, **kwargs):
+    """ Perform a cut on a Pandas dataframe and print the number of cut-out events.
+    Save the cut result in a json file.
 
     Parameters
     ----------
@@ -53,12 +55,6 @@ def perform_cut(df, cut, num_cut, verbose=True, data_name=None, folder_name=None
         Performed cut
     verbose: Bool
         if True, print the number of cut-out events
-    file_name: str
-        if not None, where to save the result of the cut
-        (in a json file)
-    folder_name: str
-        folder where to save the file that will contain
-        the result of the fit
     """
 
     n_events = len(df)
@@ -67,34 +63,76 @@ def perform_cut(df, cut, num_cut, verbose=True, data_name=None, folder_name=None
 
     if verbose:
         print(f"{cut} cut has removed {n_events - n_cut_events} out of {n_events} events")
-    
-    if data_name is not None:
-        save_result_cut(cut, n_events, n_cut_events, num_cut,
-                        data_name, folder_name)
+        
+    save_result_cut(cut, n_events, n_cut_events, 
+                    *args, **kwargs)
     
     return df
 
-def save_result_cut(cut, before, after, num_cut, data_name, folder_name):
-    result_cut = {}
-    result_cut['cut'] = cut
-    result_cut['before'] = before
-    result_cut['after'] = after
+def save_result_cut(cut, before, after, num_cut,
+                    data_name=None, folder_name=None):
+    """ Save the result of the cut in a json file in 
+    ``{folder_name}/{data_name}/{num_cut}.json``
+    
+    Parameters
+    ----------
+    cut: str
+        performed cut
+    before: int
+        number of events before the cut
+    after : int
+        number of events after the cut
+    num_cut : int
+        Reference of the cut (just a number
+        to tell the difference between the other cuts
+        and for the name of the saved json file)
+    data_name : str
+        name of the data, last folder where the json file is saved
+    folder_name : str
+        folder name. The json file will be saved in the 
+        ``folder_name/data_name/`` directory
+    """
+    
+    
+    if data_name is not None:
+        result_cut = {}
+        result_cut['cut'] = cut
+        result_cut['before'] = before
+        result_cut['after'] = after
+        path = add_text('cuts', folder_name, '/')
+        path = add_text(path, data_name, '/')
 
+        dump_json(result_cut, file_name=str(num_cut), 
+                  folder_name=path)
 
-    dump_json(result_cut, file_name=str(num_cut), 
-              folder_name=op.join('cuts', folder_name, data_name))
-
     
     
     
     
-def drop_na(df, subset, num_cut, data_name, folder_name):
+def drop_na(df, subset, *args, **kwargs):
+    """ Drop NaN values of a dataframe and save the result
+     in a json file.
+     
+     Parameters
+     ----------
+     df : pandas.DataFrame
+        Dataframe that will be cut
+     subset: array-like
+         columns which NaN values are dropped from
+     num_cut : int
+        Reference of the cut (just a number
+        to tell the difference between the other cuts
+        and for the name of the saved json file)
+     *args, **kwargs:
+         passed to :py:func:`save_result_cut`
+     """
+    
     n_events=len(df)
     df = df.dropna(subset=subset)
     n_events_dropna = len(df)
     print(f"Dropping NaN has removed {n_events - n_events_dropna} out of {n_events} events")
-    save_result_cut("drop nan", n_events, n_events_dropna, num_cut,
-                        data_name, folder_name)   
+    save_result_cut("drop nan", n_events, n_events_dropna, 
+                    *args, **kwargs)   
 
 
 def load_dataframe(paths, columns=None, tree_name='DecayTree', method='read_root', **kwds):

@@ -68,7 +68,9 @@ def plot_hist_alone_from_hist(ax, counts, err=None, color='b',
                               label=None, show_ncounts=False,
                               weights=None,
                               orientation='vertical',
-                              **params):
+                              edgecolor=None,
+                              show_xerr=False,
+                              **kwargs):
     """  Plot histogram
     
     * If ``bar_mode``: Points with error bars
@@ -101,7 +103,7 @@ def plot_hist_alone_from_hist(ax, counts, err=None, color='b',
         weights of each element in data
     orientation  : 'vertical' or 'horizontal'
         orientation of the histogram
-    **params     : dict
+    **kwargs     : dict
         parameters passed to the ``ax.bar``, or ``ax.barh`` or ``ax.errorbar`` functions
     """
 
@@ -111,11 +113,11 @@ def plot_hist_alone_from_hist(ax, counts, err=None, color='b',
         centres = (edges[:-1] + edges[1:]) / 2.
     elif edges is None:
         edges = get_edges_from_centres(centres)
-    
+            
     low = edges[0]
     high = edges[-1]
     
-    bin_width = edges[1] - edges[0]
+    bin_widths = edges[1:] - edges[:-1]
     n_candidates = counts.sum()
 
     if show_ncounts:
@@ -129,11 +131,11 @@ def plot_hist_alone_from_hist(ax, counts, err=None, color='b',
         colors = el_to_list(color, 2)
         if orientation == 'vertical':
             if colors[0] is not None:
-                ax.bar(centres, counts, centres[1] - centres[0], 
+                ax.bar(centres, counts, bin_widths, 
                        color=colors[0], 
-                       alpha=alpha, edgecolor=None, 
+                       alpha=alpha, edgecolor=edgecolor, 
                        label=label,
-                       **params)
+                       **kwargs)
             if colors[1] is not None:
                 ax.step(edges, np.concatenate([np.array([counts[0]]), counts]), 
                         color=colors[1],
@@ -141,32 +143,38 @@ def plot_hist_alone_from_hist(ax, counts, err=None, color='b',
                        )
         elif orientation == 'horizontal':
             if colors[0] is not None:
-                ax.barh(centres, counts, centres[1] - centres[0], color=colors[1], 
-                        alpha=alpha, edgecolor=None, 
+                ax.barh(centres, counts, edges[1:] - edges[:-1], color=colors[1], 
+                        alpha=alpha, edgecolor=edgecolor, 
                         label=label if colors[0] is None else None,
-                        **params)
+                        **kwargs)
             if colors[1] is not None:
                 ax.step(np.concatenate([counts, np.array([counts[-1]])]), edges, color=colors[2])
     else:
+        if show_xerr:
+            xerr = bin_widths / 2
+        else:
+            xerr = None
+        
         if orientation == 'vertical':
-            ax.errorbar(centres, counts, yerr=err, color=color,
-                        ls='', marker='.', label=label, **params)
+            ax.errorbar(centres, counts, xerr=xerr, yerr=err, color=color,
+                        ls='', marker='.', label=label, **kwargs)
         elif orientation == 'horizontal':
-            ax.errorbar(counts, centres, xerr=err, color=color,
-                        ls='', marker='.', label=label, **params)
+            ax.errorbar(counts, centres, xerr=err, yerr=xerr, color=color,
+                        ls='', marker='.', label=label, **kwargs)
     
     if orientation == 'vertical':
         ax.set_xlim(low, high)
     elif orientation == 'horizontal':
         ax.set_ylim(low, high)
 
-    return counts, edges, centres, err    
+    return counts, edges, centres, err      
 
 
 def plot_hist_alone(ax, data, n_bins, low, high,
                     color, 
                     weights=None, density=False,
-                    **params):
+                    cumulative=False, quantile_bin=False,
+                    **kwargs):
     """  Plot histogram
     
     * If ``bar_mode``: Points with error bars
@@ -190,7 +198,9 @@ def plot_hist_alone(ax, data, n_bins, low, high,
         weights of each element in data
     density       : bool
         if ``True``, divide the numbers of counts in the histogram by the total number of counts
-    **params     : dict
+    cumulative    : bool
+        if ``True``, return the cumulated event counts.
+    **kwargs     : dict
         parameters passed to the 
         :py:func:`plot_hist_alone_from_hist`
 
@@ -207,17 +217,18 @@ def plot_hist_alone(ax, data, n_bins, low, high,
     """
 
     counts, edges, centres, err = get_count_err(
-        data, n_bins, low, high, weights=weights)
+        data, n_bins, low, high, weights=weights,
+        cumulative=cumulative, density=density, 
+        quantile_bin=quantile_bin)
     bin_width = get_bin_width(low, high, n_bins)
-    n_candidates = counts.sum()
 
-    counts, err = get_density_counts_err(counts, bin_width, err, density=density)
+#     counts, err = get_density_counts_err(counts, bin_width, err, density=density)
 
     plot_hist_alone_from_hist(ax, edges=edges, counts=counts, 
                               err=err,
                               color=color,
                               centres=centres,
-                              **params)
+                              **kwargs)
     
     return counts, edges, centres, err
 
@@ -225,6 +236,7 @@ def plot_hist_alone(ax, data, n_bins, low, high,
 # Set labels -------------------------------------------------------------
 
 def set_label_candidates_hist(ax, bin_width, pre_label, unit=None,
+                              density=False,
                               fontsize=default_fontsize['label'], axis='y'):
     """ set the typical y-label of a 1D histogram
 
@@ -243,8 +255,9 @@ def set_label_candidates_hist(ax, bin_width, pre_label, unit=None,
     axis          : ``'x'`` or ``'y'`` or ``'both'``
         axis where to set the label
     """
-
-    label = f"{pre_label} / ({bin_width:.3g}{pt._unit_between_brackets(unit, show_bracket=False)})"
+    label = pre_label
+    if density=="all" or density=="bin_width" or density==True:
+        label = f"{label} / ({bin_width:.3g}{pt._unit_between_brackets(unit, show_bracket=False)})"
     if axis == 'x' or axis == 'both':
         ax.set_xlabel(label, fontsize=fontsize)
     if axis == 'y' or axis == 'both':
@@ -252,7 +265,8 @@ def set_label_candidates_hist(ax, bin_width, pre_label, unit=None,
 
 
 def set_label_hist(ax, latex_branch, unit, bin_width,
-                   density=False, data_name=None,
+                   density=False, cumulative=False,
+                   data_name=None,
                    fontsize=default_fontsize['label'],
                    orientation='vertical'):
     """ Set the xlabel and ylabel of a 1D histogram
@@ -268,13 +282,17 @@ def set_label_hist(ax, latex_branch, unit, bin_width,
     bin_width     : float
         bin width of the histogram
     density       : bool
-        If ``True``, the ylabel will be "Proportion of candidates" instead of "candidates'
+        If ``True``, the ylabel will be "Proportion of candidates" instead 
+        of "candidates'
+    cumulative    : bool
+        if ``True``, return the cumulated event counts.
     data_name     : str or None
         Name of the data, in case in needs to be specified in the label of the axis between parentheses
     fontsize      : float
         fontsize of the labels
     orientation  : 'vertical' or 'horizontal'
         orientation of the histogram
+    
     """
     axis = {}
     if orientation == 'vertical':
@@ -291,10 +309,20 @@ def set_label_hist(ax, latex_branch, unit, bin_width,
     pt.set_label_branch(ax, latex_branch, unit=unit,
                         data_name=data_name, fontsize=fontsize_x, axis=axis['x'])
 
-    pre_label = "Proportion of candidates" if density else "Candidates"
+    if density=='all' or density==True or density=='candidates':
+        if cumulative:
+            pre_label = "Cumulative density of candidates"
+        else:
+            pre_label = "Proportion of candidates"
+    else: 
+        if cumulative:
+            
+            pre_label = "Cumulative number of candidates"
+        else: 
+            pre_label = "Candidates"
 
     set_label_candidates_hist(ax, bin_width, pre_label=pre_label, unit=unit,
-                              fontsize=fontsize, axis=axis['y'])
+                              fontsize=fontsize, axis=axis['y'], density=density)
 
 
 def set_label_2Dhist(ax, latex_branches, units,
@@ -436,8 +464,11 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
               fontsize_leg=default_fontsize['legend'],
               show_leg=None, loc_leg='best',
               ymin_to_0=True,
-              centres=None,
-              **params):
+              centres=None, edges=None,
+              cumulative=False,
+              quantile_bin=False,
+              edgecolors=None,
+              **kwargs):
     """ Save the histogram(s) of branch of the data given in ``dfs``
 
     Parameters
@@ -492,7 +523,11 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
         True if the legend needs to be shown
     loc_leg         : str
         location of the legend
-    **params       : dict
+    centres       : array-like
+        if the histogram is plotted using directly counts and err.
+    cumulative    : bool
+        if ``True``, return the cumulated event counts.
+    **kwargs       : dict
         passed to :py:func:`plot_hist_alone`
 
     Returns
@@ -503,14 +538,29 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
         Axis of the plot (only if ``ax`` is not specified)
     """
     
-    given_counts = centres is not None
+    given_counts = centres is not None or edges is not None        
     
-    if given_counts:        
-        bin_width = centres[1] - centres[0]
-        low = centres[0] - bin_width / 2
-        high = centres[-1] + bin_width / 2
-        
-        
+    if given_counts:   
+        assert (centres is None or edges is None) # only one given
+        if centres is not None:
+            # we suppose equal binning if centres is provided
+            bin_width = centres[1] - centres[0]
+            low = centres[0] - bin_width / 2
+            high = centres[-1] + bin_width / 2
+        else:
+            low = edges[0]
+            high = edges[-1]
+            
+            bin_widths = edges[1:] - edges[:-1]
+            if np.all(bin_widths == bin_widths[0]):
+                bin_width = bin_widths[0]
+            else:
+                # if non-uniform bin width
+                # bin width not well defined
+                bin_width = None
+            low = edges[0]
+            high = edges[-1]
+            
     else:    
         
         if not isinstance(dfs, dict):
@@ -523,8 +573,15 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
     
         
     if density is None:
+        if quantile_bin:
+            density = False
+        else:
+            density = "bin_width"
+        
         density = len(dfs) > 1  # if there are more than 2 histograms
-
+    else:
+        assert not ((density=="bin_width" or density=="both") and quantile_bin)
+        
     fig, ax = get_fig_ax(ax, orientation)
 
     if isinstance(dfs, dict):
@@ -534,8 +591,6 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
         latex_branch = string._latex_format(branch)
 
     ax.set_title(title, fontsize=fontsize_label)
-
-    
 
     # colors
     if colors is None:
@@ -547,28 +602,46 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
     alpha = el_to_list(alpha, len(dfs))
     bar_mode = el_to_list(bar_mode, len(dfs))
     labels = el_to_list(labels, len(dfs))
+    edgecolors = el_to_list(edgecolors, len(dfs))
+    
     
     for i, (data_name, df) in enumerate(dfs.items()):
+        
+        if quantile_bin:
+            if edgecolors[i] is None:
+                edgecolors[i] = colors[i]
+            if alpha[i] is None:
+                alpha[i] = 0.7
+        
+        
         if alpha[i] is None:
             alpha[i] = 0.5 if len(dfs) > 1 else 1
         
         label = string.add_text(data_name, labels[i], sep='')
         
+        
+        
+        
         if given_counts:
             plot_hist_alone_from_hist(ax, df[0], df[1], color=colors[i],
-                              centres=centres,
+                              edges=edges,
                               bar_mode=bar_mode[i], alpha=alpha[i],
                               label=label, 
                               weights=weights[i],
                               orientation=orientation,
-                              **params)
+                              edgecolor=edgecolors[i],
+                              centres=centres,
+                              **kwargs)
         else:
             _, _, _, _ = plot_hist_alone(ax, df[branch], n_bins, low, high, 
                                          color=colors[i], bar_mode=bar_mode[i],
                                          alpha=alpha[i], density=density, 
                                          label=label, weights=weights[i],
                                          orientation=orientation,
-                                         **params)
+                                         cumulative=cumulative,
+                                         quantile_bin=quantile_bin,
+                                         edgecolor=edgecolors[i],
+                                         **kwargs)
 
     # Some plot style stuff
     if factor_ymax is None:
@@ -577,7 +650,9 @@ def plot_hist(dfs, branch, latex_branch=None, unit=None, weights=None,
     if show_leg is None:
         show_leg = len(dfs) > 1
 
-    set_label_hist(ax, latex_branch, unit, bin_width, density=density, fontsize=fontsize_label,
+    set_label_hist(ax, latex_branch, unit, bin_width, 
+                   density=density, cumulative=cumulative,
+                   fontsize=fontsize_label,
                    orientation=orientation)
 
     if orientation == 'vertical':
@@ -646,6 +721,8 @@ def plot_divide_alone(ax, data1, data2,
                       n_bins=None, 
                       color='k', 
                       label=None, bin_centres=None,
+                      edges=None,
+                      show_xerr=False,
                       **kwargs):
     """ Plot a "divide" histogram
     
@@ -696,8 +773,18 @@ def plot_divide_alone(ax, data1, data2,
             **kwargs
         )
     
+    if show_xerr:
+        if edges is None:
+            edges = get_edges_from_centres(centres)
+        bin_widths = edges[1:] - edges[:-1]
+        
+        xerr = bin_widths / 2
+    else:
+        xerr = None
+    
+    
     ax.axhline(1., linestyle='--', color='b', marker='')
-    ax.errorbar(bin_centres, division, yerr=err, fmt='o', 
+    ax.errorbar(bin_centres, division, yerr=err, xerr=xerr, fmt='o', 
                 color=color, label=label)
     
     
@@ -890,7 +977,7 @@ def plot_scatter2d(dfs, branches, latex_branches, units=[None, None],
                    fig_name=None, folder_name=None,
                    fontsize_label=default_fontsize['label'],
                    save_fig=True, ax=None, get_sc=False,
-                   pos_text_LHC=None, **params):
+                   pos_text_LHC=None, **kwargs):
     """  Plot a 2D histogram of 2 branches.
 
     Parameters
@@ -961,7 +1048,7 @@ def plot_scatter2d(dfs, branches, latex_branches, units=[None, None],
     scs = [None] * len(dfs)
     for k, (data_name, df) in enumerate(dfs.items()):
         scs[k] = ax.scatter(df[branches[0]], df[branches[1]],
-                            c=colors[k], label=data_name, **params)
+                            c=colors[k], label=data_name, **kwargs)
     if len(scs) == 1:
         scs = scs[0]
 
