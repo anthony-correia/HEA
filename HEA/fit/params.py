@@ -445,6 +445,91 @@ def json_to_latex_table(name_json, path, latex_params, show=True):
         show_latex_table(name_json, path)
 
 
+def json_to_latex_table_pulls(name_json, path, latex_params, show=True):
+    """ transform a json file that contains the fitted parameters and uncertainties into a latex table
+    The latex table is stored into a .tex file in ``{loc['tables']}/{name_json.tex}``
+
+    Parameters
+    ----------
+    name_json     : str
+        name of the json file to load
+        also the name of the future .tex file that will be saved
+    path          : str
+        path of the json file compared to ``loc['json']``, the default folder for json files.
+    latex_params   : dict[str:str] or dict[str:dict]
+        passed to :py:func:`get_latex_cat_from_param_latex_params`
+        
+    show          : bool
+        if True, print the content of the created latex table code
+    """
+
+    # Open the json file
+    directory = create_directory(loc['json'], path)
+    params = retrieve_params(name_json, 
+                             folder_name=path, 
+                             only_val=False)
+    params = get_params_without_BDT(params, True)
+
+    # Load the variables into ufloats
+    ufloats = {}
+
+    ufloats_by_true_params = {}
+
+    for param in params:
+        if isinstance(params[param], dict) \
+            and 'v' in params[param] \
+            and 'e' in params[param]:
+
+            true_param = param.replace('mu_', '').replace('sigma_', '')
+            if true_param not in ufloats_by_true_params:
+                ufloats_by_true_params[true_param] = {}
+            
+            if param.startswith('mu_'):
+                type_param = 'mu'
+            elif param.startswith('sigma_'):
+                type_param = 'sigma'
+
+            ufloats_by_true_params[true_param][type_param] = \
+                ufloat(params[param]['v'], params[param]['e'])
+
+    # Write the .tex file
+    directory = create_directory(loc['tables'], path)
+    file_path = f'{directory}/{name_json}_params.tex'
+    with open(file_path, 'w') as f:
+        f.write('\\begin{tabular}[t]{lcc}')
+        f.write('\n')
+        f.write('\\hline')
+        f.write('\n')
+        f.write(r'Parameter $p$ & Pull mean $\mu_{\mathrm{pull}}^p$ & Pull width $\sigma_{\mathrm{pull}}^p$\\')
+        f.write('\n')
+        f.write('\\hline\\hline')
+        f.write('\n')
+
+        for true_param in latex_params.keys():
+            if true_param in ufloats_by_true_params.keys():
+                values = ufloats_by_true_params[true_param]
+
+                latex_param, _ = get_latex_cat_from_param_latex_params(true_param, latex_params)
+                mu_ufloat = values['mu']
+                sigma_ufloat = values['sigma']
+                mu_ufloat_str = get_str_from_ufloat_mode(mu_ufloat, cat='main')
+                mu_ufloat_latex = ufloat_string_into_latex_format(mu_ufloat_str)
+                sigma_ufloat_str = get_str_from_ufloat_mode(sigma_ufloat, cat='main')
+                sigma_ufloat_latex = ufloat_string_into_latex_format(sigma_ufloat_str)
+
+                f.write(f"{latex_param}&${mu_ufloat_latex}$&${sigma_ufloat_latex}$\\\\")
+
+                f.write('\n')
+                f.write('\\hline')
+                f.write('\n')
+        
+        f.write("\\end{tabular}")
+
+    if show:
+        show_latex_table(name_json, path)
+
+
+
 def show_latex_table(name, path=None):
     """ Print the latex table that contains the result of a fit.
     It prints the content of the tex file in ``{loc['table']}/{path}/{name}_params.tex``

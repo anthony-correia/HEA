@@ -40,7 +40,7 @@ from HEA.tools.serial import get_latex_column_table
 
 latex_params = {
     'n_sig': {
-        'latex':'$n_{sig}$',
+        'latex':r'$n_{sig}$',
         'cat'  :'yield'
     },
     'mu': {
@@ -96,11 +96,11 @@ latex_params = {
         'cat'  :'other'
     },
     'n_bkg': {
-        'latex':'$n_{bkg}$',
+        'latex':'$n_{\mathrm{bkg}}$',
         'cat'  :'yield'
     },
     'lambda': {
-        'latex':'$\\lambda$',
+        'latex':'$\\lambda_{\mathrm{bkg}}$',
         'cat'  :'other'
     }
 }
@@ -142,12 +142,12 @@ for key, value in latex_params_HH.items():
         latex_params_HH_PDF[key+f'_{PDF.lower()}']['latex'] = latex_param
 
 latex_params_HH_PDF['frac_hill'] = {
-        'latex': '${frac}_{hill}$',
+        'latex': r'${\mathrm{frac}}_{\mathrm{hill}}$',
         'cat': 'other'
 }
 
 latex_params_HH_PDF['frac_horn'] = {
-        'latex': '${frac}{horn}$',
+        'latex': r'${\mathrm{frac}}_{\mathrm{horns}}$',
         'cat': 'other'
 }
         

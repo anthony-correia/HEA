@@ -294,7 +294,8 @@ def set_log_scale(ax, axis='both'):
 
 
 def set_text_LHCb(
-        ax, text=default_project['text_plot_data'], fontsize=default_fontsize['text'], pos=None):
+        ax, text=default_project['text_plot_data'], 
+        fontsize=default_fontsize['text'], pos=None):
     """ Put a text on a plot
 
     Parameters

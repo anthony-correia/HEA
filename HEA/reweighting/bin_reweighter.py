@@ -837,9 +837,10 @@ class BinReweighter():
         
         # Plotting
         
-        data_counts, data_err = self.get_data_counts(column)
         
         if self.counts_specified(column):
+            data_counts, data_err = self.get_data_counts(column)
+            
             for type_MC in counts_err_dict.keys():
                 hist.plot_divide_alone(
                     ax, 

@@ -69,7 +69,7 @@ def perform_cut(df, cut, *args, verbose=True, **kwargs):
     
     return df
 
-def save_result_cut(cut, before, after, num_cut,
+def save_result_cut(cut, before, after, num_cut=None,
                     data_name=None, folder_name=None):
     """ Save the result of the cut in a json file in 
     ``{folder_name}/{data_name}/{num_cut}.json``
@@ -94,7 +94,7 @@ def save_result_cut(cut, before, after, num_cut,
     """
     
     
-    if data_name is not None:
+    if data_name is not None and num_cut is not None:
         result_cut = {}
         result_cut['cut'] = cut
         result_cut['before'] = before

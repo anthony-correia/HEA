@@ -308,8 +308,8 @@ def set_label_hist(ax, latex_branch, unit, bin_width,
         fontsize_x -= 7
     pt.set_label_branch(ax, latex_branch, unit=unit,
                         data_name=data_name, fontsize=fontsize_x, axis=axis['x'])
-
     if density=='all' or density==True or density=='candidates':
+        
         if cumulative:
             pre_label = "Cumulative density of candidates"
         else:
