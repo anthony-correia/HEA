@@ -1,5 +1,5 @@
 """
-Fit tools working with roofit
+Fitting tools working with roofit
 """
 
 import numpy as np
@@ -392,7 +392,7 @@ def get_reduced_chi2_root(rooVariable, model, data_h):
     Returns
     -------
     reduced_chi2: float
-        Reduced :path:`\\chi^2` of the fit
+        Reduced :math:`\\chi^2` of the fit
     """
     # Get chi2 ----------------------------
     frame = rooVariable.frame()

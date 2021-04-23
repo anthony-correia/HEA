@@ -45,6 +45,12 @@ class BinReweighter():
     column_tcks : dict
         Dictionnary that associates to a column the tck of the spline, 
         which was used to compute the weights.
+    MC_color, data_color, reweighted_MC_color: str
+            colors used in the plots
+    data_label, MC_label, reweighted_MC_label: str
+        Labels of data, MC and reweighted MC used in the plots
+    normalise: bool
+        Are the distributions normalised in the plots?
     """
     
     def __init__(self, data, MC, 
@@ -83,6 +89,28 @@ class BinReweighter():
         folder_name : str
             Used to create the name of the folder 
             where to save the figures.
+        data_label, MC_label, reweighted_MC_label: str
+            Labels of data, MC and reweighted MC used in the plots
+        normalise: bool
+            Are the distributions normalised in the plots?            
+        edges_columns: dict
+            associate a column with bin edges
+        data_counts_columns, data_err_columns: dict
+            associate a column with bin counts and errors
+            in data
+        MC_counts_columns, MC_err_columns: dict
+            associate a column with bin counts and errors
+             in MC
+        
+        Notes
+        -----
+        The arguments finishing with ``_columns`` allow
+        to load data in the :py:class:``BinReweighter`` using
+        bin counts and edges directly.
+        
+        In this case, the new reweighted distribution has to be
+        loaded every time a branch is reweighted, with 
+        :py:func:`BinReweighter.load_reweighted_MC_counts`
         """
         
         
@@ -121,10 +149,22 @@ class BinReweighter():
     def from_counts(edges_columns,
                     data_counts_columns, data_err_columns,
                     MC_counts_columns, MC_err_columns,
-                    MC=None, MC_weights=None,
                     **kwargs
                    ):
         """ Load the bin reweighter using 'histogrammed' data.
+        
+        Parameters
+        ----------
+        edges_columns: dict
+            associate a column with bin edges
+        data_counts_columns, data_err_columns: dict
+            associate a column with bin counts and errors
+            in data
+        MC_counts_columns, MC_err_columns: dict
+            associate a column with bin counts and errors
+             in MC
+        kwargs:
+            other parameters passed to :py:func:``BinReweighted.__init__``
         """
         
         data = None
@@ -282,7 +322,6 @@ class BinReweighter():
         self.counts_specified: bool
             ``True`` if ``column`` is in ``edges_columns``
             and ``data_counts_columns`` and ``MC_counts_columns``            
-            ````
         """
         
         return column in self.edges_columns \
@@ -509,7 +548,9 @@ class BinReweighter():
                   plot_reweighted=None,
                   plot_original=True,
                   low=None, high=None,
-                  inter=None, factor_ymax=1.5, **kwargs):
+                  inter=None, factor_ymax=1.5,
+                  with_text_LHC=True, 
+                  **kwargs):
         """ Plot the normalised histogram of column 
         for MC and data
         
@@ -532,7 +573,10 @@ class BinReweighter():
         inter: int
             passed to 
             :py:func:`HEA.reweighting.bin_reweighter.BinReweighter.get_fig_folder_name`
-        
+        with_text_LHC: bool
+            Do we plot the LHC text 
+            (e.g., "LHCb simulation", "LHCb preliminary, ...)
+
         Returns
         -------
         fig : matplotlib.figure.Figure
@@ -677,6 +721,13 @@ class BinReweighter():
         else: 
             LHC_text_type = 'MC'
 
+        if with_text_LHC:
+            pos_text_LHC = {'ha': 'left',
+                          'type': LHC_text_type,
+                          'fontsize':20}
+        else:
+            pos_text_LHC = None
+
         return hist.plot_hist_auto(
             samples_dict,
             column, 
@@ -688,9 +739,7 @@ class BinReweighter():
             colors=colors,
             factor_ymax=factor_ymax,
             density=self.normalise,
-            pos_text_LHC={'ha': 'left',
-                          'type': LHC_text_type,
-                          'fontsize':20},
+            pos_text_LHC=pos_text_LHC,
             alpha=alpha,
             weights=weights,
             labels=labels, loc_leg='upper right',
@@ -704,6 +753,7 @@ class BinReweighter():
                    low=None, high=None,
                    plot_spline=None,
                    inter=None,
+                   with_text_LHC=False,
                    **kwargs):
         """ Plot ``MC[column][bin i]/data[column][bin i]``
         
@@ -727,6 +777,9 @@ class BinReweighter():
             and and ``_{inter}`` at the end of the name
             of the figure.
             This allows to save intermediate figures.
+        with_text_LHC: bool
+            Do we plot the LHC text 
+            (e.g., "LHCb simulation", "LHCb preliminary, ...)
         **kwargs : dict
             passed to 
             :py:func:`HEA.plot.histogram.plot_divide_alone`
@@ -873,12 +926,17 @@ class BinReweighter():
                                     bin_width, 
                                     data_names=data_names)
         
+        if with_text_LHC:
+            pos_text_LHC = {'ha': 'right', 
+                            'type': 'data_MC',
+                            'fontsize': 20}
+        else:
+            pos_text_LHC = None
+
         pt.fix_plot(ax, factor_ymax=1.4, show_leg=True,
                     ymin_to_0=False,
-                    pos_text_LHC={'ha': 'right', 
-                                  'type': 'data_MC',
-                                 'fontsize': 20}
-                    , loc_leg='upper left')
+                    pos_text_LHC=None,
+                    loc_leg='upper left')
         
         # Spline
         if plot_spline is None:

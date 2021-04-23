@@ -5,14 +5,21 @@ Plot a histogram, with the fitted PDF, the pull diagram and the fitted parameter
 import HEA.plot.tools as pt
 from HEA.plot.histogram import (
     plot_hist_alone, set_label_hist, get_bin_width,
-    plot_hist_alone_from_hist
+    plot_hist_alone_from_hist,
+    get_centres_edges,
+    plot_hist2d_counts,
+    _core_plot_hist2d,
 )
+
+import HEA.plot.histogram as h
+
 from HEA.tools.da import add_in_dic, el_to_list, get_element_list
 from HEA.tools import string, assertion
 from HEA.tools import dist
 from HEA.fit.params import get_ufloat_latex_from_param_latex_params
 from HEA.fit import PDF
 from HEA.config import default_fontsize
+import HEA.plot.zfit as pz
 
 
 #from zfit.core.parameter import Parameter
@@ -53,58 +60,8 @@ name_PDF = {
 }
 
 ##########################################################################
-########################################## Scaling PDF ###################
-##########################################################################
-
-
-def _get_plot_scaling(counts, low, high, n_bins):
-    """Return plot_scaling, the factor to scale the curve fit to unormalised histogram
-    Parameters
-    ----------
-    counts : np.array or list
-        number of counts in the histogram of the fitted data
-    low    : float
-        low limit of the distribution
-    high   : float
-        high limit of the distribution
-    n_bins : int
-        number of bins
-    """
-    return counts.sum() * (high - low) / n_bins
-
-
-def frac_model(x, model, frac=1.):
-    """ Return the list of the values of the pdf of the model
-    evaluated at ``x``.
-    Multiply by ``frac`` each of these values.
-
-    Parameters
-    ----------
-    x       : numpy.array(float)
-        Array of numbers where to evaluate the PDF
-    model: zfit.pdf.BasePDF
-        Model (PDF)
-    frac    : float
-        Parameter which is multiplied to the result
-
-    Returns
-    -------
-
-    np.array(float)
-        list of the values of the pdf of the model evaluated in x,
-        multiplied by ``frac``
-
-    """
-
-    return (model.pdf(x) * frac).numpy()
-
-##########################################################################
 #################################### Sub-plotting functions ##############
 ##########################################################################
-
-
-# PULL DIAGRAM ===========================================================
-
 
 def print_fit_info(centres, fit_counts, counts, pull, ndof, err=None):
     """ Sohow
@@ -217,94 +174,12 @@ def plot_pull_diagram_from_hist(ax, fit_counts, counts,
 
 # FITTED CURVES ==========================================================
 
-def _get_frac_or_yield_model(models):
-    """ return the ``frac`` of a composite PDF specified with the ``frac`` argument. If the model is a sum of extended PDFs, just return the total number of events in the model
-
-    Parameters
-    ----------
-    models       : list(zfit.pdf.BasePDF) or list(list(zfit.pdf.BasePDF))
-        list of zFit models, whose first element is the sum of the others, weighted by ``frac`` and ``1 - frac`` or extended.
-
-    Returns
-    -------
-    total_yield : float
-        Yield of the model (returned if the composing PDFs are extended)
-    frac        : float
-        Relative yield of the sub-models (returned if the composing PDFs are not extended)
-    mode_frac   : bool
-        if ``True``, ``frac`` is returned
-        else, ``n_tot`` is returned
-
-    NB: this functions assumes that there is only 1 ``frac`` (I don't need more that 1 ``frac`` yet)
-    """
-    
-    from zfit.core.parameter import ComposedParameter
-    from zfit.core.parameter import Parameter as SimpleParameter
-    from zfit.models.functor import SumPDF
-
-    # Get the composite PDF
-    model = models[0]
-    assert isinstance(model, SumPDF)
-
-    mode_frac = False
-    parameters = list(model.params.values())
-
-    # The parameters of the composite PDF should be all composedParameters as they are from the composing PDFs
-    # Except if there is the ``frac`` parameter, which is indeed not a
-    # composed parameted for the composite PDF.
-    i = 0
-    while not mode_frac and i < len(parameters):
-        # if one of the parameter is not a ComposedParameter, this it is a frac
-        # parameter
-        mode_frac = not isinstance(parameters[i], ComposedParameter)
-        if mode_frac:
-            # If it is not a ComposedParameter, it should be a SimpleParameter
-            assert isinstance(parameters[i], SimpleParameter)
-        i += 1
-
-    if mode_frac:
-        # parameters[i-1] is a SimpleParameter, i.e., frac
-        frac = float(parameters[i - 1])
-        return frac, mode_frac
-    else:
-        n_tot = 0
-        # We sum up the yields of the composing PDFs
-        for sub_model in model.models:
-            assert sub_model.is_extended
-            n_tot += float(sub_model.get_yield().value())
-        return n_tot, mode_frac
-
-
-def get_PDF_name(model):
-    """ return the name of the ``model``
-
-    Parameters
-    ----------
-    model: zfit.pdf.BasePDF
-        Model (PDF)
-
-    Returns
-    -------
-    label_mode: str
-        name of the model (specified by the dictionnary ``name_PDF``), e.g., ``'Gaussian'``, ``'Crystall Ball'``, ...
-    """
-    # get the name of the model, removing  '_extended' when the PDF is extended
-    marker = model.name.find('_')
-    if marker == -1:
-        marker = None
-
-    model_name = model.name[:marker]
-    assert model_name in name_PDF, f"{model_name} is not defined in {list(name_PDF.keys())}"
-    label_model = name_PDF[model_name]
-
-    return label_model
-
 
 def plot_fitted_curve_from_hist(ax, x, fit_counts,
                                 PDF_name=None,
                                 model_name=None, model_type=None,
-                                color='b', 
-                                linestyle='-',linewidth=2.5, 
+                                color='b',
+                                linestyle='-',linewidth=2., 
                                 alpha=1, 
                                 mode=False,
                                 **kwargs):
@@ -331,6 +206,7 @@ def plot_fitted_curve_from_hist(ax, x, fit_counts,
         * ``'s'`` : signal
         * ``'b'`` : background
         * ``'n'`` : write nothing
+        
         used in the legend to indicate if it is a signal or a background component
     
     color         : str
@@ -371,219 +247,7 @@ def plot_fitted_curve_from_hist(ax, x, fit_counts,
                        ls=linestyle, alpha=alpha, **kwargs)
 
 
-def plot_single_model(ax, x, model, plot_scaling,
-                       model_name=None,
-                       frac=1., **kwargs):
-    """ Plot the models recursively
-    with a label for the curve ``"{name of the PDF (e.g., Gaussian, ...)} - {type of the model, e.g., signal ...} {Name of the model, e.g., "B0->Dst Ds"}"`` (if ``model_name`` is specified)
-    ax           : matplotlib.axes.Axes
-        axis where to plot
-    x             : numpy.numpy(float)
-        points of the x-axis where to evaluate the pdf of the model to plot
-    model        : zfit.pdf.BasePDF
-        just one zfit model
-    plot_scaling : float
-        scaling to get the scale of the curve right
-        
-    model_name : str
-        name of the models - used in the legend.
-        If ``None``, the legend is not shown
-    frac        : float
-        frac is multiplied to the PDF to get the correct scale due to composite PDFs
-    """
-    assert not assertion.is_list_tuple(model)
-    
-    if model_name is None:
-        PDF_name = None
-    else:
-        PDF_name = get_PDF_name(model)
-        
-    y = frac_model(x, model, frac=frac) * plot_scaling    
-    plot_fitted_curve_from_hist(ax, x, y, 
-                                model_name=model_name,
-                                PDF_name=PDF_name,
-                                **kwargs)
 
-
-def _plot_models(ax, x, models, plot_scaling, models_types=None, models_names=None,
-                 frac=1., PDF_level=0, colors=['b', 'g', 'gold', 'magenta', 'orange'],
-                 linestyles=['-', '--', ':', '-.'], linewidth=2.5):
-    """ Plot the models recursively
-    with a label for each curve ``"{name of the PDF (e.g., Gaussian, ...)} - {type of the model, e.g., signal ...} {Name of the model, e.g., "B0->Dst Ds"}"`` (if the corresponding model_name is specified)
-    ax           : matplotlib.axes.Axes
-        axis where to plot
-    x             : numpy.numpy(float)
-        points of the x-axis where to evaluate the pdf of the model to plot
-    models       : list(zfit.pdf.BasePDF) or list(list(zfit.pdf.BasePDF))
-
-        * just one PDF (e.g., ``[model_PDF]``)
-        * a list of PDFs, whose first PDF is the composite PDF
-        and the other ones are their components (e.g., ``[model_PDG, signal_PDF, background_PDF]``)
-        *  list of list of PDFs, if composite of composite of PDFs (e.g., ``[model_PDG, [signal_PDF, signal_compo1_PDF, signal_compo2_PDF], background_PDF]``)
-        * etc. (recursive)
-    plot_scaling : float
-        scaling to get the scale of the curve right
-    models_types  : str
-        type of each mode (one character for each model or for a list of models):
-
-        * ``'m'`` : model (sum) ; should always be the FIRST ONE !!
-        * ``'s'`` : signal
-        * ``'b'`` : background
-        used in the legend to indicate if it is a signal or a background component
-    models_names : str or list(str) or list(list(str))
-        name of the models - used in the legend
-
-        * list of the same size as ``models_names`` with the name of each PDF
-        * If there is only one string for a list of models, it corresponds to the name of the first composite PDFs. The other PDFs are plotted but they aren't legended
-    frac        : float
-        frac is multiplied to the PDF to get the correct scale due to composite PDFs
-    colors      : list(str)
-        list of colors for each curve, same structure as models_names
-    linestyles  : list(str)
-        list of linestyles at each level of composite PDFs, as specified by the ``PDF_level`` argument
-    PDF_level   : int
-
-        * 0 is first sumPDF
-        * 1 if component of this sumPDF
-        * 2 if component of a sumPDF component of sumPDF
-        * etc.
-    linewidth  : float
-        width of the plotted lines
-    """
-
-    if assertion.is_list_tuple(models):  # if there are several PDFs to plot
-        # if there are more than 1 model:
-        if len(models) > 1:
-            frac_or_yield, mode_frac = _get_frac_or_yield_model(models)
-        else:  # if there is only one model, there is no frac and no yield to compute. It has already been computed
-            mode_frac = None
-
-        # So far with this function, we can use to specify ``frac`` for
-        # composite PDF only if the model is made of 2 composing PDFs.
-        if mode_frac:
-            assert len(models) == 3
-
-        for k, model in enumerate(models):
-            if k == 1:  # models = [sumPDF, compositePDF1, compositePDF2, ...]
-                PDF_level += 1
-            # Compute frac
-            applied_frac = frac  # frac already specified
-
-            if mode_frac is not None:
-                if mode_frac:  # in this case, frac_or_yield = frac and there is 2 composite PDFs
-                    if k == 1:
-                        applied_frac = frac * frac_or_yield
-                    elif k == 2:
-                        applied_frac = frac * (1 - frac_or_yield)
-                else:  # in this case, frac_or_yield = yield, the yield of the model
-                    # frac_or_yield is yield
-                    total_yield = frac_or_yield
-                    if k >= 1:
-                        # we get the composing model
-                        main_model = get_element_list(model, 0)
-                        # and compute its relative yield
-                        applied_frac = frac * \
-                            float(main_model.get_yield().value()) / total_yield
-
-            # labels
-            if len(models_types) > 1:
-                model_type = models_types[k]
-            else:
-                model_type = models_types
-
-            # color
-            color = get_element_list(colors, k)
-
-            if not isinstance(models_names, list):
-                # if the name of the subsubmodel is not specified, put it to
-                # None
-                if k == 0:
-                    model_name = models_names
-                else:
-                    model_name = None
-            else:
-                model_name = models_names[k]
-
-            _plot_models(ax, x, model, plot_scaling, model_type, model_name, applied_frac, PDF_level, color,
-                         linestyles, linewidth)
-
-    else:  # if there is only one PDF to plot
-        if PDF_level >= 2:
-            alpha = 0.5
-        else:
-            alpha = 1
-        plot_single_model(ax, x, models, plot_scaling, model_type=models_types, model_name=models_names,
-                           frac=frac, color=colors,
-                           linestyle=linestyles[PDF_level], linewidth=linewidth, alpha=alpha)
-
-
-def plot_fitted_curves(ax, models, plot_scaling, low, high,
-                       models_names=None, models_types=None,
-                       fontsize_leg=default_fontsize['legend'],
-                       loc_leg='upper left', show_leg=None,
-                       **kwargs):
-    """Plot fitted curve given by ``models``, with labels given by ``models_names``
-
-    Parameters
-    ----------
-    ax              : axis where to plot
-    models       : zfit.pdf.BasePDF or list(zfit.pdf.BasePDF) or list(list(zfit.pdf.BasePDF)) or ...
-
-        * just one PDF (e.g., ``[model_PDF]`` or ``model_PDF``)
-        * a list of PDFs, whose first PDF is the composite PDF and the other ones are their components (e.g., ``[model_PDG, signal_PDF, background_PDF]``)
-        * list of list of PDFs, if composite of composite of PDFs (e.g., ``[model_PDG, [signal_PDF, signal_compo1_PDF, signal_compo2_PDF], background_PDF]``)
-        * etc. (recursive)
-    low             : float
-        low limit of the plot (x-axis)
-    high            : float
-        high limit of the plot (x-axis)
-    models_names : str or list(str) or list(list(str))
-        name of the models - used in the legend.
-        List of the same size as ``models_names`` with the name of each PDF.
-        If there is only one string for a list of models, it corresponds to the name of the first composite PDFs.
-        The other PDFs are plotted but they aren't legended.
-
-    models_types  : str
-        type of each mode (one character for each model or for a list of models):
-
-        * ``'m'`` : model (sum) ; should always be the FIRST ONE !!
-        * ``'s'`` : signal
-        * ``'b'`` : background
-
-        used in the legend to indicate if it is a signal or a background component.
-        If ``None``, it is put to ``['m', 's', 'b', 'b', ...]``.
-
-    fontsize_leg : float
-        fontsize of the legend
-    loc_leg         : str
-        location of the legend
-    show_leg     : bool
-        if ``True``, show the legend,
-        if None, show the legend only if there are more than 1 model
-    **kwgs        : dict
-        passed to :py:func:`plot_models`
-
-    """
-    models = el_to_list(models, 1)
-    
-    models_names = el_to_list(models_names, len(models))
-
-    x = np.linspace(low, high, 1000)
-
-    # Plot the models
-    if models_types is None:
-        models_types = 'm'
-        if len(models_names) >= 2:
-            models_types += 's'
-            models_types += 'b' * (len(models_names) - 2)
-
-    _plot_models(ax, x, models, plot_scaling,
-                 models_types=models_types, models_names=models_names, **kwargs)
-
-    if show_leg is None:
-        show_leg = models_names is not None
-    if show_leg:
-        ax.legend(fontsize=fontsize_leg, loc=loc_leg)
 
 # RESULT FIT =============================================================
 
@@ -722,55 +386,74 @@ def create_fig_plot_hist_fit(plot_pull):
     
     return fig, ax
     
-        
 
-def plot_hist_fit(df, branch, latex_branch=None, unit=None, weights=None,
-                  obs=None, n_bins=50, low_hist=None, high_hist=None,
-                  color='black', bar_mode=False,
-                  models=None, models_names=None, models_types=None,
-                  linewidth=2.5, colors=None,
-                  title=None,
-                  bar_mode_pull=True,
-                  params=None, latex_params=None, 
-                  kwargs_res={},
-                  fig_name=None, folder_name=None, data_name=None,
-                  save_fig=True, pos_text_LHC=None,
-                  lim_pull=None,
-                  **kwargs):
-    """ Plot complete histogram with fitted curve, pull histogram and results of the fits. Save it in the plot folder.
+
+def plot_hist_fit_counts(
+    # Sample
+    data, branch, latex_branch=None, unit=None,
+    centres=None, edges=None,
+    # models
+    models=None, models_names=None, PDF_names=None, 
+    models_types=None, ndof=0,
+    data_label=None,
+    # histogram style
+    color='black', bar_mode=False,
+    # models style
+#     linewidth=2.5, 
+    colors=None,
+    stack=False,
+    # pull
+    bar_mode_pull=True,
+    lim_pull=None, 
+    # plot style
+    title=None, pos_text_LHC=None,
+    # Show fitted parameters
+    params=None, latex_params=None, 
+    kwargs_res={},
+    # Save the figure
+    fig_name=None, folder_name=None, data_name=None,
+    save_fig=True, 
+    # Legend
+    fontsize_leg=default_fontsize['legend'],
+    loc_leg='upper left', show_leg=None,
+    **kwargs):
+    
+    """ Plot complete histogram with fitted curve, pull histogram 
+    and results of the fits, from counts and bin edges
+    (for the fitted sample but also the models). This function
+    just plots what is given to it in the desired way.
 
     Parameters
     ----------
-    df            : pandas.Dataframe
-        dataframe that contains the branch to plot
+    data            : tuple(array-like, array-like)
+        Couple ``(counts, err)``
     branch        : str
-        name of the branch to plot and that was fitted
+        name of the branch to plot, which was fitted to
     latex_branch  : str
         latex name of the branch, to be used in the xlabel of the plot
     unit            : str
         Unit of the physical quantity
-    weights         : numpy.array
-        weights passed to ``plt.hist``
-    obs           : zfit.Space
-        Space used for the fit
-    n_bins        : int
-        number of desired bins of the histogram
-    low_hist      : float
-        lower range value for the histogram (if not specified, use the value contained in ``obs``)
-    high_hist     : float
-        lower range value for the histogram (if not specified, use the value contained in ``obs``)
+    centres, edges  : array-like
+        bin centres and edges
     color         : str
-        color of the histogram
+        color of the histogram of the fitted sample
     bar_mode     : bool
 
-        * if True, plot with bars
+        * if True, plot the histogram of the fitted sample with bars
         * else, plot with points and error bars
-    models        : zfit.pdf.BasePDF or list(zfit.pdf.BasePDF) or list(list(zfit.pdf.BasePDF)) or ...
-        passed to :py:func:`plot_fitted_curves`
+    models        : 3-tuple or 1-tuple
+        ``(x_model, y_models, y_model_pull)``, where
+        ``x_model`` are the bin centres, ``y_models`` the
+        list of counts describing the models, and ``y_model_pull``
+        is is the counts of the total model with the same binning as
+        for the sample, to compute the pull histogram.
+        ``x_model`` and ``y_model_pull`` might not be specified (1-tuple).
+        In this case, the binning is specified by ``counts``
+        or ``edges`` as for the sample.
     models_names : str or list(str) or list(list(str))
-        passed to :py:func:`plot_fitted_curves`
+        passed to :py:func:`plot_fitted_curves_zfit`
     models_types  : str
-        passed to :py:func:`plot_fitted_curves`
+        passed to :py:func:`plot_fitted_curves_zfit`
     linewidth     : str
         width of the fitted curve line
     colors        : str
@@ -780,8 +463,9 @@ def plot_hist_fit(df, branch, latex_branch=None, unit=None, weights=None,
     bar_mode_pull: bool
         if ``True``, the pull diagram is plotted with bars instead of points + error bars.
         if None, don't plot the pull diagram.
-    params        : dict[zfit.zfitParameter, float]
-        Result ``result.params`` of the minimisation of the loss function (given by :py:func:`HEA.fit.fit.launch_fit`)
+    
+    params        : dict
+        Fitted parameters, given by :py:func:`HEA.fit.fit.launch_fit`
     latex_params  :
         Dictionnary with the name of the params.
         Also indicated the branchs to show in the table among all the branchs in params
@@ -797,8 +481,12 @@ def plot_hist_fit(df, branch, latex_branch=None, unit=None, weights=None,
         passed to :py:func:`HEA.plot.tools.set_text_LHCb` as the ``pos`` argument.
     kwargs_res    : dict
         arguments passed to :py:func:`plot_result_fit`
+    show_leg : bool
+        is the legend shown? By default, yes.
+    ndof : int
+        Number of degrees of freedom in the model
     **kwargs:
-        passed to py:func:`plot_fitted_curves`
+        passed to py:func:`plot_fitted_curves_zfit`
 
     Returns
     -------
@@ -809,76 +497,169 @@ def plot_hist_fit(df, branch, latex_branch=None, unit=None, weights=None,
     ax[1] : matplotlib.figure.Axes
         Axis of the pull diagram (only if ``plot_pull`` is ``True``)
     """
+    if show_leg is None:
+        if assertion.is_list_tuple(models_names):
+            show_leg = False
+            for model_name in models_names:
+                if model_name is not None:
+                    show_leg = True
+        else:
+            show_leg = models_names is not None
+        
+    ## Retrieve the histogram ===========================================
     
-    # Create figure
-    plot_pull = (bar_mode_pull is not None)
+    centres, edges = get_centres_edges(centres=centres, edges=edges)
+    
+    counts = data[0]
+    err = data[1]
+    
+    # Retrieve the models ===============================================
+    if len(models)==1:
+        y_models = models[0]
+        y_models = el_to_list(y_models)
+        x_model = centres
+        model_bar_mode = True
+
+
+    elif len(models)==3:
+        x_model, y_models, y_model_pull = models
+        y_models = el_to_list(y_models)
+
+    n_models = len(y_models)
+
+    if y_models[0] is None: # The first model is the sum of the others
+        y_models[0] = np.array([sum(y) for y in zip(*tuple(y_models[1:]))])
+        if len(colors) < n_models:
+            colors = ['b'] + colors
+            models_names = el_to_list(models_names, n_models)
+            models = el_to_list(models, n_models)
+        if len(models_names) < n_models:
+            models_names = [None] + models_names
+
+    if len(models)==1: # I
+        y_model_pull = y_models[0]
+        
+    
+    # Create the figure ====================================================
+    plot_pull = (bar_mode_pull is not None) and (models is not None)
     fig, ax = create_fig_plot_hist_fit(plot_pull)
-
-    # Retrieve low,high (of x-axis)
-    low = float(obs.limits[0])
-    high = float(obs.limits[1])
-
-    if low_hist is None:
-        low_hist = low
-    if high_hist is None:
-        high_hist = high
 
     if latex_branch is None:
         latex_branch = string._latex_format(branch)
 
     ax[0].set_title(title, fontsize=25)
-
+    
+    ## Plot the fitted distribution =========================================
+    
+    
     # plot 1D histogram of data
     # Histogram
-    counts, edges, centres, err = plot_hist_alone(
-        ax=ax[0], 
-        data=df[branch], weights=weights,
-        n_bins=n_bins,
-        low=low_hist, high=high_hist, 
-        color=color, bar_mode=bar_mode, alpha=0.1)
-
+    h.plot_hist_alone_from_hist(ax[0], counts=counts, err=err, 
+        color=color,
+        centres=centres,
+        bar_mode=False, alpha=0.1,
+        show_ncounts=False,
+        label=data_label,
+        orientation='vertical'
+    )
     # Label
-    bin_width = get_bin_width(low_hist, high_hist, n_bins)
+    bin_width = centres[1] - centres[0]
     set_label_hist(ax[0], latex_branch, unit, bin_width, fontsize=25)
 
     # Ticks
     pt.set_label_ticks(ax[0])
     pt.set_text_LHCb(ax[0], pos=pos_text_LHC)
 
-    # Plot fitted curve
-    if isinstance(models, list):
-        model = models[0]  # the first model is the "global" one
-    else:
-        model = models
+    
+    ## Plot the models ===============================================
+    # Plot fitted curves
+    
+    models_names = el_to_list(models_names, n_models)
+    colors = el_to_list(colors)
+    
+    if models_types is None:
+        models_types = 'n'
+        models_types = "".join(el_to_list(models_types, n_models))
+    PDF_names = el_to_list(PDF_names, n_models)
+    
+    if stack:
+        model_bar_mode = False
+    start = 1 if y_models[0] is None else 0   
+    
+    ## Allow that a kwarg = list
+    
+    list_kwargs = []
+    for i in range(start, n_models):
+        ukwargs = {}
+        for key, value in kwargs.items():
+            if assertion.is_list_tuple(value):
+                ukwargs[key] = value[i]
+            else:
+                ukwargs[key] = value
+            
+        list_kwargs.append(ukwargs)
+    
 
-    plot_scaling = _get_plot_scaling(counts, low_hist, high_hist, n_bins)
-    plot_fitted_curves(ax[0], models, plot_scaling, low, high, 
-                       models_names=models_names, models_types=models_types,
-                       linewidth=2.5, colors=colors, **kwargs)
+    for i in range(start, n_models):
+        if PDF_names is None:
+            PDF_name = None
+        else:
+            PDF_name = PDF_names[i]
 
+        if stack: 
+            model_mode = 'bar' if model_bar_mode else 'fillbetween'
+        else:
+            model_mode = None
+        if stack and i!=0: 
+            model_counts = np.array([sum(y) for y in zip(*tuple(y_models[i:]))])
+            plot_fitted_curve_from_hist(
+                ax[0], x_model, 
+                model_counts,
+                PDF_name=PDF_name,
+                model_name=models_names[i], 
+                model_type=models_types[i],
+                color=colors[i], 
+                mode=model_mode,
+                **list_kwargs[i]
+            )
+            
+
+        elif y_models[i] is not None: # plot the line of the full model (i=0)
+            plot_fitted_curve_from_hist(
+                ax[0], x_model, y_models[i],
+                PDF_name=PDF_name,
+                model_name=models_names[i],
+                model_type=models_types[i],
+                color=colors[i], 
+                mode=model_mode,
+                **list_kwargs[i]
+            )
+            
     pt.change_range_axis(ax[0], factor_max=1.1)
-
-    color_pull = colors if not isinstance(colors, list) else colors[0]
-    # Plot pull histogram
+    
+    if show_leg:
+        ax[0].legend(fontsize=fontsize_leg, loc=loc_leg)
+    
+    ## Plot the pull histogram ==========================================
+    
     if plot_pull:
-        fit_counts = frac_model(centres, model, plot_scaling)
+        color_pull = colors if not isinstance(colors, list) else colors[0]
         pull =  plot_pull_diagram_from_hist(
                 ax=ax[1], 
-                fit_counts=fit_counts, counts=counts,
+                fit_counts=y_model_pull, counts=counts,
                 edges=edges, err=err, 
                 color=color_pull,
                 bar_mode_pull=bar_mode_pull)
         
-        ndof = PDF.get_n_dof_model(model)
-        print_fit_info(centres, fit_counts, counts, pull, ndof)
+        print_fit_info(centres, y_model_pull, counts, pull, ndof)
 
         if lim_pull is not None:
             if isinstance(lim_pull, float) or isinstance(lim_pull, int):
-                lim_pull = (-lim_pull,lim_pull)
+                lim_pull = (-lim_pull, lim_pull)
             ax[1].set_ylim(lim_pull)
         
         
-    # Plot the fitted parameters of the fit
+    ## Plot the fitted parameters ==========================================
     if params is not None:
         plot_result_fit(ax[0], params, latex_params=latex_params,
                         **kwargs_res)
@@ -886,7 +667,7 @@ def plot_hist_fit(df, branch, latex_branch=None, unit=None, weights=None,
     # print characteristics of the fit and histogram
     
     
-    # Save result
+    ## Save the results ==========================================
     plt.tight_layout()
     if save_fig:
         pt.save_fig(fig, fig_name, folder_name, f'{branch}_{data_name}_fit')
@@ -896,36 +677,52 @@ def plot_hist_fit(df, branch, latex_branch=None, unit=None, weights=None,
     else:
         return fig, ax[0]
 
-
-def plot_hist_fit_var(data, branch, latex_branch=None, unit=None, **kwargs):
-    """ plot data with his fit
-
+def plot_hist_fit2d_counts(branches, counts, fit_counts, xedges, yedges, 
+                    err=None, fig_name=None, pull_lim=(-5, 5), **kwargs):
+    """ Produce 3 separate histograms:
+    
+    * Counts in the sample
+    * Fitted counts
+    * Pull
+    
     Parameters
     ----------
-    data      : pandas.Series or list(pandas.Series)
-        dataset to plot
-    branch    : str
-        name of the branch, for the name of the file
-    latex_branch  : str
-        name of the branch, for the label of the x-axis
-    unit      : str
-        unit of the branch
-    **kwargs  : dict
-        parameters passed to :py:func:`HEA.plot.tools.plot_hist_fit`
-
-    Returns
-    -------
-    fig   : matplotlib.figure.Figure
-        Figure of the plot (only if ``axis_mode`` is ``False``)
-    ax[0] : matplotlib.figure.Axes
-        Axis of the histogram + fitted curves + table
-    ax[1] : matplotlib.figure.Axes
-        Axis of the pull diagram (only if `plot_pull` is ``True``)
+    counts: 2d array
+        counts in the sample
+    err : 2d array
+        error on ``counts``
+    fit_counts: 2d array
+        fitted counts
+    xedges, yedges: array-like
+        Bin edges
+    **kwargs:
+        passed to `plot_hist2d_counts`
     """
-    df = DataFrame()
-    df[branch] = data
-
-    return plot_hist_fit(df, branch, latex_branch, unit, **kwargs)
+    
+    if err is None:
+        err = np.sqrt(counts)
+    
+    with np.errstate(divide='ignore', invalid='ignore'):  # ignore divide-by-0 warning
+        pull = np.divide(counts - fit_counts, err)
+    
+    vmin = min(counts.min(), fit_counts.min())
+    vmax = max(counts.max(), fit_counts.max())
+    
+    plot_hist2d_counts(branches, counts, xedges, yedges,
+                       fig_name=string.add_text(fig_name, 'obs'),
+                       vmin=vmin, vmax=vmax,
+                       **kwargs)
+    plot_hist2d_counts(branches, fit_counts, xedges, yedges, 
+                       fig_name=string.add_text(fig_name, 'fit'),
+                       vmin=vmin, vmax=vmax,
+                       **kwargs)
+    plot_hist2d_counts(branches, pull, xedges, yedges, 
+                       fig_name=string.add_text(fig_name, 'pull'),
+                       vmin=pull_lim[0], vmax=pull_lim[1],
+                       **kwargs)
+    
+    
+    
 
 
 ##########################################################################
@@ -975,7 +772,7 @@ def _core_plot_hist_fit_auto(branch, cut_BDT, kwargs):
     return latex_branch, unit, kwargs
         
         
-def plot_hist_fit_auto(df, branch, cut_BDT=None, **kwargs):
+def plot_hist_fit_auto(data, branch, cut_BDT=None, **kwargs):
     """ Retrieve the latex name of the branch and unit. Set the folder name to the name of the datasets.
     Then, plot with :py:func:`plot_hist_fit`.
 
@@ -1000,8 +797,41 @@ def plot_hist_fit_auto(df, branch, cut_BDT=None, **kwargs):
     ax[1] : matplotlib.figure.Axes
         Axis of the pull diagram (only if ``plot_pull`` is ``True``)
     """
+    centres = kwargs.get("centres")
+    edges = kwargs.get("edges")
+    
+    if centres is not None or edges is not None:
+        plot_function = plot_hist_fit_counts
+    else:
+        plot_function = pz.plot_hist_fit
     
     latex_branch, unit, kwargs = _core_plot_hist_fit_auto(branch, cut_BDT, kwargs)
     
-    return plot_hist_fit(
-        df, branch, latex_branch=latex_branch, unit=unit, **kwargs)
+    return plot_function(
+        data, branch, latex_branch=latex_branch, unit=unit, **kwargs)
+
+def plot_hist_fit2d_auto(branches, *args, with_counts=False, **kwargs):
+    """ Retrieve the latex name and set the folder to the name of the datasets,
+    and the file name to ``{branch1}_vs_{branch2}_fit``
+    
+    Parameters
+    ----------
+    branches, *args, **kwargs:
+        passed to py:func:`plot_hist_fit2d_counts`
+        or py:func:`plot_hist_fit2d`
+    with_counts: bool
+        whether to use py:func:`plot_hist_fit2d_counts` (if ``True``) or
+        or py:func:`HEA.plot.zfit.plot_hist_fit2d`
+    """
+    
+    if with_counts:
+        plot_function = plot_hist_fit2d_counts
+    else:
+        plot_function = pz.plot_hist_fit2d
+    
+    latex_branches, units, kwargs = _core_plot_hist2d(branches, kwargs, suff='_fit')
+    
+    return plot_function(
+        branches, *args, latex_branches=latex_branches, units=units, **kwargs
+    )
+    

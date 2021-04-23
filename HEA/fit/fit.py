@@ -196,7 +196,8 @@ def check_fit(result):
     checks['has_covariance'] = True
     checks['is_above_max_edm'] = False
     checks['has_reached_call_limit'] = False
-
+    
+    # print(info_fit)
     for check, desired in checks.items():
         if info_fit[check] != desired:
             print(f'Problem: {check} is ' + str(info_fit[check]))
@@ -213,7 +214,7 @@ def check_fit(result):
 
     return fit_ok
     
-def launch_fit(model, data, extended=False, verbose=True, show_time=True):
+def launch_fit(model, data, extended=False, verbose=True, show_time=True, **kwargs):
     """Fit the data with the model
 
     Parameters
@@ -228,6 +229,8 @@ def launch_fit(model, data, extended=False, verbose=True, show_time=True):
         print or not the result of the fit
     show_time: Bool
         print or not the time to perform the fit
+    **kwargs :
+        passed to :py:func`zfit.minimize.Minuit`
         
     Returns
     --------
@@ -250,7 +253,7 @@ def launch_fit(model, data, extended=False, verbose=True, show_time=True):
         nll = zfit.loss.UnbinnedNLL(model=model, data=data)
 
     # create a minimizer
-    minimizer = zfit.minimize.Minuit(verbosity=verbose * 5)
+    minimizer = zfit.minimize.Minuit(verbosity=verbose * 5, **kwargs)
     # minimise with nll the model with the data
     result = minimizer.minimize(nll)
 

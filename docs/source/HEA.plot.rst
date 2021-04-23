@@ -31,6 +31,23 @@ HEA.plot.line module
    :undoc-members:
    :show-inheritance:
 
+HEA.plot.zfit module
+--------------------
+
+.. automodule:: HEA.plot.zfit
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   
+HEA.plot.root module
+--------------------
+
+.. automodule:: HEA.plot.root
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 HEA.plot.tools module
 ---------------------
 
@@ -38,3 +55,4 @@ HEA.plot.tools module
    :members:
    :undoc-members:
    :show-inheritance:
+   

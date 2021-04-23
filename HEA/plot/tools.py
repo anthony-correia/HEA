@@ -316,8 +316,7 @@ def set_text_LHCb(
             * ``'ha'``: horizontal alignment
             * ``fontsize``: fontsize of the text
             * ``text`` : text to plot
-            * ``type``: if ``text`` is ``None``, ``type`` might
-            decide the text to put, taking the value from the *config.ini* file.
+            * ``type``: if ``text`` is ``None``, ``type`` might decide the text to put, taking the value from the *config.ini* file.
             
                 * if ``'data'``: ``default_project['text_plot_data']``
                 * if ``'MC'``: ``default_project['text_plot_data']``

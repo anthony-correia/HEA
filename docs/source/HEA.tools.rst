@@ -48,9 +48,17 @@ HEA.tools.string module
    :show-inheritance:
 
 HEA.tools.dist module
------------------------
+---------------------
 
 .. automodule:: HEA.tools.dist
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+HEA.tools.root module
+---------------------
+
+.. automodule:: HEA.tools.root
    :members:
    :undoc-members:
    :show-inheritance:
