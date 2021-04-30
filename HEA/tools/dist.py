@@ -35,7 +35,7 @@ def get_chi2(fit_counts, counts, err=None):
     return chi2
 
 
-def get_reduced_chi2(fit_counts, counts, n_dof, err=None):
+def get_reduced_chi2(fit_counts, counts, n_dof=0, err=None):
     """ Get the reduced :math:`\\chi^2` of a fit
 
     Parameters
@@ -177,6 +177,7 @@ def get_count_err(data, n_bins, low=None, high=None, weights=None,
     err     : np.array
         Errors in the count, for each bin
     """
+    
     if low is None or high is None:
         range_v = None
     else:
@@ -239,7 +240,11 @@ def get_count_err(data, n_bins, low=None, high=None, weights=None,
         if quantile_bin:
             bin_width = None
         else:
-            bin_width = get_bin_width(low, high, n_bins)
+            if not isinstance(n_bins, int):
+                number_bins = len(n_bins) - 1
+            else:
+                number_bins = n_bins
+            bin_width = get_bin_width(low, high, number_bins)
         counts, err = get_density_counts_err(counts, 
                                              bin_width, err, 
                                              density=density)
@@ -448,11 +453,11 @@ def get_chi2_2samp(data1, data2, n_bins=20,
     counts1, _, _, err1 = get_count_err(data1, n_bins, low, high, weights=weights1)
     counts2, _, _, err2 = get_count_err(data2, n_bins, low, high, weights=weights2)
     
-    return get_chi2_2counts(counts1, counts2, err1, err2, **kwargs)
+    return get_chi2_2counts(counts1, counts2, err1=None, err2=None, **kwargs)
     
     
 
-def get_chi2_2counts(counts1, counts2, err1, err2, normalise=True):
+def get_chi2_2counts(counts1, counts2, err1=None, err2=None, normalise=True, div_bins=True):
     """
     Parameters
     ----------
@@ -471,6 +476,12 @@ def get_chi2_2counts(counts1, counts2, err1, err2, normalise=True):
         :math:`\\chi^2 = \\sum_{\\text{bin i}} \\frac{(\\#1[i] - \\#2[i])^2}{\\#1[i] + \\#2[i]}`
     """
     
+    if err1 is None:
+        err1 = np.sqrt(counts1)
+    if err2 is None:
+        err2 = np.sqrt(counts2)
+    
+    
     if normalise:
         counts1, err1 = get_density_counts_err(counts1, err=err1, density=True)
         counts2, err2 = get_density_counts_err(counts2, err=err2, density=True)
@@ -481,4 +492,9 @@ def get_chi2_2counts(counts1, counts2, err1, err2, normalise=True):
                      out=np.zeros_like(diff), where=err1+err2!=0)
     
     
-    return chi2_terms.sum() / len(counts1)
+    chi2 = chi2_terms.sum()
+    
+    if div_bins:
+        chi2 = chi2 / counts1.size()
+    
+    return chi2

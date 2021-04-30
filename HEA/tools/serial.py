@@ -10,6 +10,11 @@ from functools import partial
 from HEA.config import loc
 from .dir import create_directory
 
+import uncertainties
+ufloat_type = uncertainties.core.AffineScalarFunc
+
+
+
 library_from_str = {
     'pickle': pickle,
     'json': json,
@@ -179,3 +184,66 @@ def get_latex_column_table(L):
         assert isinstance(L, str), print(f'\n \n {L}')
         latex_table = L
     return latex_table
+
+
+def write_table(table, name, folder_name, show=True):
+    """ Write a latex table from a table.
+    The first line is the title line, separated by
+    a double line from the other lines.
+    The ufloat numbers are automatically formatted.
+    The floated numbers are shown with 3 decimals.
+    
+    Parameters
+    ----------
+    table: list of list (2D list)
+        table to convert into latex
+    name: str
+        name of the .tex file to save
+    folder_name: str
+        folder name where to save the .tex file
+    show: bool
+        Do we print the .tex content afterwards?
+    """
+    
+    ## IMPORT  =========================
+    from HEA.fit.params import (
+        show_latex_table,
+        get_str_from_ufloat_mode,
+        ufloat_string_into_latex_format
+    )
+    
+    ## PATH ============================
+    
+    ## LATEX TABLE =====================
+    directory = create_directory(loc['tables'], folder_name)
+    file_path = f'{directory}/{name}.tex'
+    
+    with open(file_path, 'w') as f:
+        n_column = len(table[0])
+        f.write('\\begin{tabular}[t]{'+ 'l'*(n_column-1) +'c}')
+        f.write('\n')
+        for i, line in enumerate(table):
+            formatted_line = []
+            for e in line:
+                if isinstance(e, ufloat_type):
+                    
+                    str_ufloat = get_str_from_ufloat_mode(e, cat='other')
+                    latex_ufloat = ufloat_string_into_latex_format(str_ufloat)
+                    
+                    formatted_line.append(f"${latex_ufloat}$")
+                elif isinstance(e, float):
+                    formatted_line.append(f"{e:.3f}")
+                else:
+                    formatted_line.append(str(e))
+
+            f.write("&".join(formatted_line) + "\\\\")
+            f.write('\n')
+            f.write('\\hline')
+            if i==0:
+                f.write('\\hline')
+            f.write('\n')
+                    
+        f.write("\\end{tabular}")
+    
+    if show:
+        show_latex_table(name, folder_name, add_name="")

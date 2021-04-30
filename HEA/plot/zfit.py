@@ -518,7 +518,7 @@ def get_fitted_curves_zfit(x, models, plot_scaling, low, high,
 def plot_hist_fit(df, branch, weights=None,
                   obs=None, n_bins=50, low_hist=None, high_hist=None,
                   models=None, models_names=None, models_types=None,
-                  colors=None,
+                  colors=None, auto_PDF_names=True, auto_models_types=True,
                   **kwargs):
     """ Plot complete histogram with fitted curve,
     pull histogram and results of the fits, where zfit models are used.
@@ -548,7 +548,7 @@ def plot_hist_fit(df, branch, weights=None,
     colors        : str
         colors of the fitted curves
     **kwargs:
-        passed to py:func:`HEA.plot.fit.plot_hist_fit_counts`
+        passed to :py:func:`HEA.plot.fit.plot_hist_fit_counts`
 
     Returns
     -------
@@ -605,7 +605,11 @@ def plot_hist_fit(df, branch, weights=None,
         ndof = 0
         fit_counts_pull = None
     
-    
+    if not auto_PDF_names:
+        list_PDF_names = None
+    if not auto_models_types:
+        list_models_types = None
+        
     return pf.plot_hist_fit_counts(
         data=[counts, err], branch=branch,
         models=[x_model, list_models, fit_counts_pull], 

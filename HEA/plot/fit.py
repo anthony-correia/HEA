@@ -63,13 +63,15 @@ name_PDF = {
 #################################### Sub-plotting functions ##############
 ##########################################################################
 
-def print_fit_info(centres, fit_counts, counts, pull, ndof, err=None):
-    """ Sohow
+def print_fit_info(edges, fit_counts, counts, pull, ndof, err=None):
+    """ Show:
     
     * Number of bins and bin width
-    * :math: Reduced `\\chi^2`
+    * :math: Reduced :math:`\\chi^2`
     * Mean and std of the normalised residuals
     
+    Parameters
+    ----------
     centres: array-like
         centres of the bins
     fit_counts: array-like
@@ -82,8 +84,8 @@ def print_fit_info(centres, fit_counts, counts, pull, ndof, err=None):
         number of d.o.f. in the model.
     """
     # Fit quality
-    print(f"Number of bins: {len(centres)}")
-    print(f"Width of the bins: {centres[1]-centres[0]}")
+    print(f"Number of bins: {len(edges)-1}")
+    print(f"Width of the bins: {h.get_bin_width_from_edges(edges)}")
     print("")
     chi2 = dist.get_reduced_chi2(fit_counts, counts, ndof, err=err)
     print("Number of d.o.f. in the model: ", ndof)
@@ -129,6 +131,7 @@ def plot_pull_diagram_from_hist(ax, fit_counts, counts,
     """
 
     centres = (edges[:-1] + edges[1:]) / 2.
+    bin_widths = edges[1:] - edges[:-1]
     low = edges[0]
     high = edges[-1]
     
@@ -142,8 +145,8 @@ def plot_pull_diagram_from_hist(ax, fit_counts, counts,
 
     # Plotting
     if bar_mode_pull:
-        ax.bar(centres, pull, centres[1] -
-               centres[0], color=color, edgecolor=None)
+        ax.bar(centres, pull, bin_widths, 
+               color=color, edgecolor=None)
         ax.step(edges[1:], pull, color=color)
     else:
         ax.errorbar(centres, pull, yerr=np.ones(
@@ -181,7 +184,7 @@ def plot_fitted_curve_from_hist(ax, x, fit_counts,
                                 color='b',
                                 linestyle='-',linewidth=2., 
                                 alpha=1, 
-                                mode=False,
+                                mode=False, edges=None,
                                 **kwargs):
     """
     Plot a fitted curve given by ``model``
@@ -217,6 +220,8 @@ def plot_fitted_curve_from_hist(ax, x, fit_counts,
         style of the line
     alpha         : float, between 0 and 1
         opacity of the curve
+    edges : array-like
+        bin edges. Used for non-uniform bin width
     **kwargs:
         passed to :py:func`ax.plot()`
     """
@@ -232,13 +237,15 @@ def plot_fitted_curve_from_hist(ax, x, fit_counts,
                                color=color,
                                alpha=alpha, **kwargs)  
     elif mode=='bar':
-
         return plot_hist_alone_from_hist(ax, fit_counts, err=None,
                                            color=color,
                                            centres=x,
                                            bar_mode=True, alpha=alpha,
                                            label=label, 
                                            orientation='vertical',
+                                           linestyle=linestyle,
+                                           linewidth=linewidth,
+                                           edges=edges,
                                           **kwargs)
         
     else:
@@ -359,7 +366,7 @@ def plot_result_fit(ax, params, latex_params=None,
 ##########################################################################
 
 def create_fig_plot_hist_fit(plot_pull):
-    """ Create fig, axs for py:func:`plot_hist_fit`
+    """ Create fig, axs for :py:func:`plot_hist_fit`
     
     Parameters
     ----------
@@ -391,7 +398,7 @@ def create_fig_plot_hist_fit(plot_pull):
 def plot_hist_fit_counts(
     # Sample
     data, branch, latex_branch=None, unit=None,
-    centres=None, edges=None,
+    centres=None, edges=None, density=None,
     # models
     models=None, models_names=None, PDF_names=None, 
     models_types=None, ndof=0,
@@ -405,6 +412,7 @@ def plot_hist_fit_counts(
     # pull
     bar_mode_pull=True,
     lim_pull=None, 
+    color_pull=None,
     # plot style
     title=None, pos_text_LHC=None,
     # Show fitted parameters
@@ -416,6 +424,8 @@ def plot_hist_fit_counts(
     # Legend
     fontsize_leg=default_fontsize['legend'],
     loc_leg='upper left', show_leg=None,
+    model_bar_mode=False, factor_max=1.1,
+    ymin_to_0=True,
     **kwargs):
     
     """ Plot complete histogram with fitted curve, pull histogram 
@@ -485,8 +495,10 @@ def plot_hist_fit_counts(
         is the legend shown? By default, yes.
     ndof : int
         Number of degrees of freedom in the model
+    color_pull: str
+        color of the pull histogram
     **kwargs:
-        passed to py:func:`plot_fitted_curves_zfit`
+        passed to :py:func:`plot_fitted_curves_zfit`
 
     Returns
     -------
@@ -518,8 +530,7 @@ def plot_hist_fit_counts(
         y_models = models[0]
         y_models = el_to_list(y_models)
         x_model = centres
-        model_bar_mode = True
-
+    
 
     elif len(models)==3:
         x_model, y_models, y_model_pull = models
@@ -531,8 +542,8 @@ def plot_hist_fit_counts(
         y_models[0] = np.array([sum(y) for y in zip(*tuple(y_models[1:]))])
         if len(colors) < n_models:
             colors = ['b'] + colors
-            models_names = el_to_list(models_names, n_models)
-            models = el_to_list(models, n_models)
+        models_names = el_to_list(models_names, n_models)
+        models = el_to_list(models, n_models)
         if len(models_names) < n_models:
             models_names = [None] + models_names
 
@@ -550,21 +561,27 @@ def plot_hist_fit_counts(
     ax[0].set_title(title, fontsize=25)
     
     ## Plot the fitted distribution =========================================
+    bin_width = h.get_bin_width_from_edges(edges)
     
     
     # plot 1D histogram of data
     # Histogram
-    h.plot_hist_alone_from_hist(ax[0], counts=counts, err=err, 
+    
+    h.plot_hist_alone_from_hist(
+        ax[0], counts=counts, err=err, 
         color=color,
-        centres=centres,
-        bar_mode=False, alpha=0.1,
+        edges=edges,
+        bar_mode=bar_mode, alpha=0.1,
         show_ncounts=False,
         label=data_label,
-        orientation='vertical'
+        orientation='vertical',
+        show_xerr=(bin_width is None), # if bin_width is None, it is not constant.
+                                
     )
     # Label
-    bin_width = centres[1] - centres[0]
-    set_label_hist(ax[0], latex_branch, unit, bin_width, fontsize=25)
+    
+    set_label_hist(ax[0], latex_branch, unit, bin_width, fontsize=25,
+                  density=density)
 
     # Ticks
     pt.set_label_ticks(ax[0])
@@ -580,6 +597,7 @@ def plot_hist_fit_counts(
     if models_types is None:
         models_types = 'n'
         models_types = "".join(el_to_list(models_types, n_models))
+    
     PDF_names = el_to_list(PDF_names, n_models)
     
     if stack:
@@ -599,7 +617,7 @@ def plot_hist_fit_counts(
             
         list_kwargs.append(ukwargs)
     
-
+    
     for i in range(start, n_models):
         if PDF_names is None:
             PDF_name = None
@@ -607,9 +625,9 @@ def plot_hist_fit_counts(
             PDF_name = PDF_names[i]
 
         if stack: 
-            model_mode = 'bar' if model_bar_mode else 'fillbetween'
+            model_mode = 'fillbetween'
         else:
-            model_mode = None
+            model_mode = 'bar' if model_bar_mode else None
         if stack and i!=0: 
             model_counts = np.array([sum(y) for y in zip(*tuple(y_models[i:]))])
             plot_fitted_curve_from_hist(
@@ -619,7 +637,7 @@ def plot_hist_fit_counts(
                 model_name=models_names[i], 
                 model_type=models_types[i],
                 color=colors[i], 
-                mode=model_mode,
+                mode=model_mode, edges=edges,
                 **list_kwargs[i]
             )
             
@@ -631,11 +649,11 @@ def plot_hist_fit_counts(
                 model_name=models_names[i],
                 model_type=models_types[i],
                 color=colors[i], 
-                mode=model_mode,
+                mode=model_mode, edges=edges,
                 **list_kwargs[i]
             )
             
-    pt.change_range_axis(ax[0], factor_max=1.1)
+    pt.change_range_axis(ax[0], factor_max=factor_max, min_to_0=ymin_to_0)
     
     if show_leg:
         ax[0].legend(fontsize=fontsize_leg, loc=loc_leg)
@@ -643,7 +661,9 @@ def plot_hist_fit_counts(
     ## Plot the pull histogram ==========================================
     
     if plot_pull:
-        color_pull = colors if not isinstance(colors, list) else colors[0]
+        if color_pull is None:
+            color_pull = colors if not assertion.is_list_tuple(colors) else colors[0]
+        
         pull =  plot_pull_diagram_from_hist(
                 ax=ax[1], 
                 fit_counts=y_model_pull, counts=counts,
@@ -817,11 +837,11 @@ def plot_hist_fit2d_auto(branches, *args, with_counts=False, **kwargs):
     Parameters
     ----------
     branches, *args, **kwargs:
-        passed to py:func:`plot_hist_fit2d_counts`
-        or py:func:`plot_hist_fit2d`
+        passed to :py:func:`plot_hist_fit2d_counts`
+        or :py:func:`plot_hist_fit2d`
     with_counts: bool
-        whether to use py:func:`plot_hist_fit2d_counts` (if ``True``) or
-        or py:func:`HEA.plot.zfit.plot_hist_fit2d`
+        whether to use :py:func:`plot_hist_fit2d_counts` (if ``True``) or
+        or :py:func:`HEA.plot.zfit.plot_hist_fit2d`
     """
     
     if with_counts:

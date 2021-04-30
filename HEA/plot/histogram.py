@@ -70,6 +70,8 @@ def plot_hist_alone_from_hist(ax, counts, err=None, color='b',
                               orientation='vertical',
                               edgecolor=None,
                               show_xerr=False,
+                              linestyle='-',
+                              linewidth=2,
                               **kwargs):
     """  Plot histogram
     
@@ -124,6 +126,7 @@ def plot_hist_alone_from_hist(ax, counts, err=None, color='b',
             label += ": "
         label += f" {n_candidates} events"
     
+    
     if bar_mode:
         colors = el_to_list(color, 2)
         if orientation == 'vertical':
@@ -136,7 +139,8 @@ def plot_hist_alone_from_hist(ax, counts, err=None, color='b',
             if colors[1] is not None:
                 ax.step(edges, np.concatenate([np.array([counts[0]]), counts]), 
                         color=colors[1],
-                        label=label if colors[0] is None else None
+                        label=label if colors[0] is None else None,
+                        linestyle=linestyle, linewidth=linewidth,
                        )
         elif orientation == 'horizontal':
             if colors[0] is not None:
@@ -145,19 +149,20 @@ def plot_hist_alone_from_hist(ax, counts, err=None, color='b',
                         label=label if colors[0] is None else None,
                         **kwargs)
             if colors[1] is not None:
-                ax.step(np.concatenate([counts, np.array([counts[-1]])]), edges, color=colors[2])
+                ax.step(np.concatenate([counts, np.array([counts[-1]])]), edges, color=colors[2],
+                       linestyle=linestyle, linewidth=linewidth)
     else:
         if show_xerr:
             xerr = bin_widths / 2
         else:
             xerr = None
-        
         if orientation == 'vertical':
             ax.errorbar(centres, counts, xerr=xerr, yerr=err, color=color,
                         ls='', marker='.', label=label, **kwargs)
         elif orientation == 'horizontal':
             ax.errorbar(counts, centres, xerr=err, yerr=xerr, color=color,
-                        ls='', marker='.', label=label, **kwargs)
+                        ls='', marker='.', label=label, 
+                        **kwargs)
     
     if orientation == 'vertical':
         ax.set_xlim(low, high)
@@ -474,6 +479,18 @@ def get_centres_edges(centres=None, edges=None):
     
     return centres, edges
 
+def get_bin_width_from_edges(edges):
+    """
+    """
+    bin_widths = edges[1:] - edges[:-1]
+    
+    if np.allclose(bin_widths, bin_widths[0]):
+        bin_width = bin_widths[0]
+    else:
+        # if non-uniform bin width
+        # bin width not well defined
+        bin_width = None
+    return bin_width
 
 def plot_hist_counts(dfs, branch, latex_branch=None, unit=None, weights=None,
               low=None, high=None, n_bins=100, colors=None, alpha=None,
@@ -567,14 +584,8 @@ def plot_hist_counts(dfs, branch, latex_branch=None, unit=None, weights=None,
     low = edges[0]
     high = edges[-1]
 
-    bin_widths = edges[1:] - edges[:-1]
+    bin_width = get_bin_width_from_edges(edges)
     
-    if np.all(bin_widths == bin_widths[0]):
-        bin_width = bin_widths[0]
-    else:
-        # if non-uniform bin width
-        # bin width not well defined
-        bin_width = None
         
     fig, ax = get_fig_ax(ax, orientation)
 
@@ -695,11 +706,10 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
         if isinstance(df, DataFrame):
             dfs[data_name] = df[branch]
             
-    
 
     # First loop to determine the low and high value
     low, high = pt._redefine_low_high(
-        low, high, [df for df in dfs.values()])
+        low, high, list(dfs.values()))
     bin_width = get_bin_width(low, high, n_bins)
     
     if density is None:
@@ -719,11 +729,13 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
     for data_name, df in dfs.items():
         
         counts, edges, centres, err = get_count_err(
-                df, bins, low, high, weights=weights,
-                density=density,
-                cumulative=cumulative,
-                quantile_bin=quantile_bin,
-                **kwargs) 
+            data=df, n_bins=bins, 
+            low=low, high=high, 
+            weights=weights,
+            density=density,
+            cumulative=cumulative,
+            quantile_bin=quantile_bin,
+            **kwargs) 
         
         dfs_counts[data_name] = [counts, err]
         bins = edges

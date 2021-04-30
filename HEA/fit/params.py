@@ -530,7 +530,7 @@ def json_to_latex_table_pulls(name_json, path, latex_params, show=True):
 
 
 
-def show_latex_table(name, path=None):
+def show_latex_table(name, path=None, add_name='_params'):
     """ Print the latex table that contains the result of a fit.
     It prints the content of the tex file in ``{loc['table']}/{path}/{name}_params.tex``
 
@@ -546,7 +546,7 @@ def show_latex_table(name, path=None):
     the latex table must have been already generated, for instance with :py:func:`json_to_latex_table`.
     """
     directory = create_directory(loc['tables'], path)
-    file_path = f'{directory}/{name}_params.tex'
+    file_path = f'{directory}/{name}{add_name}.tex'
     print("Latex table in " + file_path)
 
     with open(file_path, 'r') as f:

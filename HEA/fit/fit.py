@@ -34,7 +34,7 @@ def crystall_ball_or_gaussian(mu, sigma, obs, alpha=None, n=None):
     obs: zfit.Space
         Space
     alpha: zfit.Parameter
-        :math:`\\alpha` parameter of the tail
+        :math:`\\alpha` parameter of the tail 
     n: zfit.Parameter
         :math:`n` parameter of the tail
 
@@ -166,16 +166,50 @@ def wiggle_zparameters(zparams, params):
             print(param, ':', value, 'becomes', new_value)
             zparams[param].set_value(new_value)
 
+def get_info_fit_dict(result):
+    """ Get a dictionnary that associates
+    a fit result property its value.
+    
+    Parameters
+    ----------
+    result  : zfit.minimize.FitResult
+        result of the minimisation of the likelihood
+    
+    Returns
+    -------
+    info_fit_dict: dict
+        Associates to a quality fit property
+        its value
+    """
+    
+    info_fit = result.info['original']
+    
+    info_fit_dict = {}
+    
+    info_fit_dict['is_valid'] = info_fit.is_valid
+    info_fit_dict['has_valid_parameters'] = info_fit.has_valid_parameters
+    info_fit_dict['has_accurate_covar'] = info_fit.has_accurate_covar
+    info_fit_dict['has_posdef_covar'] = info_fit.has_posdef_covar
+    info_fit_dict['has_made_posdef_covar'] = info_fit.has_made_posdef_covar
+    info_fit_dict['hesse_failed'] = info_fit.hesse_failed
+    info_fit_dict['has_covariance'] = info_fit.has_covariance
+    info_fit_dict['is_above_max_edm'] = info_fit.is_above_max_edm
+    info_fit_dict['has_reached_call_limit'] = info_fit.has_reached_call_limit
+    info_fit_dict['edm'] = info_fit.edm
+    info_fit_dict['params_at_limit'] = result.params_at_limit
+    
+    return info_fit_dict
 
-
-def check_fit(result):
+def check_fit(result, return_info_fit_dict=False):
     """ Check if the fit has gone well. If a check has gone wrong, point it out.
 
     Parameters
     ----------
     result  : zfit.minimize.FitResult
         result of the minimisation of the likelihood
-
+    return_info_fit_dict: bool
+        Do we return the dictionnary of the results?
+        
     Returns
     -------
     Bool
@@ -184,7 +218,7 @@ def check_fit(result):
 
     """
     fit_ok = True
-    info_fit = result.info['original']
+    
 
     checks = {}
     checks['is_valid'] = True
@@ -197,24 +231,61 @@ def check_fit(result):
     checks['is_above_max_edm'] = False
     checks['has_reached_call_limit'] = False
     
+    
+    info_fit_dict = get_info_fit_dict(result)
+    
     # print(info_fit)
     for check, desired in checks.items():
-        if info_fit[check] != desired:
-            print(f'Problem: {check} is ' + str(info_fit[check]))
+        if info_fit_dict[check] != checks[check]:
+            print(f'Problem: {check} is ' + str(info_fit_dict[check]))
             fit_ok = False
 
-    edm = info_fit['edm']
-    if edm > 0.001:
+    if info_fit_dict['edm'] > 0.001:
         print(f'edm = {edm} > 0.001')
         fit_ok = False
 
-    if result.params_at_limit:
+    if info_fit_dict['params_at_limit']:
         print(f'param at limit')
         fit_ok = False
-
-    return fit_ok
     
-def launch_fit(model, data, extended=False, verbose=True, show_time=True, **kwargs):
+    if return_info_fit_dict:
+        return fit_ok, info_fit_dict
+    else:
+        return fit_ok
+    
+def show_result_fit(result):
+    """ Show the result of the fit.
+    
+    Parameters
+    ----------
+    result : zfit.minimize.FitResult
+        result of the minimisation of the likelihood 
+    """
+    print(result.info['original'])
+    print(result.params)
+    
+def launch_minimise_nll(nll, initial_params, 
+                        verbose=True, show_time=True, **kwargs):
+    
+    if show_time:
+        start = timeit.default_timer()
+    # if the nll is provided, the initial parameters are provided
+    # via ``minimizer.minimize``
+    minimizer = zfit.minimize.Minuit(verbosity=verbose * 5, **kwargs)
+    result = minimizer.minimize(nll, initial_params)
+    param_hesse = result.hesse()
+    param = result.params
+    
+    show_result_fit(result)
+    
+    if show_time:
+        stop = timeit.default_timer()
+        print('Time to do the fit: ', stop - start)
+    
+    return result, params_into_dict(param)
+    
+def launch_fit(model, data, extended=False, verbose=True, show_time=True, 
+               **kwargs):
     """Fit the data with the model
 
     Parameters
@@ -246,17 +317,18 @@ def launch_fit(model, data, extended=False, verbose=True, show_time=True, **kwar
     if show_time:
         start = timeit.default_timer()
     
+    # create a minimizer
+    minimizer = zfit.minimize.Minuit(verbosity=verbose * 5, **kwargs)
+    
     # Minimisation of the loss function
     if extended:
         nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
     else:
         nll = zfit.loss.UnbinnedNLL(model=model, data=data)
-
-    # create a minimizer
-    minimizer = zfit.minimize.Minuit(verbosity=verbose * 5, **kwargs)
-    # minimise with nll the model with the data
+        
     result = minimizer.minimize(nll)
-
+        
+    
     # do the error calculations, here with Hesse
     param_hesse = result.hesse()  # get he hessien
     # param_errors, _ = result.errors(method='minuit_minos') # get the errors
@@ -267,8 +339,7 @@ def launch_fit(model, data, extended=False, verbose=True, show_time=True, **kwar
     if show_time:
         stop = timeit.default_timer()
         print('Time to do the fit: ', stop - start)
+            
+    show_result_fit(result)
     
-    if verbose:
-        print(param)
-        
     return result, params_into_dict(param)
