@@ -102,6 +102,14 @@ latex_params = {
     'lambda': {
         'latex':'$\\lambda_{\mathrm{bkg}}$',
         'cat'  :'other'
+    },
+    'c1': {
+        'latex':r'$c_1$',
+        'cat'  :'other'
+    },
+    'k': {
+        'latex':r'k',
+        'cat'  :'other'
     }
 }
 latex_params_HH = {

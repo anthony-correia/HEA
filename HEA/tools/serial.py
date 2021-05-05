@@ -186,7 +186,7 @@ def get_latex_column_table(L):
     return latex_table
 
 
-def write_table(table, name, folder_name, show=True):
+def write_table(table, name, folder_name, show=True, title='line'):
     """ Write a latex table from a table.
     The first line is the title line, separated by
     a double line from the other lines.
@@ -203,6 +203,9 @@ def write_table(table, name, folder_name, show=True):
         folder name where to save the .tex file
     show: bool
         Do we print the .tex content afterwards?
+    title: 'l' or 'c'
+        Title column or title line is separated from
+        the rest of the table by a double line
     """
     
     ## IMPORT  =========================
@@ -220,7 +223,10 @@ def write_table(table, name, folder_name, show=True):
     
     with open(file_path, 'w') as f:
         n_column = len(table[0])
-        f.write('\\begin{tabular}[t]{'+ 'l'*(n_column-1) +'c}')
+        if title=='line':
+            f.write('\\begin{tabular}[t]{'+ 'l'*(n_column) +'}')
+        else:
+            f.write('\\begin{tabular}[t]{l||'+ 'c'*(n_column-1) +'}')
         f.write('\n')
         for i, line in enumerate(table):
             formatted_line = []
@@ -239,7 +245,7 @@ def write_table(table, name, folder_name, show=True):
             f.write("&".join(formatted_line) + "\\\\")
             f.write('\n')
             f.write('\\hline')
-            if i==0:
+            if i==0 and title=='line':
                 f.write('\\hline')
             f.write('\n')
                     

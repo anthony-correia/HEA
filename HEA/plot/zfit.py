@@ -513,7 +513,18 @@ def get_fitted_curves_zfit(x, models, plot_scaling, low, high,
                  **kwargs)
 
     
-        
+# def compute_chi2_model_data(data, model, n_bins):
+#     """ Compute the reduced chi2 between data and a zfit model
+    
+#     Parameters
+#     ----------
+#     data: array-like
+#         data that the model has been fitted to
+#     model: zfit model
+#         PDF fitted to data
+#     n_bins: int
+#         number of bins which is 
+#     """
 
 def plot_hist_fit(df, branch, weights=None,
                   obs=None, n_bins=50, low_hist=None, high_hist=None,
@@ -572,10 +583,10 @@ def plot_hist_fit(df, branch, weights=None,
 
     # Get 1D histogram of the fitted sample ===================
     # Histogram
-    data, edges = dataframe_into_hist1D(
+    data, edges, density = dataframe_into_hist1D(
         df, branch=branch,
         low=low_hist, high=high_hist, n_bins=n_bins, 
-        weights=weights)
+        weights=weights, density=False)
     counts, err = data
     centres = (edges[1:] + edges[:-1])/2
     

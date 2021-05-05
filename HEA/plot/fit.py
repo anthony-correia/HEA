@@ -50,13 +50,17 @@ model_names_types = {
 }
 
 # Alternative names for the models
-name_PDF = {
+name_PDF_dict = {
     'DoubleCB': 'Double CB',
     'SumPDF': 'Sum',
     'Exponential': 'Exponential',
     'Gauss': 'Gaussian',
     'CrystalBall': 'Crystal Ball',
-    'HORNS': 'HORNS'
+    'Chebyshev': 'Chebyshev',
+    'HORNS': 'HORNS',
+    'HILL': 'HILL',
+    None: None,
+    'Chi2': r"$\chi^2$ PDF"
 }
 
 ##########################################################################
@@ -229,7 +233,7 @@ def plot_fitted_curve_from_hist(ax, x, fit_counts,
     if model_name is None:
         label = None
     else:
-        label = string.add_text(PDF_name, model_names_types[model_type], ' - ')
+        label = string.add_text(name_PDF_dict[PDF_name], model_names_types[model_type], ' - ')
         label = string.add_text(label, model_name)  
     
     if mode=='fillbetween':
@@ -525,6 +529,7 @@ def plot_hist_fit_counts(
     counts = data[0]
     err = data[1]
     
+
     # Retrieve the models ===============================================
     if len(models)==1:
         y_models = models[0]
@@ -625,7 +630,8 @@ def plot_hist_fit_counts(
             PDF_name = PDF_names[i]
 
         if stack: 
-            model_mode = 'fillbetween'
+#             model_mode = 'fillbetween'
+            model_mode = 'bar'
         else:
             model_mode = 'bar' if model_bar_mode else None
         if stack and i!=0: 
@@ -671,7 +677,7 @@ def plot_hist_fit_counts(
                 color=color_pull,
                 bar_mode_pull=bar_mode_pull)
         
-        print_fit_info(centres, y_model_pull, counts, pull, ndof)
+        print_fit_info(edges, y_model_pull, counts, pull, ndof, err=err)
 
         if lim_pull is not None:
             if isinstance(lim_pull, float) or isinstance(lim_pull, int):

@@ -249,7 +249,6 @@ def get_count_err(data, n_bins, low=None, high=None, weights=None,
                                              bin_width, err, 
                                              density=density)
         
-        
     if cumulative:
         counts = np.cumsum(counts)
         err = np.cumsum(err)
@@ -398,7 +397,6 @@ def get_density_counts_err(counts, bin_width=None, err=None, density=True):
     if bin_width is None:
         bin_width = 1
     
-    
     if density:
         if density=="candidates":
             n_candidates = counts.sum()
@@ -495,6 +493,6 @@ def get_chi2_2counts(counts1, counts2, err1=None, err2=None, normalise=True, div
     chi2 = chi2_terms.sum()
     
     if div_bins:
-        chi2 = chi2 / counts1.size()
+        chi2 = chi2 / counts1.size
     
     return chi2

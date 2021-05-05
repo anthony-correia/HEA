@@ -699,14 +699,21 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
     edges : array-like
         edges of the histogram
     """
+    
+    weights = el_to_list(weights, len(dfs))
+    
     dfs_not_dict = not isinstance(dfs, dict)
     if not isinstance(dfs, dict):
         dfs = {"e": dfs}
-    for data_name, df in dfs.items():
-        if isinstance(df, DataFrame):
-            dfs[data_name] = df[branch]
-            
+    for i, (data_name, df) in enumerate(dfs.items()):
+        
+        if weights is not None:
+            if isinstance(weights[i], str):
+                weights[i] = df[weights[i]]
 
+            if isinstance(df, DataFrame):
+                dfs[data_name] = df[branch]
+                
     # First loop to determine the low and high value
     low, high = pt._redefine_low_high(
         low, high, list(dfs.values()))
@@ -715,23 +722,23 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
     if density is None:
         if quantile_bin:
             density = False
+        elif len(dfs) > 1:
+            density = 'candidates'
         else:
             density = "bin_width"
         
-        density = len(dfs) > 1  # if there are more than 2 histograms
     else:
         assert not ((density=="bin_width" or density=="both") and quantile_bin)
     
     dfs_counts = {}
     bins = n_bins
     
-    
-    for data_name, df in dfs.items():
-        
+    weights = el_to_list(weights, len(dfs))
+    for k, (data_name, df) in enumerate(dfs.items()):
         counts, edges, centres, err = get_count_err(
             data=df, n_bins=bins, 
             low=low, high=high, 
-            weights=weights,
+            weights=weights[k],
             density=density,
             cumulative=cumulative,
             quantile_bin=quantile_bin,
@@ -743,7 +750,7 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
     if dfs_not_dict:
         dfs_counts = dfs_counts["e"]
     
-    return dfs_counts, edges
+    return dfs_counts, edges, density
 
 
 
@@ -821,9 +828,7 @@ def plot_hist(dfs, branch, weights=None,
         Axis of the plot (only if ``ax`` is not specified)
     """
     
-    
-    
-    dfs_counts, edges = dataframe_into_hist1D(
+    dfs_counts, edges, density = dataframe_into_hist1D(
         dfs=dfs, 
         low=low, high=high, n_bins=n_bins, weights=weights,
         density=density, cumulative=cumulative, 

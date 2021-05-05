@@ -140,7 +140,7 @@ def define_zparams(initial_values, cut_BDT=None, num=None):
     return zparams
 
 
-def wiggle_zparameters(zparams, params):
+def wiggle_zparameters(zparams, params, n_sigma=1):
     """ Randomly wiggle the zParameters 
     within their uncertainty interval
     
@@ -153,19 +153,22 @@ def wiggle_zparameters(zparams, params):
         Result ``'result.params'`` of the minimisation 
         of the loss function 
         (given by :py:func:`launch_fit`)
+    n_sigma: float
+        Number of sigmas the parameters are varied within
     """
     
     for param in zparams.keys():
         zparam = zparams[param]
-        if zparam in params:
-            value = params[zparam]['value']
-            error = params[zparam]['minuit_hesse']['error']
-            new_value = np.random.normal(loc=value, scale=error)
-            while np.sign(new_value)!=np.sign(value):
-                new_value = np.random.normal(loc=value, scale=error)
+        if param in params.keys():
+            value = params[param]['v']
+            error = params[param]['e']
+            new_value = np.random.normal(loc=value, scale=n_sigma*error)
+            while np.sign(new_value)!=np.sign(value) or new_value < zparam.lower_limit or new_value > zparam.upper_limit:
+                new_value = np.random.normal(loc=value, scale=n_sigma*error)
             print(param, ':', value, 'becomes', new_value)
             zparams[param].set_value(new_value)
-
+    return zparams
+            
 def get_info_fit_dict(result):
     """ Get a dictionnary that associates
     a fit result property its value.
@@ -241,7 +244,7 @@ def check_fit(result, return_info_fit_dict=False):
             fit_ok = False
 
     if info_fit_dict['edm'] > 0.001:
-        print(f'edm = {edm} > 0.001')
+        print(f"edm = {info_fit_dict['edm']} > 0.001")
         fit_ok = False
 
     if info_fit_dict['params_at_limit']:

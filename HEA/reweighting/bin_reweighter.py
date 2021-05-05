@@ -754,6 +754,7 @@ class BinReweighter():
                    plot_spline=None,
                    inter=None,
                    with_text_LHC=False,
+                   show_chi2=True,
                    **kwargs):
         """ Plot ``MC[column][bin i]/data[column][bin i]``
         
@@ -795,6 +796,9 @@ class BinReweighter():
         
         """
         
+        if not self.counts_specified(column) and self.data is None:
+            show_chi2 = False
+        
         if self.counts_specified(column):
             edges = self.edges_columns[column]
             centres = (edges[1:] + edges[:-1]) / 2
@@ -828,7 +832,7 @@ class BinReweighter():
         else:
 #             assert self.data is not None
 #             assert (plot_reweighted or plot_original)
-
+            
             low, high = self.get_low_high(column, low, high)
             bin_width = hist.get_bin_width(low, high, self.get_n_bins(column))
         
@@ -849,11 +853,12 @@ class BinReweighter():
         if plot_original:
             colors_dict['original'] = self.MC_color
             labels_dict['original'] = f"{self.MC_label}, "
-            labels_dict['original'] += self.get_chi2_latex(
-                column,
-                low=low, high=high,
-                with_MC_weights=False
-            )
+            if show_chi2:
+                labels_dict['original'] += self.get_chi2_latex(
+                    column,
+                    low=low, high=high,
+                    with_MC_weights=False
+                )
             
             if self.counts_specified(column):
                 counts_err_dict['original'] = self.get_MC_counts(
@@ -871,11 +876,12 @@ class BinReweighter():
         if plot_reweighted:
             colors_dict['reweighted'] = self.reweighted_MC_color
             labels_dict['reweighted'] = f"{self.reweighted_MC_label}, "
-            labels_dict['reweighted'] += self.get_chi2_latex(
-                column,
-                low=low, high=high,
-                with_MC_weights=True
-            )
+            if show_chi2:
+                labels_dict['reweighted'] += self.get_chi2_latex(
+                    column,
+                    low=low, high=high,
+                    with_MC_weights=True
+                )
             
             if self.counts_specified(column):
                 counts_err_dict['reweighted'] = self.get_MC_counts(
