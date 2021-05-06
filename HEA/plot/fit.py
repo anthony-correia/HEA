@@ -428,7 +428,7 @@ def plot_hist_fit_counts(
     # Legend
     fontsize_leg=default_fontsize['legend'],
     loc_leg='upper left', show_leg=None,
-    model_bar_mode=False, factor_max=1.1,
+    model_bar_mode=None, factor_max=1.1,
     ymin_to_0=True,
     **kwargs):
     
@@ -525,7 +525,7 @@ def plot_hist_fit_counts(
     ## Retrieve the histogram ===========================================
     
     centres, edges = get_centres_edges(centres=centres, edges=edges)
-    
+
     counts = data[0]
     err = data[1]
     
@@ -535,11 +535,13 @@ def plot_hist_fit_counts(
         y_models = models[0]
         y_models = el_to_list(y_models)
         x_model = centres
-    
-
+        edges_model = edges
+        
     elif len(models)==3:
         x_model, y_models, y_model_pull = models
         y_models = el_to_list(y_models)
+    
+        x_model, edges_model = get_centres_edges(centres=x_model, edges=None)    
 
     n_models = len(y_models)
 
@@ -605,8 +607,6 @@ def plot_hist_fit_counts(
     
     PDF_names = el_to_list(PDF_names, n_models)
     
-    if stack:
-        model_bar_mode = False
     start = 1 if y_models[0] is None else 0   
     
     ## Allow that a kwarg = list
@@ -623,18 +623,22 @@ def plot_hist_fit_counts(
         list_kwargs.append(ukwargs)
     
     
+    if model_bar_mode is None and stack:
+        model_bar_mode = 'bar'
+    else:
+        model_bar_mode = 'line'
+        
     for i in range(start, n_models):
         if PDF_names is None:
             PDF_name = None
         else:
             PDF_name = PDF_names[i]
-
-        if stack: 
-#             model_mode = 'fillbetween'
-            model_mode = 'bar'
-        else:
-            model_mode = 'bar' if model_bar_mode else None
+        
         if stack and i!=0: 
+            
+                
+                
+                
             model_counts = np.array([sum(y) for y in zip(*tuple(y_models[i:]))])
             plot_fitted_curve_from_hist(
                 ax[0], x_model, 
@@ -643,7 +647,7 @@ def plot_hist_fit_counts(
                 model_name=models_names[i], 
                 model_type=models_types[i],
                 color=colors[i], 
-                mode=model_mode, edges=edges,
+                mode=model_bar_mode, edges=edges_model,
                 **list_kwargs[i]
             )
             
@@ -655,7 +659,7 @@ def plot_hist_fit_counts(
                 model_name=models_names[i],
                 model_type=models_types[i],
                 color=colors[i], 
-                mode=model_mode, edges=edges,
+                mode=model_bar_mode, edges=edges_model,
                 **list_kwargs[i]
             )
             
