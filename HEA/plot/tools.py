@@ -439,6 +439,7 @@ def get_latex_branches_units(branches):
     units: str or list(str)
         unit of the branch or list of units of the branches
     """
+
     if assertion.is_list_tuple(branches):
         latex_branches = [None, None]
         units = [None, None]

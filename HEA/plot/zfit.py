@@ -632,6 +632,71 @@ def plot_hist_fit(df, branch, weights=None,
     )
         
 
+def get_counts_fit_counts_2d(
+    branches, df, model, obs,
+    n_bins=20):
+    """
+    Get the counts, edges and fit counts
+    
+    Parameters
+    ----------
+    branches: list(str, str)
+        two branches to plot
+    df: pd.DataFrame or list(array-like, array-like)
+        Dataframes associated with the two branches.
+        If it is just a dataframe, it should contain
+        the two columns given by ``branches``
+    model: zfit.BasePDF
+        zfit PDF
+    obs: zfit.Space or tuple(2-tuple, 2-tuple)
+        tuple (2 low values, 2 high values)
+        (1 value for each branch)
+    n_bins: int or list(int, int)
+        number of bins
+
+    Returns
+    -------
+    counts, err: array-like
+        Fitted sample, binned,
+        and uncertainty on these counts
+    fit_counts: array-like
+        Fitted pdf, binned
+    xedges, yedges: array-like
+        Common edges
+   
+    """
+    lows = [None, None]
+    highs = [None, None]
+    n_bins = el_to_list(n_bins, 2)
+    for i in range(2):
+        if assertion.is_list_tuple(obs):
+            lows[i] = obs[i][0]
+            highs[i] = obs[i][1]
+        else:
+            lows[i], highs[i] = get_limits_from_obs(obs, branches[i])
+    
+    counts, xedges, yedges = dataframe_into_hist2D(
+        branches, df, 
+        low=lows, high=highs, 
+        n_bins=n_bins
+    )
+    
+    err = np.sqrt(counts)
+    xcentres = (xedges[1:] + xedges[:-1]) / 2
+    ycentres = (yedges[1:] + yedges[:-1]) / 2
+    # mesh where to evaluate the PDF
+    mesh = np.array(np.meshgrid(xcentres, ycentres)).T
+    plot_scaling = _get_plot_scaling(
+        counts, n_bins=n_bins, 
+        low=[xedges[0], yedges[0]], 
+        high=[xedges[-1], yedges[-1]]
+    )
+    
+    fit_counts = frac_model(mesh, model, frac=1., branch=branches).reshape(len(xcentres), len(ycentres)).T
+    fit_counts = plot_scaling * fit_counts
+
+    return counts, err, fit_counts, xedges, yedges
+
 def plot_hist_fit2d(branches, df, model, obs,
                 n_bins=20,
                 **kwargs):
@@ -668,35 +733,10 @@ def plot_hist_fit2d(branches, df, model, obs,
     ax[1] : matplotlib.figure.Axes
         Axis of the pull diagram (only if ``plot_pull`` is ``True``)
     """
-    lows = [None, None]
-    highs = [None, None]
-    n_bins = el_to_list(n_bins, 2)
-    for i in range(2):
-        if assertion.is_list_tuple(obs):
-            lows[i] = obs[i][0]
-            highs[i] = obs[i][1]
-        else:
-            lows[i], highs[i] = get_limits_from_obs(obs, branches[i])
-    
-    counts, xedges, yedges = dataframe_into_hist2D(
-        branches, df, 
-        low=lows, high=highs, 
-        n_bins=n_bins
+    counts, err, fit_counts, xedges, yedges = get_counts_fit_counts_2d(
+        branches=branches, df=df, model=model, obs=obs,
+        n_bins=20,
     )
-    
-    err = np.sqrt(counts)
-    xcentres = (xedges[1:] + xedges[:-1]) / 2
-    ycentres = (yedges[1:] + yedges[:-1]) / 2
-    # mesh where to evaluate the PDF
-    mesh = np.array(np.meshgrid(xcentres, ycentres)).T
-    plot_scaling = _get_plot_scaling(
-        counts, n_bins=n_bins, 
-        low=[xedges[0], yedges[0]], 
-        high=[xedges[-1], yedges[-1]]
-    )
-    
-    fit_counts = frac_model(mesh, model, frac=1., branch=branches).reshape(len(xcentres), len(ycentres)).T
-    fit_counts = plot_scaling * fit_counts
     
     return pf.plot_hist_fit2d_counts(branches=branches, counts=counts, fit_counts=fit_counts,
                            xedges=xedges, yedges=yedges, err=err,

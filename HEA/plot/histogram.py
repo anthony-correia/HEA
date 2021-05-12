@@ -701,7 +701,7 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
     """
     
     weights = el_to_list(weights, len(dfs))
-    
+    dfs = dfs.copy()
     dfs_not_dict = not isinstance(dfs, dict)
     if not isinstance(dfs, dict):
         dfs = {"e": dfs}
@@ -1100,7 +1100,8 @@ def plot_hist2d_counts(branches, counts, xedges, yedges,
                                  string.list_into_string(branches, '_vs_'), data_name, '_'),
                              ax=ax)
 
-def dataframe_into_hist2D(branches, df, low=None, high=None, n_bins=20):
+def dataframe_into_hist2D(branches, df, low=None, high=None, n_bins=20, 
+                          normalise=False):
     """ Turn a dataframe into a 2d histogram
     
     Parameters
@@ -1118,7 +1119,9 @@ def dataframe_into_hist2D(branches, df, low=None, high=None, n_bins=20):
         low  value(s) of the branches
     high              : float or [float, float]
         high value(s) of the branches
-    
+    normalise: bool
+        Normalised?
+
     Returns
     -------
     counts: 2d array-like
@@ -1154,10 +1157,14 @@ def dataframe_into_hist2D(branches, df, low=None, high=None, n_bins=20):
                       )
     counts = counts.T 
     
+    if normalise:
+        counts = counts / counts.sum()
+
     return counts, xedges, yedges
 
 def plot_hist2d(branches, df,
                 low=None, high=None, n_bins=100,
+                normalise=False,
                 **kwargs):
     """  Plot a 2D histogram of 2 branches from a dataframe
 
@@ -1176,6 +1183,8 @@ def plot_hist2d(branches, df,
         low  value(s) of the branches
     high              : float or [float, float]
         high value(s) of the branches
+    normalise: bool
+        Normalised?
     **kwargs:
         passed to :py:func:`plot_hist2d_counts`
 
@@ -1192,7 +1201,8 @@ def plot_hist2d(branches, df,
     counts, xedges, yedges = dataframe_into_hist2D(
         branches, df, 
         low=low, high=high, 
-        n_bins=n_bins
+        n_bins=n_bins,
+        normalise=normalise
     )
     
     return plot_hist2d_counts(

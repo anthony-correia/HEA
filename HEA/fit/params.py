@@ -11,6 +11,7 @@ from uncertainties import ufloat
 from HEA.tools.string import _latex_format
 from HEA.tools.da import el_to_list
 
+import random
 
 def params_into_dict(result_params, uncertainty=True, remove=None,
                     method='zfit', remove_semicolon=True):
@@ -143,9 +144,13 @@ def retrieve_params(file_name, folder_name=None, only_val=True):
 
     Returns
     -------
-    Python object or dic
-        dictionnary that contains the parameters stored in the json file
-        in ``{loc['json']}/{folder_name}/{name_data}_params.json``
+    : Python object or dic
+        dictionnary that contains the parameters stored in a json file
+        in ``{loc['json']}/{folder_name}/{name_data}_params.json``/
+        If ``only_val``, associate a param name with its value,
+        else, associate a param name with another dict,
+        that indicates its value (``'v'``) and error (``'e'``).
+        The dictionnary might also contain other variables
     """
     params =  retrieve_json(file_name=file_name + '_params',
                             folder_name=folder_name)
@@ -159,8 +164,69 @@ def retrieve_params(file_name, folder_name=None, only_val=True):
         return params_vals
     else:
         return params
+
+def params_into_ufloat(params):
+    """ Transform a dictionnary of parameters indicating
+    its value and error, into a dictionnary that contains
+    directly the ``ufloat`` values.
+
+    Parameters
+    ----------
+    params: dict
+        associate a param name with another dict,
+        that indicates its value (``'v'``) and error (``'e'``).
+        The dictionnary might also contain other variables
     
+    Returns
+    -------
+    ufloat_params: dict[str:ufloat]
+        Associates a parameter with its ufloat value
+    """
+
+    from uncertainties import ufloat
+
+    ufloat_params = {}
+    for param_name, param_dict in params.items():
+        if 'v' in param_dict:
+            value = param_dict['v']
+            error = param_dict['e']
+            ufloat_params[param_name] = ufloat(value, error)
+
+    return ufloat_params
+
+
+
+def ufloat_params_into_params(ufloat_params):
+    """ Transforma a dictionnary of parameters using 
+    ``ufloat`` objects, into a dictionnary that
+    shows the value and uncertainty separately,
+    useful if it has to be saved in a JSON file.
+
+    Parameters
+    ----------
+    ufloat_params: dict[str:ufloat]
+        Associates a parameter with its ufloat value
     
+    Returns
+    -------
+    params: dict
+        associate a param name with another dict,
+        that indicates its value (``'v'``) and error (``'e'``).
+        The dictionnary might also contain other variables
+    """
+
+    params = {}
+    for param_name, ufloat_param in ufloat_params.items():
+        value = ufloat_param.nominal_value
+        error = ufloat_param.std_dev
+        params[param_name] = {
+            'v': value,
+            'e': error
+        }
+
+    return params
+
+
 
 
 def get_params_without_BDT(df_params, retrieve_err=False):

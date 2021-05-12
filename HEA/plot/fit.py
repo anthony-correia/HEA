@@ -513,6 +513,7 @@ def plot_hist_fit_counts(
     ax[1] : matplotlib.figure.Axes
         Axis of the pull diagram (only if ``plot_pull`` is ``True``)
     """
+    
     if show_leg is None:
         if assertion.is_list_tuple(models_names):
             show_leg = False
@@ -623,10 +624,12 @@ def plot_hist_fit_counts(
         list_kwargs.append(ukwargs)
     
     
-    if model_bar_mode is None and stack:
-        model_bar_mode = 'bar'
-    else:
-        model_bar_mode = 'line'
+    if model_bar_mode is None:
+        if stack:
+            model_bar_mode = 'bar'
+        else:
+             model_bar_mode = 'line'
+       
         
     for i in range(start, n_models):
         if PDF_names is None:
@@ -635,10 +638,6 @@ def plot_hist_fit_counts(
             PDF_name = PDF_names[i]
         
         if stack and i!=0: 
-            
-                
-                
-                
             model_counts = np.array([sum(y) for y in zip(*tuple(y_models[i:]))])
             plot_fitted_curve_from_hist(
                 ax[0], x_model, 
