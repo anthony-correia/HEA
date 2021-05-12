@@ -193,6 +193,7 @@ def dataframe_into_histdD(branches, df, low=None, high=None, n_bins=20,
             low[i], high[i], list_samples[i])
         range_list.append((low[i], high[i]))
 
+    print("Number of bins:", n_bins)
     counts, edges = \
         np.histogramdd(np.array(list_samples).T, 
                        range=range_list,

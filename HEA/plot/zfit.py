@@ -50,7 +50,6 @@ def _get_plot_scaling(counts, low, high, n_bins):
     n_bins = el_to_list(n_bins)
     prod_space = reduce(mul, [high[i] - low[i] for i in range(len(low))])
     prod_n_bins = reduce(mul, n_bins)
-    
     return counts.sum() * prod_space / prod_n_bins
 
 
@@ -738,7 +737,7 @@ def get_counts_fit_counts_dD(
 
     lows = [None for i in range(dim)]
     highs = [None for i in range(dim)]
-    n_bins = el_to_list(n_bins, 2)
+    n_bins = el_to_list(n_bins, dim)
     for i in range(dim):
         if assertion.is_list_tuple(obs):
             lows[i] = obs[i][0]
