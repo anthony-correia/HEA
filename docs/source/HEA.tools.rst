@@ -55,6 +55,14 @@ HEA.tools.dist module
    :undoc-members:
    :show-inheritance:
 
+HEA.tools.df_into_hist module
+-----------------------------
+
+.. automodule:: HEA.tools.df_into_hist
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 HEA.tools.root module
 ---------------------
 

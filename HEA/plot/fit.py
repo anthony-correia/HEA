@@ -4,7 +4,7 @@ Plot a histogram, with the fitted PDF, the pull diagram and the fitted parameter
 
 import HEA.plot.tools as pt
 from HEA.plot.histogram import (
-    plot_hist_alone, set_label_hist, get_bin_width,
+    set_label_hist,
     plot_hist_alone_from_hist,
     get_centres_edges,
     plot_hist2d_counts,

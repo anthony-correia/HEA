@@ -61,45 +61,6 @@ def save_fig(fig, fig_name, folder_name=None,
 ############################### Tool functions for plotting ##############
 ##########################################################################
 
-# Computation ------------------------------------------------------------
-def _redefine_low_high(low, high, data):
-    """ if low or high is not None, return global min (``low``) or max (``high``) of all the data in data, respectively.
-
-    Parameters
-    ----------
-    low    : float or None
-        low value of the range
-    high   : float or None
-        high value of the range
-    data   : pandas.Series or list(pandas.Series)
-        for which we want to define the ``low``/``high`` value
-
-    Returns
-    -------
-    low  : float
-        low  if the parameter ``low`` was not None, else minimum of all the data in ``data``
-    high : float
-        high if the parameter ``high`` was not None, else maximum of all the data in ``data``
-    """
-    # Transform data into a list of data (if it is not already the case)
-    l_data = [data] if isinstance(data, Series) else data
-
-    define_low = low is None
-    define_high = high is None
-
-    if define_low or define_high:
-        if define_low:
-            low = np.inf
-        if define_high:
-            high = - np.inf
-        for el_data in l_data:
-            if define_low:
-                low = min(low, el_data.min())
-            if define_high:
-                high = max(high, el_data.max())
-
-    return low, high
-
 # Text formatting --------------------------------------------------------
 
 

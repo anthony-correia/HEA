@@ -120,7 +120,7 @@ def blind_params(
             else:
                 if not unblind:
                     params[blinded_param] *= rd_nb
-                else: 
+                else:
                     params[blinded_param] /= rd_nb
 
     return params

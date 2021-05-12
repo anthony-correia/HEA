@@ -2,10 +2,10 @@
 Tool functions for distributions.
 """
 
-from HEA.tools.string import list_into_string
 import numpy as np
 import pandas as pd
 
+## CHI2 =============================================================================
 
 def get_chi2(fit_counts, counts, err=None):
     """ Get the :math:`\\chi^2` of a fit

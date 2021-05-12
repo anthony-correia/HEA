@@ -8,9 +8,6 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-from pandas import DataFrame
-from pandas.core.series import Series
-
 
 from matplotlib.colors import LogNorm  # matplotlib.colors.LogNorm()
 
@@ -22,12 +19,16 @@ from HEA.tools import string
 from HEA.tools.dist import (
     get_count_err, 
     get_bin_width, 
-    get_density_counts_err,
     get_count_err_ratio,
     divide_counts
 )
 from HEA.tools.assertion import is_list_tuple
 
+from HEA.tools.df_into_hist import (
+    _redefine_low_high,
+    dataframe_into_hist1D,
+    dataframe_into_hist2D
+)
 
 # Gives us nice LaTeX fonts in the plots
 from matplotlib import rc, rcParams
@@ -659,101 +660,6 @@ def plot_hist_counts(dfs, branch, latex_branch=None, unit=None, weights=None,
                              default_fig_name=f'{branch}_{string.list_into_string(data_names)}',
                              ax=ax)
 
-def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
-                         density=None, cumulative=False, 
-                          quantile_bin=False, branch=None, **kwargs):
-    """ Turn a dataframe into a histogram
-    
-    Parameters
-    ----------
-    dfs : dict(str:array-like/pd.DataFrame) or array-like or pd.DataFrame
-        Dictionnary {name of the dataframe : associated data}
-    branch : str
-        name of the branch in the dataframe
-    low : float
-        low value of the distribution
-    high : float
-        high value of the distribution
-    n_bins : int
-        Desired number of bins of the histogram
-    weights  : numpy.array
-        weights passed to  :py:func:`np.histogram`
-    density : bool
-        if True, divide the numbers of counts in the histogram by the total number of counts
-    cumulative : bool
-        if ``True``, return the cumulated event counts.
-    quantile_bin : bool
-        whether to use equal-yield bins
-    branch: str
-        branch to plot (used in the case ``dfs`` has DataFrames as values)
-    **kwargs :
-        passed to :py:func:`HEA.tools.dist.get_count_err`
-    
-    Returns
-    -------
-    dfs : dict or tuple
-        Associates a name of dataframe its tuple
-        ``(counts, err)``
-        or directly a the tuple if ``dfs`` was 
-        directly the dataframe / array-like
-    edges : array-like
-        edges of the histogram
-    """
-    
-    weights = el_to_list(weights, len(dfs))
-    dfs = dfs.copy()
-    dfs_not_dict = not isinstance(dfs, dict)
-    if not isinstance(dfs, dict):
-        dfs = {"e": dfs}
-    for i, (data_name, df) in enumerate(dfs.items()):
-        
-        if weights is not None:
-            if isinstance(weights[i], str):
-                weights[i] = df[weights[i]]
-
-            if isinstance(df, DataFrame):
-                dfs[data_name] = df[branch]
-                
-    # First loop to determine the low and high value
-    low, high = pt._redefine_low_high(
-        low, high, list(dfs.values()))
-    bin_width = get_bin_width(low, high, n_bins)
-    
-    if density is None:
-        if quantile_bin:
-            density = False
-        elif len(dfs) > 1:
-            density = 'candidates'
-        else:
-            density = "bin_width"
-        
-    else:
-        assert not ((density=="bin_width" or density=="both") and quantile_bin)
-    
-    dfs_counts = {}
-    bins = n_bins
-    
-    weights = el_to_list(weights, len(dfs))
-    for k, (data_name, df) in enumerate(dfs.items()):
-        counts, edges, centres, err = get_count_err(
-            data=df, n_bins=bins, 
-            low=low, high=high, 
-            weights=weights[k],
-            density=density,
-            cumulative=cumulative,
-            quantile_bin=quantile_bin,
-            **kwargs) 
-        
-        dfs_counts[data_name] = [counts, err]
-        bins = edges
-    
-    if dfs_not_dict:
-        dfs_counts = dfs_counts["e"]
-    
-    return dfs_counts, edges, density
-
-
-
 def plot_hist(dfs, branch, weights=None,
               low=None, high=None, n_bins=100, 
               density=None,
@@ -975,7 +881,7 @@ def plot_divide(dfs, branch, latex_branch, unit, low=None, high=None,
     data_names = list(dfs.keys())
 
     # Compute the number of bins
-    low, high = pt._redefine_low_high(
+    low, high = _redefine_low_high(
         low, high, [df[branch] for df in dfs.values()])
     bin_width = get_bin_width(low, high, n_bins)
 
@@ -1100,67 +1006,8 @@ def plot_hist2d_counts(branches, counts, xedges, yedges,
                                  string.list_into_string(branches, '_vs_'), data_name, '_'),
                              ax=ax)
 
-def dataframe_into_hist2D(branches, df, low=None, high=None, n_bins=20, 
-                          normalise=False):
-    """ Turn a dataframe into a 2d histogram
-    
-    Parameters
-    ----------
-    df                : pandas.Dataframe or list(array-like)
-        Dataframe that contains the 2 branches to plot
-        or two same-sized arrays, one for each variable
-    branches          : [str, str]
-        names of the two branches
-    n_bins            : int or [int, int]
-        number of bins
-    log_scale         : bool
-        if true, the colorbar is in logscale
-    low               : float or [float, float]
-        low  value(s) of the branches
-    high              : float or [float, float]
-        high value(s) of the branches
-    normalise: bool
-        Normalised?
 
-    Returns
-    -------
-    counts: 2d array-like
-        bin counts
-    xedges, yedges: array-like
-        Bin edges
-    """
-    
-    # low, high and units into a list of size 2
-    low = el_to_list(low, 2)
-    high = el_to_list(high, 2)
-    
-    # Formatting data input
-    list_samples = []
-    if isinstance(df, DataFrame):
-        list_samples.append(df[branches[0]])
-        list_samples.append(df[branches[1]])
-    elif assertion.is_list_tuple(df):
-        list_samples = df
-    
-    # low, high and units into a list of size 2
-    low = el_to_list(low, 2)
-    high = el_to_list(high, 2)
 
-    for i in range(2):
-        low[i], high[i] = pt._redefine_low_high(
-            low[i], high[i], list_samples[i])
-    
-    counts, xedges, yedges = \
-        np.histogram2d(list_samples[0], list_samples[1], 
-                       range=((low[0], high[0]), (low[1], high[1])),
-                       bins=n_bins,
-                      )
-    counts = counts.T 
-    
-    if normalise:
-        counts = counts / counts.sum()
-
-    return counts, xedges, yedges
 
 def plot_hist2d(branches, df,
                 low=None, high=None, n_bins=100,
