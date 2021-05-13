@@ -38,7 +38,7 @@ def systematics_variation_params(
     
     np.random.seed(seed)
     systematics_params = {}
-
+    
     for param_name in list_params:
         
         nom_value = params[param_name]['v']

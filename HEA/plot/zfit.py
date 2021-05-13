@@ -812,7 +812,7 @@ def plot_hist_fit2d(branches, df, model, obs,
     """
     counts, err, fit_counts, edges = get_counts_fit_counts_dD(
         branches=branches, df=df, model=model, obs=obs,
-        n_bins=20,
+        n_bins=n_bins,
     )
 
     xedges = edges[0]
