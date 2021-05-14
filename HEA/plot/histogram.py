@@ -30,11 +30,7 @@ from HEA.tools.df_into_hist import (
     dataframe_into_hist2D
 )
 
-# Gives us nice LaTeX fonts in the plots
-from matplotlib import rc, rcParams
-rc('font', **{'family': 'serif', 'serif': ['Roman']})
-rc('text', usetex=True)
-rcParams['axes.unicode_minus'] = False
+
 
 
 ##########################################################################

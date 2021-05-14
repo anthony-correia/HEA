@@ -17,6 +17,12 @@ from HEA.tools import string
 from HEA.definition import RVariable
 from HEA.tools import assertion
 
+# Gives us nice LaTeX fonts in the plots
+from matplotlib import rc, rcParams
+rc('font', **{'family': 'serif', 'serif': ['Roman']})
+rc('text', usetex=True)
+rcParams['axes.unicode_minus'] = False
+
 
 ##########################################################################
 ########################################### Saving #######################

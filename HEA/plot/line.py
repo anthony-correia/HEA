@@ -14,12 +14,6 @@ from uncertainties import unumpy
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Gives us nice LaTeX fonts in the plots
-from matplotlib import rc, rcParams
-rc('font', **{'family': 'serif', 'serif': ['Roman']})
-rc('text', usetex=True)
-rcParams['axes.unicode_minus'] = False
-
 
 ##########################################################################
 ######################################## Tool function ###################

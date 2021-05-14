@@ -95,7 +95,7 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
     weights = el_to_list(weights, len(dfs))
     dfs = dfs.copy()
     dfs_not_dict = not isinstance(dfs, dict)
-    if not isinstance(dfs, dict):
+    if dfs_not_dict:
         dfs = {"e": dfs}
     for i, (data_name, df) in enumerate(dfs.items()):
         
@@ -139,8 +139,8 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
         dfs_counts[data_name] = [counts, err]
         bins = edges
     
-    if dfs_not_dict:
-        dfs_counts = dfs_counts["e"]
+    # if dfs_not_dict:
+    #     dfs_counts = dfs_counts["e"]
     
     return dfs_counts, edges, density
 
