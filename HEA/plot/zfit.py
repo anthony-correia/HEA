@@ -586,10 +586,11 @@ def plot_hist_fit(df, branch, weights=None,
 
     # Get 1D histogram of the fitted sample ===================
     # Histogram
-    data, edges, density = dataframe_into_hist1D(
+    data, edges, _ = dataframe_into_hist1D(
         df, branch=branch,
         low=low_hist, high=high_hist, n_bins=n_bins, 
-        weights=weights, density=False)
+        weights=weights, density=False,
+        get_dict=False)
     counts, err = data
     centres = (edges[1:] + edges[:-1])/2
     

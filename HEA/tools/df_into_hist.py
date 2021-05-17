@@ -53,7 +53,9 @@ def _redefine_low_high(low, high, data):
 
 def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
                          density=None, cumulative=False, 
-                          quantile_bin=False, branch=None, **kwargs):
+                          quantile_bin=False, branch=None, 
+                          get_dict=True,
+                          **kwargs):
     """ Turn a dataframe into a histogram
     
     Parameters
@@ -78,6 +80,8 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
         whether to use equal-yield bins
     branch: str
         branch to plot (used in the case ``dfs`` has DataFrames as values)
+    get_dict: bool
+        return ``dfs`` as a dict
     **kwargs :
         passed to :py:func:`HEA.tools.dist.get_count_err`
     
@@ -86,8 +90,8 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
     dfs : dict or tuple
         Associates a name of dataframe its tuple
         ``(counts, err)``
-        or directly a the tuple if ``dfs`` was 
-        directly the dataframe / array-like
+        or directly a the tuple if ``get_dict``
+        is ``False``
     edges : array-like
         edges of the histogram
     """
@@ -139,8 +143,8 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
         dfs_counts[data_name] = [counts, err]
         bins = edges
     
-    # if dfs_not_dict:
-    #     dfs_counts = dfs_counts["e"]
+    if not get_dict:
+        dfs_counts = dfs_counts["e"]
     
     return dfs_counts, edges, density
 

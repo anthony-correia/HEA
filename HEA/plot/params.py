@@ -15,6 +15,8 @@ def plot_params(value_err_params_cats, label_params, label_cats, color_cats,
                     ylabel="Parameters",
                     marker='o', markersize=5, 
                     zero_line=False,
+                    elinestyle_cats={},
+                    capsize=3, capthick=1,
                     **kwargs
                     ):
     """ Plot the value of some parameters for different categories, in a 2D plot:
@@ -52,9 +54,13 @@ def plot_params(value_err_params_cats, label_params, label_cats, color_cats,
         If ``fig_name`` is not provided, the plot is not saved.
     zero_line: bool
         Do we plot a ``x=0`` line?
+    elinestyle_cats: dict[str]
+        Associates a category with the line style of the error bars
     marker, markersize, kwargs:
         passed to :py:func:`matplotlib.pyplot.plot`
     """
+
+    
 
     ## LIST OF PARAMS AND CATEGORIES ===========================================    
 
@@ -62,6 +68,18 @@ def plot_params(value_err_params_cats, label_params, label_cats, color_cats,
         list_categories = list(value_err_params_cats.keys())
     if list_params is None:
         list_params = list(value_err_params_cats[list_categories[0]].keys())
+
+    ## Kwargs =================================================================
+    print(kwargs)
+    kwargs_cats = {}
+    for cat in list_categories:
+        kwargs_cats[cat] = {}
+        for kwarg_name, kwarg_dict  in kwargs.items():
+            if isinstance(kwarg_dict, dict):
+                if cat in kwarg_dict:
+                    kwargs_cats[cat][kwarg_name] = kwarg_dict[cat]
+            else:
+                kwargs_cats[cat] = kwarg_dict
 
     # FILL THE X AND Y VALUES AND LABELS ======================================
     # y
@@ -116,16 +134,21 @@ def plot_params(value_err_params_cats, label_params, label_cats, color_cats,
 
     for cat in list_categories:
         print("Category:", cat)
-        
-        ax.errorbar(
+        print(kwargs_cats[cat])
+        eb = ax.errorbar(
             x=x_cats[cat], y=y + offset_cats[cat],
             xerr=xerr_cats[cat],
             label=label_cats[cat],
             color=color_cats[cat],
             marker=marker,
             linestyle='', markersize=markersize,
-            **kwargs
+            capsize=capsize, capthick=capthick,
+            **kwargs_cats[cat]
         )
+
+        if cat in elinestyle_cats and elinestyle_cats[cat] is not None:
+            eb[-1][0].set_linestyle(elinestyle_cats[cat])
+
 
     # x and y labels
     ax.set_xlabel(xlabel, fontsize=25)

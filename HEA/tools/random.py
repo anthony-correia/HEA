@@ -7,7 +7,7 @@ import numpy as np
 def systematics_variation_params(
     params, 
     list_params=None, require_same_sign=False,
-    seed=15):
+    seed=15, verbose=False):
     """ Get the parameters under systematics variation.
 
     Parameters
@@ -25,6 +25,8 @@ def systematics_variation_params(
     seed: int
         Seed to generate randomly the updated number
         (for reproducible randomness)
+    verbose: bool
+        Do we print?
 
     returns
     -------
@@ -57,10 +59,11 @@ def systematics_variation_params(
                 )
 
         systematics_params[param_name] = new_value
-        print(
-            f"Systematic variation of {param_name}:",
-            f"{nom_value} +/- {width} -> {new_value}"
-        ) 
+        if verbose:
+            print(
+                f"Systematic variation of {param_name}:",
+                f"{nom_value} +/- {width} -> {new_value}"
+            ) 
     return systematics_params
 
 

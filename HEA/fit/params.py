@@ -187,7 +187,7 @@ def params_into_ufloat(params):
 
     ufloat_params = {}
     for param_name, param_dict in params.items():
-        if 'v' in param_dict:
+        if isinstance(param_dict, dict) and 'v' in param_dict:
             value = param_dict['v']
             error = param_dict['e']
             ufloat_params[param_name] = ufloat(value, error)
