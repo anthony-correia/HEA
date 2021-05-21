@@ -53,6 +53,46 @@ def _get_plot_scaling(counts, low, high, n_bins):
     return counts.sum() * prod_space / prod_n_bins
 
 
+def get_sub_obs(model, branches):
+    """ Split the space into the space of model in ``branches``
+    and the ones that aren't.
+
+    Parameters
+    ----------
+    model: zfit.pdf.BasePDF
+        zfit model
+    branches: list(str)
+        list of branches
+    
+    Returns
+    -------
+    branch_obs: zfit.dimension.Space
+        space of ``branches``
+    other_obs: zfit.dimension.Space
+        Space of dimensions not in ``branches``
+    
+    """
+    import zfit
+
+    other_obs_list = []
+    branch_obs_list = []
+    
+    for i in range(model.n_obs):
+        sub_obs = zfit.Space(
+            model.obs[i], 
+            limits=(model.space.limits[0].flatten()[i],
+                   model.space.limits[1].flatten()[i])
+        )
+        
+        if model.obs[i] in branches:
+            branch_obs_list.append(sub_obs)
+        else:
+            other_obs_list.append(sub_obs)
+
+    other_obs = reduce(mul, other_obs_list)
+    branch_obs = reduce(mul, branch_obs_list)
+    return branch_obs, other_obs
+
 def partial_pdf(model, x, branch):
     """
     Evaluate a multi-dimensional PDF
@@ -77,26 +117,9 @@ def partial_pdf(model, x, branch):
     """
     
     branches = el_to_list(branch)
-    
     import zfit
     
-    other_obs_list = []
-    branch_obs_list = []
-    
-    for i in range(model._N_OBS):
-        sub_obs = zfit.Space(
-            model.obs[i], 
-            limits=(model.space.limits[0].flatten()[i],
-                   model.space.limits[1].flatten()[i])
-        )
-        
-        if model.obs[i] in branches:
-            branch_obs_list.append(sub_obs)
-        else:
-            other_obs_list.append(sub_obs)
-
-    other_obs = reduce(mul, other_obs_list)
-    branch_obs = reduce(mul, branch_obs_list)
+    branch_obs, other_obs = get_sub_obs(model, branches)
     x_adapted = zfit.Data.from_numpy(array=np.array(x), obs=branch_obs)
 
     return model.partial_integrate(x_adapted, limits=other_obs)
@@ -128,7 +151,7 @@ def frac_model(x, model, frac=1., branch=None):
 
     """
     print("Dim of the pdf:", model.n_obs)
-    partial_needed = (model.n_obs > 1) and not (assertion.is_list_tuple(branch) and model.n_obs==len(branch))
+    partial_needed = (model.n_obs > 1) and not (assertion.is_list_tuple(branch) and model.n_obs!=len(branch))
 
     if partial_needed:
         y = partial_pdf(model, x, branch)
@@ -635,6 +658,55 @@ def plot_hist_fit(df, branch, weights=None,
         **list_kwargs
     )
         
+def get_fit_counts_dd_via_sample(model, edges, branches=None, n=10000000, norm=None, **kwargs):
+    """
+    Get the fit counts by generate a sample with
+    ``n`` events and histogrammising it.
+
+    Parameters
+    ----------
+    model: zfit.pdf.BasePDF
+        zfit model of interest
+    edges: array-like
+        bin edges
+    n: int
+        Size of the sample to generate to emulate
+        the PDF
+    norm: float
+        Expected norm of the histogram
+    **kwargs:
+        passed to :py:func:`numpy.histogramdd`
+    
+    Returns
+    -------
+    fit_counts: array-like
+        Fit counts
+    """
+
+    partial_needed = branches is not None and (model.n_obs > 1) and not (assertion.is_list_tuple(branches) and model.n_obs!=len(branches))
+    if branches:
+        print(model)
+        branch_obs, other_obs = get_sub_obs(model, branches)
+        print(other_obs)
+        used_model = model.create_projection_pdf(limits_to_integrate=other_obs)
+    else:
+        used_model = model
+
+
+    print(f"Generate a sample of size {n} to get the pdf distribution")
+    sampler = used_model.create_sampler(n=100000, fixed_params=True)
+    array = sampler.numpy()
+
+    print(array.shape)
+    print(np.array(edges).shape)
+    fit_counts, _ = np.histogramdd(
+        array, bins=edges, **kwargs
+    )
+
+    if norm is not None:
+        fit_counts = fit_counts / np.sum(fit_counts) * norm
+
+    return fit_counts
 
 def get_counts_fit_counts_2d(
     branches, df, model, obs,
@@ -703,7 +775,7 @@ def get_counts_fit_counts_2d(
 
 def get_counts_fit_counts_dD(
     branches, df, model, obs,
-    n_bins=20):
+    n_bins=20, fit_counts_via_sample=False):
     """
     Get the counts, edges and fit counts
     
@@ -722,6 +794,9 @@ def get_counts_fit_counts_dD(
         (1 value for each branch)
     n_bins: int or list(int, int)
         number of bins
+    fit_counts_via_sample: bool
+        Do we compute the fit counts by generating a random sample
+        of it?
 
     Returns
     -------
@@ -769,14 +844,17 @@ def get_counts_fit_counts_dD(
         list_n_bins.append(len(subcentres))
     
     
-
-    fit_counts = frac_model(mesh, model, frac=plot_scaling, branch=branches).reshape(*tuple(list_n_bins)).T
-    # fit_counts = plot_scaling * fit_counts
+    if fit_counts_via_sample:
+        fit_counts = get_fit_counts_dd_via_sample(model, edges=edges, branches=branches, norm=counts.sum())
+    else:
+        fit_counts = frac_model(mesh, model, frac=plot_scaling, branch=branches).reshape(*tuple(list_n_bins)).T
+        # fit_counts = plot_scaling * fit_counts
 
     return counts, err, fit_counts, edges
 
 def plot_hist_fit2d(branches, df, model, obs,
                 n_bins=20,
+                fit_counts_via_sample=False,
                 **kwargs):
     """ Produce 3 separate histograms:
     
@@ -799,6 +877,9 @@ def plot_hist_fit2d(branches, df, model, obs,
         (1 value for each branch)
     n_bins: int or list(int, int)
         number of bins
+    fit_counts_via_sample: bool
+        Do we compute the fit counts by generating a random sample
+        of it?
     **kwargs : dict
         passed to :py:func:`HEA.plot.fit.plot_hist_fit2d_counts`
     
@@ -814,6 +895,7 @@ def plot_hist_fit2d(branches, df, model, obs,
     counts, err, fit_counts, edges = get_counts_fit_counts_dD(
         branches=branches, df=df, model=model, obs=obs,
         n_bins=n_bins,
+        fit_counts_via_sample=fit_counts_via_sample
     )
 
     xedges = edges[0]

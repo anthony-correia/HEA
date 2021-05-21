@@ -216,17 +216,20 @@ def change_range_axis(ax, factor_max=1.1, min_to_0=True, axis='y'):  # previousl
     axis      : 'x', 'y' or 'both'
         Axis where to change the range limits
     """
-    if axis == 'x' or axis == 'both':
-        xmin, xmax = ax.get_xlim()
-        if min_to_0:
-            xmin = 0
-        ax.set_xlim(xmin, xmax * factor_max)
-
-    if axis == 'y' or axis == 'both':
-        ymin, ymax = ax.get_ylim()
-        if min_to_0:
-            ymin = 0
-        ax.set_ylim(ymin, ymax * factor_max)
+    if factor_max!=False:
+        if axis == 'x' or axis == 'both':
+            xmin, xmax = ax.get_xlim()
+            if min_to_0:
+                xmin = 0
+            ax.set_xlim(xmin, xmax * factor_max)
+        if axis == 'y' or axis == 'both':
+            ymin, ymax = ax.get_ylim()
+            if min_to_0:
+                ymin = 0
+            print(ymax)
+            print(factor_max)
+            print(ymax * factor_max)
+            ax.set_ylim(ymin, ymax * factor_max)
 
 
 def set_label_ticks(ax, labelsize=default_fontsize['ticks'], axis='both'):
@@ -350,7 +353,6 @@ def set_text_LHCb(
 
 
 def fix_plot(ax, factor_ymax=1.1, show_leg=True, 
-             fontsize_ticks=default_fontsize['ticks'],
              fontsize_leg=default_fontsize['legend'], 
              loc_leg='best', ymin_to_0=True, 
              pos_text_LHC=None, axis='y'):

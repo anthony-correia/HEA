@@ -70,7 +70,7 @@ def plot_params(value_err_params_cats, label_params, label_cats, color_cats,
         list_params = list(value_err_params_cats[list_categories[0]].keys())
 
     ## Kwargs =================================================================
-    print(kwargs)
+    
     kwargs_cats = {}
     for cat in list_categories:
         kwargs_cats[cat] = {}
@@ -80,7 +80,6 @@ def plot_params(value_err_params_cats, label_params, label_cats, color_cats,
                     kwargs_cats[cat][kwarg_name] = kwarg_dict[cat]
             else:
                 kwargs_cats[cat] = kwarg_dict
-
     # FILL THE X AND Y VALUES AND LABELS ======================================
     # y
     y = np.arange(1, len(list_params)+1)

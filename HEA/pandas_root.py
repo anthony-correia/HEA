@@ -20,6 +20,8 @@ from HEA import RVariable
 from HEA.tools.serial import dump_json
 from HEA.tools.string import add_text
 
+import uproot
+
 import os.path as op
 
 def assert_needed_variables(needed_variables, df):
@@ -135,7 +137,10 @@ def drop_na(df, subset, *args, **kwargs):
                     *args, **kwargs)   
 
 
-def load_dataframe(paths, columns=None, tree_name='DecayTree', method='read_root', **kwds):
+def load_dataframe(
+    paths, columns=None, tree_name='DecayTree', method='read_root', 
+    verbose=True,
+    **kwds):
     """ load dataframe from a root file (also print the path of the root file)
 
     Parameters
@@ -161,15 +166,17 @@ def load_dataframe(paths, columns=None, tree_name='DecayTree', method='read_root
     paths = el_to_list(paths)
     df = pd.DataFrame() 
     for path in paths:
-        print("Loading " + path)
+        if verbose:
+            print("Loading " + path)
 
         if method == 'read_root':
             df = df.append(read_root(path, tree_name, columns=columns, **kwds))
 
         elif method == 'uproot':
-            import uproot4  # not imported by default...
-            file = uproot4.open(path)[tree_name]
-            df = df.append(file.arrays(vars, library="pd"))
+            
+            file = uproot.open(path)[tree_name]
+            df = df.append(file.arrays(library="pd", how="zip", filter_name=columns))
+            # df = df.append(file.arrays(vars, library="pd"))
             del file
 
     return df

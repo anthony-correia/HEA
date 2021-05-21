@@ -135,7 +135,7 @@ def plot_hist_alone_from_hist(ax, counts, err=None, color='b',
                        **kwargs)
             if colors[1] is not None:
                 ax.step(edges, np.concatenate([np.array([counts[0]]), counts]), 
-                        color=colors[1],
+                        color=colors[1], alpha=alpha,
                         label=label if colors[0] is None else None,
                         linestyle=linestyle, linewidth=linewidth,
                        )
@@ -147,7 +147,7 @@ def plot_hist_alone_from_hist(ax, counts, err=None, color='b',
                         **kwargs)
             if colors[1] is not None:
                 ax.step(np.concatenate([counts, np.array([counts[-1]])]), edges, color=colors[2],
-                       linestyle=linestyle, linewidth=linewidth)
+                       linestyle=linestyle, linewidth=linewidth, alpha=alpha)
     else:
         if show_xerr:
             xerr = bin_widths / 2
@@ -490,7 +490,7 @@ def get_bin_width_from_edges(edges):
     return bin_width
 
 def plot_hist_counts(dfs, branch, latex_branch=None, unit=None, weights=None,
-              low=None, high=None, n_bins=100, colors=None, alpha=None,
+              colors=None, alpha=None,
               bar_mode=False, density=None, orientation='vertical',
               labels=None,
               title=None, pos_text_LHC=None,
@@ -511,8 +511,9 @@ def plot_hist_counts(dfs, branch, latex_branch=None, unit=None, weights=None,
 
     Parameters
     ----------
-    dfs             : dict(str:pandas.Dataframe)
-        Dictionnary {name of the dataframe : pandas dataframe}
+    dfs             : dict(str:tuple)
+        Dictionnary {name of the dataframe : (counts, err) or (counts,)} 
+
     branch          : str
         name of the branch in the dataframe
     latex_branch    : str
@@ -606,7 +607,26 @@ def plot_hist_counts(dfs, branch, latex_branch=None, unit=None, weights=None,
     labels = el_to_list(labels, len(dfs))
     edgecolors = el_to_list(edgecolors, len(dfs))
     
-    
+    adapted_kwargs = {}
+    # print(kwargs)
+    for key in dfs.keys():
+        adapted_kwargs[key] = {}
+    for key, kwarg in kwargs.items():
+        need_separate = False
+
+        if isinstance(kwarg, dict):
+            need_separate = True
+            for key_kwarg in kwarg.keys():
+                if key_kwarg not in dfs.keys():
+                    print(key_kwarg)
+                    need_separate = False
+            print(need_separate)
+        for data_name in dfs.keys():
+            if need_separate:
+                if data_name in kwarg.keys():
+                    adapted_kwargs[data_name][key] = kwarg[data_name]
+            else:
+                adapted_kwargs[data_name][key] = kwarg
     for i, (data_name, df) in enumerate(dfs.items()):
         if quantile_bin:
             if edgecolors[i] is None:
@@ -617,10 +637,16 @@ def plot_hist_counts(dfs, branch, latex_branch=None, unit=None, weights=None,
         
         if alpha[i] is None:
             alpha[i] = 0.5 if len(dfs) > 1 else 1
-        
+        counts = df[0]
+        if len(df)==1:
+            err = None
+        else:
+            err = df[1]
+            
+
         label = string.add_text(data_name, labels[i], sep='')
         
-        plot_hist_alone_from_hist(ax, df[0], df[1], color=colors[i],
+        plot_hist_alone_from_hist(ax, counts=counts, err=err, color=colors[i],
                               edges=edges,
                               bar_mode=bar_mode[i], alpha=alpha[i],
                               label=label, 
@@ -628,29 +654,30 @@ def plot_hist_counts(dfs, branch, latex_branch=None, unit=None, weights=None,
                               orientation=orientation,
                               edgecolor=edgecolors[i],
                               centres=centres,
-                              **kwargs)
+                              **adapted_kwargs[data_name])
         
-        # Some plot style stuff
-        if factor_ymax is None:
-            factor_ymax = 1 + 0.15 * len(data_names)
+    # Some plot style stuff
+    if factor_ymax is None:
+        factor_ymax = 1 + 0.15 * len(data_names)
 
-        if show_leg is None:
-            show_leg = len(dfs) > 1
+    if show_leg is None:
+        show_leg = len(dfs) > 1
 
-        set_label_hist(ax, latex_branch, unit, bin_width, 
-                       density=density, cumulative=cumulative,
-                       fontsize=fontsize_label,
-                       orientation=orientation)
+    set_label_hist(ax, latex_branch, unit, bin_width, 
+                    density=density, cumulative=cumulative,
+                    fontsize=fontsize_label,
+                    orientation=orientation)
 
-        if orientation == 'vertical':
-            axis_y = 'y'
-        elif orientation == 'horizontal':
-            axis_y = 'x'
-        pt.fix_plot(ax, factor_ymax=factor_ymax, show_leg=show_leg,
-                    fontsize_leg=fontsize_leg,
-                    pos_text_LHC=pos_text_LHC, 
-                    loc_leg=loc_leg, axis=axis_y,
-                   ymin_to_0=ymin_to_0)
+    if orientation == 'vertical':
+        axis_y = 'y'
+    elif orientation == 'horizontal':
+        axis_y = 'x'
+    
+    pt.fix_plot(ax, factor_ymax=factor_ymax, show_leg=show_leg,
+                fontsize_leg=fontsize_leg,
+                pos_text_LHC=pos_text_LHC, 
+                loc_leg=loc_leg, axis=axis_y,
+                ymin_to_0=ymin_to_0)
 
     return end_plot_function(fig, save_fig=save_fig, fig_name=fig_name, folder_name=folder_name,
                              default_fig_name=f'{branch}_{string.list_into_string(data_names)}',

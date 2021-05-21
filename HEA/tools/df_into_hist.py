@@ -113,7 +113,6 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
     # First loop to determine the low and high value
     low, high = _redefine_low_high(
         low, high, list(dfs.values()))
-    bin_width = get_bin_width(low, high, n_bins)
     
     if density is None:
         if quantile_bin:
