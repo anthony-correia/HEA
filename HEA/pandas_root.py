@@ -10,6 +10,7 @@ Handle root files with Pandas
 
 import pandas as pd
 from root_pandas import read_root
+from HEA.tools.assertion import is_list_tuple
 
 from HEA.tools.da import el_to_list
 from HEA.tools.dir import create_directory, try_makedirs
@@ -163,6 +164,11 @@ def load_dataframe(
     pandas.DataFrame
         loaded pandas dataframe
     """
+
+    # Remove duplicates
+    if is_list_tuple(columns):
+        columns = list(set(columns))
+        
     paths = el_to_list(paths)
     df = pd.DataFrame() 
     for path in paths:
@@ -173,7 +179,6 @@ def load_dataframe(
             df = df.append(read_root(path, tree_name, columns=columns, **kwds))
 
         elif method == 'uproot':
-            
             file = uproot.open(path)[tree_name]
             df = df.append(file.arrays(library="pd", how="zip", filter_name=columns))
             # df = df.append(file.arrays(vars, library="pd"))

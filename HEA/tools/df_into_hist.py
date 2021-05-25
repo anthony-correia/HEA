@@ -95,8 +95,8 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
     edges : array-like
         edges of the histogram
     """
-    
-    weights = el_to_list(weights, len(dfs))
+    if weights is not None:
+        weights = el_to_list(weights, len(dfs))
     dfs = dfs.copy()
     dfs_not_dict = not isinstance(dfs, dict)
     if dfs_not_dict:
@@ -107,9 +107,9 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
             if isinstance(weights[i], str):
                 weights[i] = df[weights[i]]
 
-            if isinstance(df, DataFrame):
-                dfs[data_name] = df[branch]
-                
+        if isinstance(df, DataFrame):
+            dfs[data_name] = df[branch]
+          
     # First loop to determine the low and high value
     low, high = _redefine_low_high(
         low, high, list(dfs.values()))
@@ -128,12 +128,12 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
     dfs_counts = {}
     bins = n_bins
     
-    weights = el_to_list(weights, len(dfs))
     for k, (data_name, df) in enumerate(dfs.items()):
+        weights_data = None if weights is None else weights[k]
         counts, edges, centres, err = get_count_err(
             data=df, n_bins=bins, 
             low=low, high=high, 
-            weights=weights[k],
+            weights=weights_data,
             density=density,
             cumulative=cumulative,
             quantile_bin=quantile_bin,

@@ -12,6 +12,7 @@ from HEA.tools.serial import (
     dump_pickle, dump_json, 
     retrieve_pickle, retrieve_json
 )
+from HEA.tools.df_into_hist import _redefine_low_high
 
 MC_color = 'r'
 reweighted_MC_color = 'b'
@@ -302,7 +303,7 @@ class BinReweighter():
             datasets = [self.MC[column]]
             if self.data is not None:
                 datasets += [self.data[column]]
-            low, high = pt._redefine_low_high(low=low, 
+            low, high = _redefine_low_high(low=low, 
                                               high=high, 
                                               data=datasets)
         
@@ -594,6 +595,9 @@ class BinReweighter():
             low, high = None, None
         else:
             low, high = self.get_low_high(column, low, high)
+            kwargs['n_bins'] = self.get_n_bins(column)
+            kwargs['low'] = low
+            kwargs['high'] = high
         
         # What to plot
         
@@ -733,8 +737,6 @@ class BinReweighter():
             column, 
             fig_name=fig_name,
             folder_name=f"{self.folder_name}/{second_folder}",
-            n_bins=self.get_n_bins(column),
-            low=low,high=high,
             bar_mode=bar_modes,
             colors=colors,
             factor_ymax=factor_ymax,

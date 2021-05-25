@@ -109,7 +109,7 @@ def get_bin_width(low, high, n_bins):
     """
     return float((high - low) / n_bins)
 
-def weighted_qcut(data, weights, q, **kwargs):
+def weighted_qcut(data, weights, q):
     """Return weighted quantile cuts from a given series, values.
     Adapted from
     https://stackoverflow.com/questions/45528029/python-how-to-create-weighted-quantiles-in-pandas

@@ -151,7 +151,7 @@ def frac_model(x, model, frac=1., branch=None):
 
     """
     print("Dim of the pdf:", model.n_obs)
-    partial_needed = (model.n_obs > 1) and not (assertion.is_list_tuple(branch) and model.n_obs!=len(branch))
+    partial_needed = (model.n_obs > 1) and not (assertion.is_list_tuple(branch) and model.n_obs==len(branch))
 
     if partial_needed:
         y = partial_pdf(model, x, branch)
@@ -683,7 +683,7 @@ def get_fit_counts_dd_via_sample(model, edges, branches=None, n=10000000, norm=N
         Fit counts
     """
 
-    partial_needed = branches is not None and (model.n_obs > 1) and not (assertion.is_list_tuple(branches) and model.n_obs!=len(branches))
+    partial_needed = branches is not None and (model.n_obs > 1) and not (assertion.is_list_tuple(branches) and model.n_obs==len(branches))
     if branches:
         print(model)
         branch_obs, other_obs = get_sub_obs(model, branches)
