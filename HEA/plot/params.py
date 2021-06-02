@@ -17,6 +17,7 @@ def plot_params(value_err_params_cats, label_params, label_cats, color_cats,
                     zero_line=False,
                     elinestyle_cats={},
                     capsize=3, capthick=1,
+                    title=None,
                     **kwargs
                     ):
     """ Plot the value of some parameters for different categories, in a 2D plot:
@@ -148,6 +149,7 @@ def plot_params(value_err_params_cats, label_params, label_cats, color_cats,
         if cat in elinestyle_cats and elinestyle_cats[cat] is not None:
             eb[-1][0].set_linestyle(elinestyle_cats[cat])
 
+    
 
     # x and y labels
     ax.set_xlabel(xlabel, fontsize=25)
@@ -164,7 +166,9 @@ def plot_params(value_err_params_cats, label_params, label_cats, color_cats,
     if zero_line:
         ax.axvline(0, color='k', linestyle='--', alpha=0.2)
     ax.legend(bbox_to_anchor=(0.5, 1), loc='lower center', fontsize=20)
-    
+    if title is not None:
+        fig.suptitle(title, fontsize=25)
+        
     # Save the figure    
     if fig_name is not None:
         pt.save_fig(

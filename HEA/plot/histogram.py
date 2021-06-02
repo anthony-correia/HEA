@@ -576,6 +576,7 @@ def plot_hist_counts(dfs, branch, latex_branch=None, unit=None, weights=None,
     ax : matplotlib.figure.Axes
         Axis of the plot (only if ``ax`` is not specified)
     """
+
         
     centres, edges = get_centres_edges(centres, edges)
     
@@ -608,7 +609,6 @@ def plot_hist_counts(dfs, branch, latex_branch=None, unit=None, weights=None,
     edgecolors = el_to_list(edgecolors, len(dfs))
     
     adapted_kwargs = {}
-    # print(kwargs)
     for key in dfs.keys():
         adapted_kwargs[key] = {}
     for key, kwarg in kwargs.items():
@@ -618,15 +618,14 @@ def plot_hist_counts(dfs, branch, latex_branch=None, unit=None, weights=None,
             need_separate = True
             for key_kwarg in kwarg.keys():
                 if key_kwarg not in dfs.keys():
-                    print(key_kwarg)
                     need_separate = False
-            print(need_separate)
         for data_name in dfs.keys():
             if need_separate:
                 if data_name in kwarg.keys():
                     adapted_kwargs[data_name][key] = kwarg[data_name]
             else:
                 adapted_kwargs[data_name][key] = kwarg
+    
     for i, (data_name, df) in enumerate(dfs.items()):
         if quantile_bin:
             if edgecolors[i] is None:
@@ -832,7 +831,7 @@ def plot_divide_alone(ax, data1, data2,
     
     if show_xerr:
         if edges is None:
-            edges = get_edges_from_centres(centres)
+            edges = get_edges_from_centres(bin_centres)
         bin_widths = edges[1:] - edges[:-1]
         
         xerr = bin_widths / 2
@@ -1013,7 +1012,7 @@ def plot_hist2d_counts(branches, counts, xedges, yedges,
         kwargs['vmax'] = vmax
         
     X, Y = np.meshgrid(xedges, yedges)
-    pcm = ax.pcolormesh(X, Y, counts, **kwargs)
+    pcm = ax.pcolormesh(X, Y, counts.T, **kwargs)
     cbar = fig.colorbar(pcm)
     cbar.ax.tick_params(labelsize=20)
 

@@ -143,8 +143,8 @@ def _get_title_given_BDT_cut(title, cut_BDT):
 # Core of the plot -------------------------------------------------------
 
 def draw_vline(ax, x, label=None, color='b', fontsize=20,
-               va='bottom', ha='center',
-               **kwgs):
+               va='bottom', ha='center', offsetx=0, offsety=.01,
+               **kwargs):
     """ Draw a vertical line and its label (at the top of the figure)
     
     Parameters
@@ -162,9 +162,9 @@ def draw_vline(ax, x, label=None, color='b', fontsize=20,
     
     low, high = ax.get_xlim()
     
-    ax.axvline(x, color=color, **kwgs)
+    ax.axvline(x, color=color, **kwargs)
     
-    ax.text((x - low) / (high - low), 1.01, label,
+    ax.text((x - low) / (high - low) + offsetx, 1 + offsety, label,
         verticalalignment=va, horizontalalignment=ha,
         transform=ax.transAxes,
         color=color, fontsize=fontsize)
@@ -226,9 +226,6 @@ def change_range_axis(ax, factor_max=1.1, min_to_0=True, axis='y'):  # previousl
             ymin, ymax = ax.get_ylim()
             if min_to_0:
                 ymin = 0
-            print(ymax)
-            print(factor_max)
-            print(ymax * factor_max)
             ax.set_ylim(ymin, ymax * factor_max)
 
 
