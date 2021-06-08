@@ -10,6 +10,8 @@ from HEA.tools.da import el_to_list
 from HEA.tools.dir import try_makedirs, create_directory
 from HEA.config import loc
 
+import numpy as np
+
 def load_tree(paths, branches, tree_name='DecayTree',
               cuts=None,
               verbose=True):
@@ -156,4 +158,28 @@ def load_workspace(file_name, folder_name=None):
     file.Close()
     return w
     
+def get_random_sample(sample, random_state=None):
+    """
+    Get a sample that contains events drawn from the original sample
+    randomly and with repetition.
+
+    Parameters
+    ----------
+    sample: ROOT.RooDataSet
+        Original sample
+    random_state: int
+        Random state for reproducible randomness
+
+    Returns
+    -------
+    random_sample: ROOT.RooDataSet
+        Random dataset
+    """
+    np.random.seed(random_state)
+    n_entries = sample.numEntries()
+    indices = np.random.randint(low=0, high=n_entries, size=n_entries)
+    random_sample = sample.emptyClone(sample.GetName())
+    for i in indices:
+        random_sample.add(sample.get(int(i)), sample.weight(), sample.weightError())
     
+    return random_sample

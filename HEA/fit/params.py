@@ -285,21 +285,46 @@ def get_params_without_BDT(df_params, retrieve_err=False):
     return df_params_formatted
 
 
-def get_params_without_err(params):
-    """ get the list of variables from the dictionnary of fitted parameters
+# def get_params_without_err(params):
+#     """ get the list of variables from the dictionnary of fitted parameters
 
+#     Parameters
+#     ----------
+#     params   : dict
+#         fitted parameters ``{'alphaL': value, 'alphaL_err': value ...}``
+
+#     Returns
+#     -------
+#     list
+#         list of variables (excluding the error variables, whose name contain the ``'_err'`` string.
+#     """
+
+#     return params.keys()
+
+def get_params_without_err(params):
+    """ Return the dictionnary of result of parameters
+    without the errors (just the nominal values)
+    
     Parameters
     ----------
     params   : dict
-        fitted parameters ``{'alphaL': value, 'alphaL_err': value ...}``
-
+#         fitted parameters ``{'param1': {'v': nominal value, 'e': error}, ...}``
+    
     Returns
     -------
-    list
-        list of variables (excluding the error variables, whose name contain the ``'_err'`` string.
+    params_without_err: dict
+        Dictionnary of parameters without the errors:
+        ``{'param1': nominal value}, ...}``
     """
 
-    return params.keys()
+    params_without_err = {}
+    for param_name, param_value in params.items():
+        if 'v' in param_value:
+            params_without_err[param_name] = params[param_name]['v']
+        else:
+            params_without_err[param_name] = params[param_name]
+    
+    return params_without_err
 
 def get_str_from_ufloat_mode(ufloat_number, cat='other'):
     """ Get the string format of the ufloat, 
@@ -325,7 +350,7 @@ def get_str_from_ufloat_mode(ufloat_number, cat='other'):
         * ``'e{n}'``  for :math:`\\times 10^{n}`
     """
     
-    possible_cats = ['main', 'yield', 'other']
+    possible_cats = ['main', 'yield', 'other', 'all']
     
     if cat=='other':
         ufloat_string = f"{ufloat_number:.2ue}"
@@ -333,6 +358,8 @@ def get_str_from_ufloat_mode(ufloat_number, cat='other'):
         ufloat_string = f"{ufloat_number:.1u}"
     elif cat=='yield':
         ufloat_string = f"{ufloat_number:.0f}"
+    elif cat=='all':
+        ufloat_string = str(ufloat_number)
     else:
         raise AssertionError(f'cat = {cat} should belong to {possible_cats}')
     return ufloat_string.replace('e+0', 'e').replace('e-0', 'e-')
@@ -364,6 +391,8 @@ def ufloat_string_into_latex_format(ufloat_string):
     
     return ufloat_latex
 
+def ufloat_into_latex_format(ufloat_number, cat='other'):
+    return ufloat_string_into_latex_format(get_str_from_ufloat_mode(ufloat_number, cat=cat))
 
 def get_latex_cat_from_param_latex_params(param, latex_params=None):
     """ Extract the latex name and category of ``param`` in ``latex_params``
