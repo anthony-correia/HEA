@@ -227,15 +227,21 @@ def get_count_err(data, n_bins, low=None, high=None, weights=None,
         
         # counts
 #         counts = np.array(histogram.values)
-
+    # print("data:", data)
+    # print(data.isnull().values.any())
+    # print('weights:', weights)
+    # if weights is not None:
+    #     print(weights.isnull().values.any())
+    # print("range:", range_v)
     counts, edges = np.histogram(data, range=range_v, 
                                  bins=n_bins, weights=weights, 
                                  **kwargs)
     
+    # print("counts:", counts)
     
     centres = (edges[:-1] + edges[1:]) / 2.
     err = np.sqrt(np.abs(counts))
-    
+    # print("err:", err)
     if density:
         if quantile_bin:
             bin_width = None
@@ -433,6 +439,8 @@ def get_chi2_2samp(data1, data2, n_bins=20,
         low value of the range
     high: float
         high of the range
+    weights1, weights2: array-like
+        Weights for data1 and data2
     **kwargs: 
         passed to :py:func:`get_chi2_2counts`
     

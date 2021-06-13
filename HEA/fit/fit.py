@@ -46,7 +46,7 @@ def crystall_ball_or_gaussian(mu, sigma, obs, alpha=None, n=None):
     if alpha is None or n is None:
         pdf = zfit.pdf.Gauss(mu, sigma, obs=obs)
     else:
-        pdf = zfit.pdf.CrystalBall(mu, sigma, alpha, n, obs=obs)
+        pdf = zfit.pdf.CrystalBall(mu=mu, sigma=sigma, alpha=alpha, n=n, obs=obs)
     return pdf
 
 
@@ -82,10 +82,10 @@ def sum_crystalball_or_gaussian(
         PDF sum of 2 crystall ball or Gaussian PDFs.
 
     """
-    pdfL = crystall_ball_or_gaussian(muL, sigmaL, obs,
-                                     alphaL, nL)
-    pdfR = crystall_ball_or_gaussian(muR, sigmaR, obs,
-                                     alphaR, nR)
+    pdfL = crystall_ball_or_gaussian(mu=muL, sigma=sigmaL, obs=obs,
+                                     alpha=alphaL, n=nL)
+    pdfR = crystall_ball_or_gaussian(mu=muR, sigma=sigmaR, obs=obs,
+                                     alpha=alphaR, n=nR)
 
     model = zfit.pdf.SumPDF([pdfL, pdfR], fracs=frac)
 

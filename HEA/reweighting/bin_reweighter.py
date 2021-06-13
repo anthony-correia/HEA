@@ -14,6 +14,8 @@ from HEA.tools.serial import (
 )
 from HEA.tools.df_into_hist import _redefine_low_high
 
+from copy import deepcopy
+
 MC_color = 'r'
 reweighted_MC_color = 'b'
 data_color = 'indigo'
@@ -34,6 +36,8 @@ class BinReweighter():
         name of the bin reweighted, used to save the tck's.
     MC_weights : array-like
         weights to be applied to MC
+    origin_MC_weights: array-like
+        Weights to be applied to MC, without the reweighting weights
     data_weights : array-like
         weights to be applied to data
     column_ranges : dict(str: list(float or None, float or None))
@@ -58,6 +62,7 @@ class BinReweighter():
                  n_bins, name,
                  MC_weights=None, data_weights=None,
                  column_ranges={},
+                 quantile_bin_columns=[],
                  MC_color=MC_color,
                  reweighted_MC_color=reweighted_MC_color,
                  data_color=data_color,
@@ -65,7 +70,7 @@ class BinReweighter():
                  data_label='Data',
                  MC_label="Original MC",
                  reweighted_MC_label="Reweighted MC",
-                 normalise=True
+                 normalise="candidates"
                  ):
         """ Produce a BinReweighter
         
@@ -85,6 +90,8 @@ class BinReweighter():
             weights to be applied to data
         column_ranges : dict(str: list(float or None, float or None))
             Dictionnary that contains the ranges of some columns
+        quantile_bin_columns: list(str) or "all"
+            list of the bins that require equal-yield bins
         MC_color, data_color, reweighted_MC_color: str
             colors used in the plots
         folder_name : str
@@ -120,6 +127,7 @@ class BinReweighter():
         
         self.data = data
         self.MC = MC
+        self.origin_MC_weights = deepcopy(MC_weights)
         self.MC_weights = MC_weights
         self.data_weights = data_weights
         self.n_bins = n_bins
@@ -134,6 +142,8 @@ class BinReweighter():
         self.data_label = data_label
         self.MC_label = MC_label
         self.reweighted_MC_label = reweighted_MC_label
+
+        self.quantile_bin_columns = quantile_bin_columns
         
         self.normalise = normalise
         
@@ -179,6 +189,8 @@ class BinReweighter():
         self.data_err_columns = data_err_columns
         self.MC_counts_columns = MC_counts_columns
         self.MC_err_columns = MC_err_columns
+
+        self.quantile_bin_columns = None
         
         self.reweighted_MC_counts_columns = {}
         self.reweighted_MC_err_columns = {}
@@ -188,7 +200,7 @@ class BinReweighter():
     @staticmethod
     def from_MC(MC, name,
                 n_bins=None,
-                MC_weights=None,
+                MC_weights=None, **kwargs
                 ):
         """ Load the binreweighter with only data
         """
@@ -234,7 +246,7 @@ class BinReweighter():
     
     ## HISTOGRAMS =============================================================
     
-    def get_n_bins(self, column):
+    def get_n_bins(self, column, quantile_bin=None):
         """ Get the number of bins for the histogram of a column
         
         Parameters
@@ -249,13 +261,30 @@ class BinReweighter():
         """
         
         if self.n_bins is None or isinstance(self.n_bins, int):
-            return self.n_bins
+            n_bins = self.n_bins
         else:
             assert isinstance(self.n_bins, dict)
             assert column in self.n_bins
             
-            return self.n_bins[column]
+            n_bins = self.n_bins[column]
         
+
+        if quantile_bin is None or quantile_bin:
+            if column in self.quantile_bin_columns or self.quantile_bin_columns=="all":
+                low, high = self.get_low_high(column)
+                # Equal-yield bins for the data
+                _, edges, _, _ = dist.get_count_err(
+                    data=self.data[column],
+                    n_bins=n_bins,
+                    low=low, high=high,
+                    quantile_bin=True,
+                    weights=self.data_weights
+                )
+
+                return edges
+        
+        
+        return n_bins
     
     def get_low_high(self, column, low=None, high=None):
         """ get low and high value of a column
@@ -438,7 +467,7 @@ class BinReweighter():
     ## PLOTTING ===============================================================
     
     def get_chi2_latex(self, column, low=None, high=None, 
-                       with_MC_weights=False,
+                       with_MC_weights=False, quantile_bin=None,
                       **kwargs):
         """ return ``$\\chi^2$ = <chi2 with two significant figures>``
         
@@ -480,10 +509,9 @@ class BinReweighter():
             low, high = self.get_low_high(column, low, high)
 
             MC_weights = self.MC_weights if with_MC_weights else None 
-
             chi2 = dist.get_chi2_2samp(data1=self.MC[column], 
                                        data2=self.data[column], 
-                                       n_bins=self.get_n_bins(column), 
+                                       n_bins=self.get_n_bins(column, quantile_bin=quantile_bin), 
                                        low=low, high=high, 
                                        weights1=MC_weights, 
                                        weights2=self.data_weights,
@@ -549,8 +577,10 @@ class BinReweighter():
                   plot_reweighted=None,
                   plot_original=True,
                   low=None, high=None,
+                  n_bins=None,
                   inter=None, factor_ymax=1.5,
                   with_text_LHC=True, 
+                  quantile_bin=None,
                   **kwargs):
         """ Plot the normalised histogram of column 
         for MC and data
@@ -595,7 +625,9 @@ class BinReweighter():
             low, high = None, None
         else:
             low, high = self.get_low_high(column, low, high)
-            kwargs['n_bins'] = self.get_n_bins(column)
+            if n_bins is None:
+                n_bins = self.get_n_bins(column, quantile_bin=quantile_bin)
+            kwargs['n_bins'] = n_bins
             kwargs['low'] = low
             kwargs['high'] = high
         
@@ -648,14 +680,16 @@ class BinReweighter():
                 
             else:
                 samples_dict[self.MC_label] = self.MC
-                weights.append(None)
+                weights.append(self.origin_MC_weights)
             
             if show_chi2:
                 labels.append(
                     ', ' + self.get_chi2_latex(
                         column, 
                         low=low, high=high, 
-                        with_MC_weights=False)
+                        with_MC_weights=False,
+                        quantile_bin=quantile_bin
+                    )
                 )
             else:
                 labels.append(None)
@@ -686,7 +720,9 @@ class BinReweighter():
                               self.get_chi2_latex(
                                   column, 
                                   low=low, high=high,
-                                  with_MC_weights=True)
+                                  with_MC_weights=True, 
+                                  quantile_bin=quantile_bin
+                                )
                              )
             else:
                 labels.append(None)                                      
@@ -732,10 +768,17 @@ class BinReweighter():
         else:
             pos_text_LHC = None
 
+        if quantile_bin:
+            add_fig_name = "_with_quantile_bin"
+        elif quantile_bin==False:
+            add_fig_name = "_without_quantile_bin"
+        else:
+            add_fig_name = ""
+
         return hist.plot_hist_auto(
             samples_dict,
             column, 
-            fig_name=fig_name,
+            fig_name=fig_name+add_fig_name,
             folder_name=f"{self.folder_name}/{second_folder}",
             bar_mode=bar_modes,
             colors=colors,
@@ -836,8 +879,12 @@ class BinReweighter():
 #             assert (plot_reweighted or plot_original)
             
             low, high = self.get_low_high(column, low, high)
-            bin_width = hist.get_bin_width(low, high, self.get_n_bins(column))
-        
+            n_bins = self.get_n_bins(column)
+
+            if isinstance(n_bins, int):
+                bin_width = hist.get_bin_width(low, high, n_bins)
+            else:
+                bin_width = None
         
             if plot_reweighted and self.MC_weights is None:
                 print("No reweighting available for MC")
@@ -871,7 +918,7 @@ class BinReweighter():
             else:
                 weights_dict['original'] = [
                     self.data_weights,
-                    None
+                    self.origin_MC_weights
                 ]
                 
             
@@ -970,13 +1017,11 @@ class BinReweighter():
         
         return fig, ax
        
-    def plot_MC_weights(self, n_bins=None, inter=None):
+    def plot_MC_weights(self, n_bins, inter=None):
         """ Plot the weight distribution, if it exists
         
         """
         
-        if n_bins is None:
-            n_bins = self.get_n_bins(column)
         
         if self.MC_weights is None:
             print("There are no MC weights!")
@@ -992,7 +1037,7 @@ class BinReweighter():
                                   'Reweighting weights', 
                                   fig_name='reweighting_weight'+text_inter,
                                   folder_name=f"{self.folder_name}/bin_reweight_MC"+folder_text_inter,
-                                  n_bins=self.get_n_bins(column),
+                                  n_bins=n_bins,
                                   bar_mode=True,
                                   colors=self.reweighted_MC_color,
                                   factor_ymax=1.2,
@@ -1050,7 +1095,8 @@ class BinReweighter():
         
     
     def get_spline(self, column, x):
-        """
+        """ Evaluate the splines
+
         Parameters
         ----------
         column: str
@@ -1063,13 +1109,13 @@ class BinReweighter():
         splines: array_line
             An array of values representing the spline function 
             evaluated at the points given in ``bin_centres``
-        bin_centres: array-like, optional
-            Bin centres.
         """
         
         if column in self.column_tcks:
+            
             tck = self.column_tcks[column]
-            return splev(x, tck) 
+            MC_weights = splev(x, tck)
+            return MC_weights
         
         else:
             print("To get the spline, please first generate it" \
@@ -1096,11 +1142,16 @@ class BinReweighter():
         Returns
         -------
         """
+        print("Get the new MC weights")
         
         if MC is None:
             MC = self.MC
         
-        return self.get_spline(column, MC[column])
+        
+        
+        MC_weights = self.get_spline(column, MC[column])
+       
+        return MC_weights
         
     
     def apply_new_MC_weights(self, column, fit_spline=False):
@@ -1117,13 +1168,11 @@ class BinReweighter():
             If ``True``, perform the fit of the spline to
             compute the MC weights.
         """
-        
-        
+                
         if fit_spline:
             self.fit_spline(column)
         
         ## Get the new weights
-        
         if self.MC is not None: 
             new_MC_weights = self.get_spline(column, self.MC[column])
             if new_MC_weights is not None:
@@ -1159,9 +1208,12 @@ class BinReweighter():
             dump_pickle(self.column_tcks[column], 
                         f"{self.name}_{column}_tck", self.folder_name)
             
+        n_bins = self.get_n_bins(column)
+        if not isinstance(n_bins, int):
+            n_bins = n_bins.tolist()
         info_reweighting = {
             'columns': self.trained_columns,
-            'n_bins' : self.get_n_bins(column),
+            'n_bins' :n_bins,
         }
 
         dump_json(info_reweighting, f"{self.name}_info_reweighting", 

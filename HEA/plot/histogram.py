@@ -169,67 +169,67 @@ def plot_hist_alone_from_hist(ax, counts, err=None, color='b',
     return counts, edges, centres, err      
 
 
-def plot_hist_alone(ax, data, n_bins, low, high,
-                    color, 
-                    weights=None, density=False,
-                    cumulative=False, quantile_bin=False,
-                    **kwargs):
-    """  Plot histogram
+# def plot_hist_alone(ax, data, n_bins, low, high,
+#                     color, 
+#                     weights=None, density=False,
+#                     cumulative=False, quantile_bin=False,
+#                     **kwargs):
+#     """  Plot histogram
     
-    * If ``bar_mode``: Points with error bars
-    * Else: histogram with bars
+#     * If ``bar_mode``: Points with error bars
+#     * Else: histogram with bars
 
-    Parameters
-    ----------
-    ax            : matplotlib.axes.Axes
-        axis where to plot
-    data          : pandas.Series
-        data to plot
-    n_bins        : int
-        number of bins
-    low           : float
-        low limit of the distribution
-    high          : float
-        high limit of the distribution
-    color         : str
-        color of the distribution   
-    weights       : pandas.Series, numpy.array
-        weights of each element in data
-    density       : bool
-        if ``True``, divide the numbers of counts in the histogram by the total number of counts
-    cumulative    : bool
-        if ``True``, return the cumulated event counts.
-    **kwargs     : dict
-        parameters passed to the 
-        :py:func:`plot_hist_alone_from_hist`
+#     Parameters
+#     ----------
+#     ax            : matplotlib.axes.Axes
+#         axis where to plot
+#     data          : pandas.Series
+#         data to plot
+#     n_bins        : int
+#         number of bins
+#     low           : float
+#         low limit of the distribution
+#     high          : float
+#         high limit of the distribution
+#     color         : str
+#         color of the distribution   
+#     weights       : pandas.Series, numpy.array
+#         weights of each element in data
+#     density       : bool
+#         if ``True``, divide the numbers of counts in the histogram by the total number of counts
+#     cumulative    : bool
+#         if ``True``, return the cumulated event counts.
+#     **kwargs     : dict
+#         parameters passed to the 
+#         :py:func:`plot_hist_alone_from_hist`
 
-    Returns
-    -------
-    counts  : np.array
-        number of counts in each bin
-    edges   : np.array
-        Edges of the bins
-    centres : np.array
-        Centres of the bins
-    err     : np.array
-        Errors in the count, for each bin
-    """
+#     Returns
+#     -------
+#     counts  : np.array
+#         number of counts in each bin
+#     edges   : np.array
+#         Edges of the bins
+#     centres : np.array
+#         Centres of the bins
+#     err     : np.array
+#         Errors in the count, for each bin
+#     """
 
-    counts, edges, centres, err = get_count_err(
-        data, n_bins, low, high, weights=weights,
-        cumulative=cumulative, density=density, 
-        quantile_bin=quantile_bin)
-    bin_width = get_bin_width(low, high, n_bins)
+#     counts, edges, centres, err = get_count_err(
+#         data, n_bins, low, high, weights=weights,
+#         cumulative=cumulative, density=density, 
+#         quantile_bin=quantile_bin)
+#     bin_width = get_bin_width(low, high, n_bins)
 
-#     counts, err = get_density_counts_err(counts, bin_width, err, density=density)
+# #     counts, err = get_density_counts_err(counts, bin_width, err, density=density)
 
-    plot_hist_alone_from_hist(ax, edges=edges, counts=counts, 
-                              err=err,
-                              color=color,
-                              centres=centres,
-                              **kwargs)
+#     plot_hist_alone_from_hist(ax, edges=edges, counts=counts, 
+#                               err=err,
+#                               color=color,
+#                               centres=centres,
+#                               **kwargs)
     
-    return counts, edges, centres, err
+#     return counts, edges, centres, err
 
 
 # Set labels -------------------------------------------------------------

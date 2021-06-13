@@ -95,6 +95,7 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
     edges : array-like
         edges of the histogram
     """
+    print()
     if weights is not None:
         weights = el_to_list(weights, len(dfs))
     dfs = dfs.copy()
@@ -102,10 +103,11 @@ def dataframe_into_hist1D(dfs, low, high, n_bins, weights=None,
     if dfs_not_dict:
         dfs = {"e": dfs}
     for i, (data_name, df) in enumerate(dfs.items()):
-        
         if weights is not None:
             if isinstance(weights[i], str):
+                print(f"Weights {weights[i]} retrieved")
                 weights[i] = df[weights[i]]
+                
 
         if isinstance(df, DataFrame):
             dfs[data_name] = df[branch]
