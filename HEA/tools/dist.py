@@ -458,7 +458,6 @@ def get_chi2_2samp(data1, data2, n_bins=20,
     
     counts1, _, _, err1 = get_count_err(data1, n_bins, low, high, weights=weights1)
     counts2, _, _, err2 = get_count_err(data2, n_bins, low, high, weights=weights2)
-    
     return get_chi2_2counts(counts1, counts2, err1=None, err2=None, **kwargs)
     
     

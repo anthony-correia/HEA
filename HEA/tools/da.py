@@ -10,6 +10,13 @@
 from HEA.tools import assertion
 
 
+def remove_list(e, L):
+    """
+    Remove any occurence of ``e`` is the list ``L``
+    """
+    return list(filter(lambda a: a != e, L))
+
+
 def el_to_list(el, len_list=1):
     """ Turn a single non-list element ``el`` into a list of size ``len_list``
 

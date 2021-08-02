@@ -190,7 +190,7 @@ class BinReweighter():
         self.MC_counts_columns = MC_counts_columns
         self.MC_err_columns = MC_err_columns
 
-        self.quantile_bin_columns = None
+        self.quantile_bin_columns = []
         
         self.reweighted_MC_counts_columns = {}
         self.reweighted_MC_err_columns = {}
@@ -253,11 +253,14 @@ class BinReweighter():
         ----------
         column: str
             column (e.g., `B0_M`)
-        
+        quantile_bin: bool
+            Force the use of equal-yield bins (``True``) or equal-width bins (``False``).
+            The default is ``None``
+
         Returns
         -------
             Number of bins required for this histogram according to the attributes
-            of the class
+            of the class ; or edges of the bins
         """
         
         if self.n_bins is None or isinstance(self.n_bins, int):
@@ -470,6 +473,7 @@ class BinReweighter():
                        with_MC_weights=False, quantile_bin=None,
                       **kwargs):
         """ return ``$\\chi^2$ = <chi2 with two significant figures>``
+        of the MC vs data
         
         Parameters
         ----------
@@ -481,6 +485,11 @@ class BinReweighter():
         high : float
             high value of the distribution.
             If ``None``, taken from the dict. ``column_ranges``.
+        with_MC_weights: bool
+            Do we apply the MC weights to data
+        quantile_bin: bool
+            Force the use of equal-yield bins (``True``) or equal-width bins (``False``).
+            The default is ``None``
         kwargs: 
             passed to :py:func:`HEA.tools.dist.get_chi2_2samp`
             and :py:func:`HEA.tools.dist.get_chi2_2counts`
@@ -508,7 +517,7 @@ class BinReweighter():
         else:
             low, high = self.get_low_high(column, low, high)
 
-            MC_weights = self.MC_weights if with_MC_weights else None 
+            MC_weights = self.MC_weights if with_MC_weights else self.origin_MC_weights
             chi2 = dist.get_chi2_2samp(data1=self.MC[column], 
                                        data2=self.data[column], 
                                        n_bins=self.get_n_bins(column, quantile_bin=quantile_bin), 
@@ -516,9 +525,11 @@ class BinReweighter():
                                        weights1=MC_weights, 
                                        weights2=self.data_weights,
                                        **kwargs)
-        
-        chi2 = str_number_into_latex(f"{chi2:.2g}")
-        return '$\\chi^2 = {}$'.format(chi2)
+        if np.isnan(chi2):
+            return None
+        else:
+            chi2 = str_number_into_latex(f"{chi2:.2g}")
+            return '$\\chi^2 = {}$'.format(chi2)
     
     def get_fig_folder_name(self, column, plot_reweighted,
                             mode='vs',
@@ -581,6 +592,7 @@ class BinReweighter():
                   inter=None, factor_ymax=1.5,
                   with_text_LHC=True, 
                   quantile_bin=None,
+                  fontsize_text_LHC=20,
                   **kwargs):
         """ Plot the normalised histogram of column 
         for MC and data
@@ -607,6 +619,11 @@ class BinReweighter():
         with_text_LHC: bool
             Do we plot the LHC text 
             (e.g., "LHCb simulation", "LHCb preliminary, ...)
+        quantile_bin: bool
+            Force the use of equal-yield bins (``True``) or equal-width bins (``False``).
+            The default is ``None``
+        fontsize_lext_LHC: int
+            Fontsize use for the LHC text (e.g., "LHCb simulation", "LHCb preliminary, ...)
 
         Returns
         -------
@@ -683,13 +700,16 @@ class BinReweighter():
                 weights.append(self.origin_MC_weights)
             
             if show_chi2:
+                chi2_text = self.get_chi2_latex(
+                    column, 
+                    low=low, high=high, 
+                    with_MC_weights=False,
+                    quantile_bin=quantile_bin
+                )
+                chi2_text = "" if chi2_text is None else ", " + chi2_text
+
                 labels.append(
-                    ', ' + self.get_chi2_latex(
-                        column, 
-                        low=low, high=high, 
-                        with_MC_weights=False,
-                        quantile_bin=quantile_bin
-                    )
+                    chi2_text
                 )
             else:
                 labels.append(None)
@@ -716,14 +736,16 @@ class BinReweighter():
                 weights.append(self.MC_weights)
             
             if show_chi2:
-                labels.append( ', ' +
-                              self.get_chi2_latex(
-                                  column, 
-                                  low=low, high=high,
-                                  with_MC_weights=True, 
-                                  quantile_bin=quantile_bin
-                                )
-                             )
+                chi2_text = self.get_chi2_latex(
+                    column, 
+                    low=low, high=high,
+                    with_MC_weights=True, 
+                    quantile_bin=quantile_bin
+                )
+
+                chi2_text = "" if chi2_text is None else ", " + chi2_text
+
+                labels.append(chi2_text)
             else:
                 labels.append(None)                                      
             alpha.append(0.4)
@@ -764,7 +786,7 @@ class BinReweighter():
         if with_text_LHC:
             pos_text_LHC = {'ha': 'left',
                           'type': LHC_text_type,
-                          'fontsize':20}
+                          'fontsize':fontsize_text_LHC}
         else:
             pos_text_LHC = None
 
@@ -901,13 +923,14 @@ class BinReweighter():
                 
         if plot_original:
             colors_dict['original'] = self.MC_color
-            labels_dict['original'] = f"{self.MC_label}, "
+            labels_dict['original'] = f"{self.MC_label}"
             if show_chi2:
-                labels_dict['original'] += self.get_chi2_latex(
+                chi2_text = self.get_chi2_latex(
                     column,
                     low=low, high=high,
                     with_MC_weights=False
                 )
+                labels_dict['original'] += ", " + chi2_text if chi2_text is not None else ""
             
             if self.counts_specified(column):
                 counts_err_dict['original'] = self.get_MC_counts(
@@ -924,13 +947,14 @@ class BinReweighter():
             
         if plot_reweighted:
             colors_dict['reweighted'] = self.reweighted_MC_color
-            labels_dict['reweighted'] = f"{self.reweighted_MC_label}, "
+            labels_dict['reweighted'] = f"{self.reweighted_MC_label}"
             if show_chi2:
-                labels_dict['reweighted'] += self.get_chi2_latex(
+                chi2_text = self.get_chi2_latex(
                     column,
                     low=low, high=high,
                     with_MC_weights=True
                 )
+                labels_dict['reweighted'] += ", " + chi2_text if chi2_text is not None else "" 
             
             if self.counts_specified(column):
                 counts_err_dict['reweighted'] = self.get_MC_counts(
@@ -1205,22 +1229,19 @@ class BinReweighter():
         """
         
         for column in self.trained_columns:
-            dump_pickle(self.column_tcks[column], 
+            n_bins = self.get_n_bins(column)
+            dump_pickle({'tck': self.column_tcks[column], 'bins': n_bins}, 
                         f"{self.name}_{column}_tck", self.folder_name)
             
-        n_bins = self.get_n_bins(column)
-        if not isinstance(n_bins, int):
-            n_bins = n_bins.tolist()
         info_reweighting = {
             'columns': self.trained_columns,
-            'n_bins' :n_bins,
         }
 
         dump_json(info_reweighting, f"{self.name}_info_reweighting", 
                   self.folder_name)
     
     def load_weights(self, name, 
-                     folder_name):
+                     folder_name, load_bins_info=True):
         """ Load the splines (in order to apply the weights in a 
         possibly new dataset).
         
@@ -1231,7 +1252,10 @@ class BinReweighter():
             we are going to retrieve now
         folder_name: str
             folder name where the file is located. 
-        
+        load_bins_info: int
+            Load also the info regarding the bins and use it for
+            this reweighting
+
         Returns
         -------
         columns: list(str)
@@ -1241,12 +1265,13 @@ class BinReweighter():
         ## Columns and number of bins
         info_reweighting = retrieve_json(f"{name}_info_reweighting", 
                                      folder_name)
-        
-        self.n_bins = info_reweighting['n_bins']
-        
+        if load_bins_info:
+            self.n_bins = {}
         for column in info_reweighting['columns']:
-            self.column_tcks[column] = \
+            info = \
                 retrieve_pickle(f"{name}_{column}_tck", 
                                 folder_name)
-        
+            self.column_tcks[column] = info['tck']
+            if load_bins_info:
+                self.n_bins[column] = info['bins']
         return info_reweighting['columns']

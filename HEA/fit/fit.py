@@ -333,7 +333,11 @@ def launch_fit(model, data, extended=False, verbose=True, show_time=True,
         
     
     # do the error calculations, here with Hesse
-    param_hesse = result.hesse()  # get he hessien
+    try:
+        param_hesse = result.hesse()  # get he hessien
+    except:
+        print('hesse failed: try hesse_np', "*"*10)
+        result.hesse_np()
     # param_errors, _ = result.errors(method='minuit_minos') # get the errors
     # (gaussian)
 

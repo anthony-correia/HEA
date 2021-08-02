@@ -25,6 +25,79 @@ import uproot
 
 import os.path as op
 
+def add_list_branches(branch, list_branches=None):
+    """
+    Add ``weights`` to the ``list_weights``
+
+    Parameters
+    ----------
+    weights: str or list(str)
+        Name of the branch to add,
+        or list of names of the branches to add
+    list_branches: None, str or list(str)
+        List of the branches, or just one branch
+    Returns
+    -------
+    list_branches: None, str or list(str)
+        List of weight branches with ``weight_branch`` in it
+        (if it is not ``None``)
+    """
+    if isinstance(list_branches, list):
+        list_branches = list_branches.copy()
+    if branch is not None:
+        if list_branches is None:
+            list_branches = branch
+        elif isinstance(list_branches, str):
+            if isinstance(branch, str):
+                list_branches = [list_branches, branch]
+            else:
+                assert is_list_tuple(branch)
+                list_branches = [list_branches] + branch
+        else:
+            assert is_list_tuple(list_branches)
+            if isinstance(branch, str):
+                list_branches = list_branches + [branch]
+            else:
+                assert is_list_tuple(branch)
+                list_branches = list_branches + branch
+    return list_branches
+
+def get_weights(df, weight_branches):
+    """
+    Get the weights given a list of weights
+    
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Sample of interest, that contains the weights
+    weight_branches: None, str or list(str)
+        list of the name of the weight branches
+        (or just one string if one branch)
+    
+    Returns
+    -------
+    weights: None or array-like
+        Weights of the sample (product of weights
+        if there are more than 1 weight to apply),
+        or ``None`` if there are no weights
+    """
+    
+    if weight_branches is not None:
+        if isinstance(weight_branches,str):
+            return df[weight_branches]
+        else:
+            assert is_list_tuple(weight_branches)
+
+            weights = 1.
+            for weight_branch in weight_branches:
+                weights *= df[weight_branch]
+            
+        return weights
+    else:
+        return None
+
+
+
 def assert_needed_variables(needed_variables, df):
     """ assert that all needed variables are in a dataframe
 
@@ -140,8 +213,8 @@ def drop_na(df, subset, *args, **kwargs):
 
 def load_dataframe(
     paths, columns=None, tree_name='DecayTree', method='read_root', 
-    verbose=True,
-    **kwds):
+    verbose=True, add_year_branch=False,
+    **kwargs):
     """ load dataframe from a root file (also print the path of the root file)
 
     Parameters
@@ -155,6 +228,11 @@ def load_dataframe(
         If ``None``, load everything
     method    : str
         method used to load the data: ``'read_root'`` or ``'uproot'``
+    add_year_branch: bool
+        Add a branch ``year`` that contains the year of the file,
+        in the format yy (integer).
+        Only possible if the path is in the format:
+        ``\*_yyyy_up or down_\*``
     **kwds    : dict
         parameters passed to the function to read the root file 
         (e.g., ``read_root``)
@@ -176,13 +254,43 @@ def load_dataframe(
             print("Loading " + path)
 
         if method == 'read_root':
-            df = df.append(read_root(path, tree_name, columns=columns, **kwds))
+            new_df = read_root(path, tree_name, columns=columns, **kwargs)
 
         elif method == 'uproot':
             file = uproot.open(path)[tree_name]
-            df = df.append(file.arrays(library="pd", how="zip", filter_name=columns))
+            new_df = file.arrays(library="pd", how="zip", filter_name=columns)
             # df = df.append(file.arrays(vars, library="pd"))
             del file
+        
+        if add_year_branch:
+            index_up = path.find('_up_')
+            index_down = path.find('_down_') 
+            if index_up!=-1:
+                index = index_up
+            elif index_down!=-1:
+                index = index_down
+            
+            if index!=-1:
+                start_year = index - 4
+                year = path[start_year:index]
+                year_to_yy = {
+                    "2011": 11,
+                    "2012": 12,
+                    "2015": 15,
+                    "2016": 16,
+                    "2017": 17,
+                    "2018": 18,
+                }
+
+                if year in year_to_yy:
+                    yy = year_to_yy[year]
+                    new_df['year'] = yy
+                    print("yy:", yy)
+                else:
+                    print(f"Year {year} is not consistent")
+
+
+        df = df.append(new_df)
 
     return df
 
@@ -261,25 +369,27 @@ def save_root(df, file_name, name_key, folder_name=None, path=None):
 
 def get_dataframe_from_raw_branches_functions(
         df, raw_branches_functions, mode='new', functions=definition_functions):
-    """ From a list of variables with possibly the functions that will be applied to the variable afterwards, add the variables which a function is applied to, to a pandas dataframe.
+    """ From a list of variables with (possibly) 
+    the functions that will be applied to the variable afterwards, 
+    add the variables which a function is applied to, to a pandas dataframe.
 
     Parameters
     ----------
     raw_branches_functions :  list
         list of
 
-            - variable
-            - tuple ``(variable, function)``, where ``function`` is the name of the function applied to the variable
-            - tuple ``(variables, function)``, where ``variables`` is a tuple of variables, inputs of the function
+            * variable
+            * tuple ``(variable, function)``, where ``function`` is the name of the function applied to the variable
+            * tuple ``(variables, function)``, where ``variables`` is a tuple of variables, inputs of the function
 
     df                  : Pandas dataframe
         original dataframe
     mode                : str
         3 modes:
 
-                - 'add': add the variables to the dataframe (in place)
-                - 'new': create a new dataframe with the new variables only
-                - 'both' : do both
+                * 'add': add the variables to the dataframe (in place)
+                * 'new': create a new dataframe with the new variables only
+                * 'both' : do both
 
     Returns
     -------

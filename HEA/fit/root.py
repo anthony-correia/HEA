@@ -2,12 +2,14 @@
 Fitting tools working with roofit
 """
 
+from python.Control_double_charm.Ds.data_DstDs_pipipi.params_fit import PDF_names_signal
 import numpy as np
 import os.path as op
 
 
 
 from ROOT import TFile, RooFit, RooRealVar, RooArgList
+from six import with_metaclass
 from HEA.config import loc
 import ROOT
 
@@ -205,6 +207,10 @@ def unpack_rooParams(rooParams, PDF_name):
     
     elif PDF_name=='doubleCB':
         ordered_keys = ['mu', 'sigma', 'alphaL', 'nL', 'alphaR', 'nR']
+    elif PDF_name=='exp':
+        ordered_keys = ['lambda']
+    elif PDF_name=='chebychev':
+        ordered_keys = ['c']
     ordered_rooParams = []
     for key in ordered_keys:
         key_dict = find_key_startswith(rooParams, key)
@@ -233,12 +239,14 @@ def get_PDF(PDF_name):
     if index!=-1:
         PDF_name = PDF_name[:index]
     
-    from ROOT import RooHILLdini, RooHORNSdini
+    from ROOT import RooHILLdini, RooHORNSdini, RooExponential, RooChebychev
     
     name_to_PDF = {
         'HORNS': RooHORNSdini,
         'HILL' : RooHILLdini,
         'CB'   : RooCBShape,
+        'exp'  : RooExponential,
+        'chebychev': RooChebychev
 #         'doubleCB': RooCrystalBall
     }
     
@@ -275,11 +283,11 @@ def get_models(rooVariable, rooParams,
         corresponding model or ``[sum model, *submodels]``
     """
     
-        
+    print(PDF_names)
     # If only one model
     if is_list_tuple(PDF_names) and len(PDF_names)==1:
         PDF_names = PDF_names[0]
-    
+
     if not is_list_tuple(PDF_names):
         return get_PDF(PDF_names)(
             PDF_names, models_types, 
@@ -300,9 +308,9 @@ def get_models(rooVariable, rooParams,
             )
         
         models[0] = RooAddPdf(
-            f'Sum of {PDF_names[0]} and {PDF_names[1]}', models_types[0],
-            RooArgList(models[1], models[2]),
-            RooArgList(tuple(rooParams[0].values()))
+            f"Sum of {' and '.join(PDF_names)}", models_types[0],
+            RooArgList(*tuple([models[i] for i in range(1, len(models))])),
+            RooArgList(*tuple(rooParams[0].values()))
         )
    
         return models
@@ -334,7 +342,7 @@ def get_n_dof_model_root(model, data):
 
 
 
-def launch_fit(pdf, data, with_weights=False, extended=False):
+def launch_fit(pdf, data, with_weights=False, extended=False, constraints=None):
     """ Fit a pdf to data
     
     Parameters
@@ -358,20 +366,40 @@ def launch_fit(pdf, data, with_weights=False, extended=False):
     """
     
     if with_weights:
-        result = pdf.fitTo(
-            data,
-            RooFit.Save(), RooFit.NumCPU(8,0), RooFit.Optimize(False), 
-            RooFit.Offset(True), RooFit.Minimizer("Minuit2", "migrad"),
-            RooFit.Strategy(2), RooFit.SumW2Error(True),
-            RooFit.Extended(extended)
-        )
+        if constraints is not None:
+            result = pdf.fitTo(
+                data,
+                RooFit.Save(), #RooFit.NumCPU(8,0), 
+                RooFit.Optimize(False), 
+                RooFit.Offset(True), RooFit.Minimizer("Minuit2", "migrad"),
+                RooFit.Strategy(2), RooFit.Extended(extended),
+                RooFit.SumW2Error(True), RooFit.ExternalConstraints(constraints)
+            )
+        else:
+            result = pdf.fitTo(
+                data,
+                RooFit.Save(), RooFit.NumCPU(8,0), RooFit.Optimize(False), 
+                RooFit.Offset(True), RooFit.Minimizer("Minuit2", "migrad"),
+                RooFit.Strategy(2), RooFit.Extended(extended),
+                RooFit.SumW2Error(True)
+            )
     else:
-        result = pdf.fitTo(
-            data,
-            RooFit.Save(), RooFit.NumCPU(8,0), RooFit.Optimize(False), 
-            RooFit.Offset(True), RooFit.Minimizer("Minuit2", "migrad"),
-            RooFit.Strategy(2), RooFit.Extended(extended)
-        )
+        if constraints is not None:
+            result = pdf.fitTo(
+                data,
+                RooFit.Save(), RooFit.NumCPU(8,0), RooFit.Optimize(False), 
+                RooFit.Offset(True), RooFit.Minimizer("Minuit2", "migrad"),
+                RooFit.Strategy(2), RooFit.Extended(extended),
+                RooFit.ExternalConstraints(constraints)
+            )
+        else:
+            result = pdf.fitTo(
+                data,
+                RooFit.Save(), RooFit.NumCPU(8,0), RooFit.Optimize(False), 
+                RooFit.Offset(True), RooFit.Minimizer("Minuit2", "migrad"),
+                RooFit.Strategy(2), RooFit.Extended(extended),
+            )
+
     params = params_into_dict(result, method='root')
     
     return result, params

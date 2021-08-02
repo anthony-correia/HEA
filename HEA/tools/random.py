@@ -36,7 +36,12 @@ def systematics_variation_params(
     """
 
     if list_params is None:
-        list_params = list(params.keys())
+        list_params = []
+        for param_name, param in params.items():
+            if isinstance(param, dict)\
+                and 'v' in param and 'e' in param:
+                
+                list_params.append(param_name)
     
     np.random.seed(seed)
     systematics_params = {}

@@ -144,7 +144,7 @@ def signal_background(data1, data2, column=None, range_column=None, grid=True,
     return fig, axes
 
 
-def correlations(data, fig_name=None, folder_name=None, title=None, **kwds):
+def correlations(data, fig_name, folder_name=None, title=None, **kwds):
     """ Calculate pairwise correlation between features of the dataframe data
     and save the figure in ``{loc['plot']}/BDT/{folder_name}/corr_matrix_{fig_name}``
 
@@ -194,8 +194,6 @@ def correlations(data, fig_name=None, folder_name=None, title=None, **kwds):
 
     plt.tight_layout()
 
-    if fig_name is None:
-        fig_name = string.list_into_string(column)
 
     pt.save_fig(fig, f"corr_matrix_{fig_name}",
                 folder_name=f'BDT/{folder_name}')

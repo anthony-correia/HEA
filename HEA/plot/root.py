@@ -68,6 +68,7 @@ def rooData_into_hist(data, models=None):
         
         i = 2
         for model in models[1:]:
+            models[0].Print()
             models[0].plotOn(frame, RooFit.Components(model.GetName()))
             model_hist = frame.getObject(i)
             model_hists.append(model_hist)

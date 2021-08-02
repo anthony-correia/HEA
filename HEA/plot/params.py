@@ -5,6 +5,7 @@ Functions to plot the parameters
 import HEA.plot.tools as pt
 import numpy as np
 import matplotlib.pyplot as plt
+from copy import deepcopy
 
 def plot_params(value_err_params_cats, label_params, label_cats, color_cats,
                     list_categories=None, list_params=None,
@@ -61,7 +62,8 @@ def plot_params(value_err_params_cats, label_params, label_cats, color_cats,
         passed to :py:func:`matplotlib.pyplot.plot`
     """
 
-    
+    value_err_params_cats = deepcopy(value_err_params_cats)
+    print(value_err_params_cats['true'])
 
     ## LIST OF PARAMS AND CATEGORIES ===========================================    
 
@@ -134,7 +136,6 @@ def plot_params(value_err_params_cats, label_params, label_cats, color_cats,
 
     for cat in list_categories:
         print("Category:", cat)
-        print(kwargs_cats[cat])
         eb = ax.errorbar(
             x=x_cats[cat], y=y + offset_cats[cat],
             xerr=xerr_cats[cat],
@@ -170,6 +171,47 @@ def plot_params(value_err_params_cats, label_params, label_cats, color_cats,
         fig.suptitle(title, fontsize=25)
         
     # Save the figure    
+    if fig_name is not None:
+        pt.save_fig(
+            fig, 
+            fig_name=fig_name, 
+            folder_name=folder_name
+        )
+
+
+
+def plot_matrix(matrix, param_names, latex_params, fig_name=None, folder_name=None, save_fig=True, title=None):
+    fig, ax1 = plt.subplots(ncols=1, figsize=(12, 10))  # 1 plot
+
+    opts = {'cmap': plt.get_cmap("RdBu"),  # red blue color mode
+            'vmin': -1, 'vmax': +1}  # correlation between -1 and 1
+    mask = np.tri(matrix.shape[0], k=-1)
+    matrix = np.transpose(np.ma.array(matrix, mask=mask))
+    
+    heatmap1 = ax1.pcolor(matrix, **opts)  # create a pseudo color plot
+    cbar = plt.colorbar(heatmap1, ax=ax1)  # color bar
+#     ticklabs = cbar.ax.get_yticklabels()
+#     cbar.ax.set_yticklabels(ticklabs, fontsize=20)
+    cbar.ax.tick_params(labelsize=20)
+
+#     title = "Correlations"
+    if title is not None:
+        ax1.set_title(title, fontsize=25)
+
+    labels = [None] * len(param_names)
+    for i, param_name in enumerate(param_names):
+        latex_branch = latex_params[param_name]['latex']
+        labels[i] = latex_branch
+    # shift location of ticks to center of the bins
+    ax1.set_xticks(np.arange(len(labels)) + 0.5, minor=False)
+    ax1.set_yticks(np.arange(len(labels)) + 0.5, minor=False)
+    ax1.set_xticklabels(labels, minor=False, ha='right', rotation=70, fontsize=20)
+    ax1.set_yticklabels(labels, minor=False, fontsize=20)
+    for (i, j), z in np.ndenumerate(matrix):
+        if i > j:
+            ax1.text(j+0.5, i+0.5, '{:0.2f}'.format(z), ha='center', va='center', fontsize=15)
+    
+    plt.tight_layout() 
     if fig_name is not None:
         pt.save_fig(
             fig, 

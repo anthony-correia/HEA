@@ -368,7 +368,7 @@ def ufloat_string_into_latex_format(ufloat_string):
     """ Turn a raw ufloat string into an ufloat string in latex format:
     
     * ``'+/-'`` turned into ``'\\pm'``
-    * ``'e...'`` turned into ``'\times 10^{...}'``
+    * ``'e...'`` turned into ``'\\times 10^{...}'``
     
     Parameters
     ----------
@@ -611,8 +611,11 @@ def json_to_latex_table_pulls(name_json, path, latex_params, show=True):
                 mu_ufloat_latex = ufloat_string_into_latex_format(mu_ufloat_str)
                 sigma_ufloat_str = get_str_from_ufloat_mode(sigma_ufloat, cat='main')
                 sigma_ufloat_latex = ufloat_string_into_latex_format(sigma_ufloat_str)
+                phantom_minum = ""
+                if mu_ufloat.nominal_value > 0:
+                    phantom_minum = r"\phantom{-}"
 
-                f.write(f"{latex_param}&${mu_ufloat_latex}$&${sigma_ufloat_latex}$\\\\")
+                f.write(f"{latex_param}& ${phantom_minum}{mu_ufloat_latex}$&${sigma_ufloat_latex}$\\\\")
 
                 f.write('\n')
                 f.write('\\hline')
