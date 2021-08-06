@@ -444,7 +444,7 @@ def save_fit_result_root(result, file_name, folder_name=None):
         name of the folder where to save the root file
     """
     
-    path = loc['out'] + 'root/'
+    path = loc['rdata']
     path = create_directory(path, folder_name)
     path += f"/{file_name}.root"
     print(f"Root file saved in {path}")
@@ -457,7 +457,7 @@ def save_fit_result_root(result, file_name, folder_name=None):
     
 def retrieve_fit_result_root(file_name, folder_name):
     """ Retrieve a fit result file localted 
-    in ``loc['out']/root/``
+    in ``loc['rdata']``
     
     Parameters
     ----------
@@ -471,7 +471,7 @@ def retrieve_fit_result_root(file_name, folder_name):
     fit_results: rooFitResult
         result of a fit saved in the root file
     """
-    path = loc['out'] + 'root/'
+    path = loc['rdata']
     path = create_directory(path, folder_name)
     path += f"/{file_name}.root"
     

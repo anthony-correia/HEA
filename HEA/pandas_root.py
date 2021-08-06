@@ -341,7 +341,7 @@ def load_saved_root(name_data, columns=None, folder_name="",
 
     text_cut_BDT = "" if cut_BDT is None else f'_BDT{cut_BDT}'
 
-    complete_path = f"{loc['out']}/root/{folder_name}/{name_data}{text_cut_BDT}.root"
+    complete_path = f"{loc['rdata']}/{folder_name}/{name_data}{text_cut_BDT}.root"
 
     return load_dataframe(complete_path, tree_name=tree_name, columns=columns, method=method)
 
@@ -359,7 +359,7 @@ def save_root(df, file_name, name_key, folder_name=None, path=None):
         name of the tree where the file will be saved
 
     """
-    path = loc['out'] + 'root/'
+    path = loc['rdata']
     path = create_directory(path, folder_name)
     path += f"/{file_name}.root"
     

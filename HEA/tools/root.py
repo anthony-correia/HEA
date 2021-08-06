@@ -126,7 +126,7 @@ def save_workspace(w, file_name, folder_name=None):
         name of the folderwhere to save the workspace
     """
     
-    path = op.join(loc['out'], 'root/')
+    path = loc['rdata']
     path = create_directory(path, folder_name) 
     full_path = op.join(path, f"{file_name}_ws.root")
     w.writeToFile(full_path)
@@ -148,7 +148,7 @@ def load_workspace(file_name, folder_name=None):
     w: RooWorkspace
         workspace that is saved in the root file
     """
-    path = op.join(loc['out'], 'root/')
+    path = loc['rdata']
     path = create_directory(path, folder_name) 
     full_path = op.join(path, f"{file_name}_ws.root")
     
