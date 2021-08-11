@@ -63,7 +63,7 @@ def plot_params(value_err_params_cats, label_params, label_cats, color_cats,
     """
 
     value_err_params_cats = deepcopy(value_err_params_cats)
-    print(value_err_params_cats['true'])
+    #print(value_err_params_cats['true'])
 
     ## LIST OF PARAMS AND CATEGORIES ===========================================    
 
