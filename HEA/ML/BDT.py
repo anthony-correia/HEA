@@ -245,8 +245,8 @@ def apply_BDT(df_tot, df_train, bdt, BDT_name=None,
     """
     * Apply the BDT to the dataframe ``df_train`` which contains only the training variable.
     * Add the BDT output as a new variable in ``df_tot``.
-    * Save ``df_tot`` in a root file ``{loc['root']}/{kind_data}_{ BDT_name}.root`` (branch ``'DecayTree'``)
-    * In addition,  save the BDT output in a separated root file ``{loc['root']t/BDT_{BDT_name}.root`` (branch ``'BDT'``)
+    * Save ``df_tot`` in a root file ``{loc['rdata']}/{kind_data}_{ BDT_name}.root`` (branch ``'DecayTree'``)
+    * In addition,  save the BDT output in a separated root file ``{loc['rdata']t/BDT_{BDT_name}.root`` (branch ``'BDT'``)
     * if ``save_BDT`` is ``True``, save the BDT in a root file ``{loc['pickle']}/bdt_{BDT_name}.pickle``
 
     Parameters
