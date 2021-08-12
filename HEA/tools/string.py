@@ -137,3 +137,25 @@ def add_text(text1, text2, sep=' ', default=None):
         return text1
     else:
         return text1 + sep + text2
+    
+def str_number_into_latex(str_number):
+    """ String number, with perhaps a "e-" is turned into ``\times 10^{}``.
+    
+    Parameters
+    ----------
+    str_number : str
+        number
+    
+    Returns
+    -------
+    latex_number: str
+        Number in latex format (without the ``$``)
+    """
+    
+    latex_number = str_number.replace('e+0', 'e').replace('e+', 'e')
+    latex_number = latex_number.replace('e-0', 'e-')
+    
+    if 'e' in latex_number:
+        latex_number = latex_number.replace('e', '\\times 10^{') + '}'
+    
+    return latex_number

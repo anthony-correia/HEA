@@ -5,22 +5,35 @@ Launch to create the configuration file of the project.
 import os
 import configparser
 
-if __name__ == '__main__':
+if __name__=='__main__':
 
-    repo = os.getenv('ANAROOT')
+    
 
     mode_create_config = None
 
     print('Welcome in the creation of the config file of HEA')
-
+    
+    # Get repository
     get_repo = input(
         "Choose the repository to be the value of the 'ANAROOT' environment variable ? (y/n) ")
     while get_repo not in ['y', 'n']:
         get_repo = input('y/n:')
-
     if get_repo == 'n':
         repo = input("Absolute path of the repository of the project: ")
+    else:
+        repo = os.getenv('ANAROOT')
+    
+    # Get output directory
+    get_output_repo = input(
+        "Choose the output direcotry to be in 'repository/output'? (y/n) ")
+    while get_output_repo not in ['y', 'n']:
+        get_output_repo = input('y/n:')
 
+    if get_output_repo == 'n':
+        output = input("Absolute path of the output directory of the project: ")
+    else:
+        output = repo + '/output/'
+    
     name_project = input('Name of the project: ')
 
     config = configparser.ConfigParser()
@@ -29,11 +42,12 @@ if __name__ == '__main__':
 
     config['location'] = {}
     config['location']['ROOT'] = repo + '/'
-    config['location']['OUT'] = config['location']['ROOT'] + 'output/'
+    config['location']['OUT'] = output
     config['location']['PLOTS'] = config['location']['OUT'] + 'plots/'
     config['location']['TABLES'] = config['location']['OUT'] + 'tables/'
     config['location']['JSON'] = config['location']['OUT'] + 'json/'
     config['location']['PICKLE'] = config['location']['OUT'] + 'pickle/'
+    config['location']['JOBLIB'] = config['location']['OUT'] + 'joblib/'
     config['location']['DEFINITION'] = config['location']['ROOT'] + \
         f'{name_project}/definition.py'
 

@@ -6,15 +6,14 @@
 
 import numpy as np
 
-from zfit.core.parameter import ComposedParameter
-from zfit.models.functor import SumPDF
+
 
 ##########################################################################
 ################################# number of d.o.f. of a model ############
 ##########################################################################
 
 
-def get_n_dof_params_recurs(params, params_seen=[], n_dof_previous=0):
+def get_n_dof_params_recurs_old(params, params_seen=[], n_dof_previous=0):
     """ Recursive function to get the number of d.o.f. of a parameter
 
     Parameters
@@ -44,7 +43,7 @@ def get_n_dof_params_recurs(params, params_seen=[], n_dof_previous=0):
             params_seen.append(name_param)
             # if it is a composed parameter, check to composite parameters
             if isinstance(param, ComposedParameter):
-                n_dof, params_seen = get_n_dof_params_recurs(
+                n_dof, params_seen = get_n_dof_params_recurs_old(
                     param.params, params_seen, n_dof)
             else:
                 if param.floating:
@@ -52,7 +51,7 @@ def get_n_dof_params_recurs(params, params_seen=[], n_dof_previous=0):
     return n_dof + n_dof_previous, params_seen
 
 
-def __get_n_dof_model_recurs(model, params_seen=[], n_dof_previous=0):
+def __get_n_dof_model_recurs_old(model, params_seen=[], n_dof_previous=0):
     """ Recurvive function to get the number of d.o.f. of a model.
     A d.o.f. corresponds to a floated parameter in the model.
 
@@ -75,19 +74,19 @@ def __get_n_dof_model_recurs(model, params_seen=[], n_dof_previous=0):
     n_dof = 0
 
     # Explore the parameters of model
-    n_dof, params_seen = get_n_dof_params_recurs(
+    n_dof, params_seen = get_n_dof_params_recurs_old(
         model.params, params_seen, n_dof)
 
     # Explore the parameters of the submodels of model
     if isinstance(model, SumPDF):
         for submodel in model.models:
-            n_dof, params_seen = __get_n_dof_model_recurs(
+            n_dof, params_seen = __get_n_dof_model_recurs_old(
                 submodel, params_seen, n_dof)
 
     return n_dof + n_dof_previous, params_seen
 
 
-def get_n_dof_model(model):
+def get_n_dof_model_old(model):
     """ Get the number of d.o.f. of a zfit model.
     A d.o.f. corresponds to a floated parameter in the model.
 
@@ -101,86 +100,49 @@ def get_n_dof_model(model):
     n_dof: int
         number of d.o.f. in the model
     """
-    n_dof, _ = __get_n_dof_model_recurs(model, params_seen=[])
+    from zfit.core.parameter import ComposedParameter
+    from zfit.models.functor import SumPDF
+    
+    n_dof, _ = __get_n_dof_model_recurs_old(model, params_seen=[])
     return n_dof
 
-
-##########################################################################
-####################################### Goodness of fit ##################
-##########################################################################
-
-def get_chi2(fit_counts, counts):
-    """ Get the :math:`\\chi^2` of a fit
+def get_n_dof_model(model):
+    """ Get the number of d.o.f. of a zfit model. (new version!)
+    A d.o.f. corresponds to a floated parameter in the model.
 
     Parameters
     ----------
-    fit_counts : np.array or list
-        fitted number of counts
-    counts     : np.array or list
-        number of counts in the histogram of the fitted data
+    model: zfit.pdf.BasePDF
+        Model (PDF)
 
     Returns
     -------
-    returns : float
-        :math:`\\chi^2` of the fit
-    """
-    diff = np.square(fit_counts - counts)
-
-    #n_bins = len(counts)
-    diff = np.divide(diff, np.abs(counts),
-                     out=np.zeros_like(diff), where=counts != 0)
-    chi2 = np.sum(diff)  # sigma_i^2 = mu_i
-    return chi2
-
-
-def get_reduced_chi2(fit_counts, counts, n_dof):
-    """ Get the reduced :math:`\\chi^2` of a fit
-
-    Parameters
-    ----------
-    fit_counts : np.array or list
-        fitted number of counts
-    counts     : np.array or list
-        number of counts in the histogram of the fitted data
-    n_dof      : int
+    n_dof: int
         number of d.o.f. in the model
-
-    Returns
-    -------
-    returns    : float
-        reduced :math:`\\chi^2` of the fit
     """
-    n_bins = np.abs(len(counts))
-    return get_chi2(fit_counts, counts) / (n_bins - n_dof)
-
-
-def get_mean(pull):
-    """ Get the mean of an array, excluding non-valid values.
+    n_dof = 0
+    for param in model.get_params(): # loop over all the parameters
+        n_dof += param.floating
+    
+    return n_dof
+        
+def get_n_dof_model(model):
+    """ Get the number of d.o.f. of a zfit model. (new version!)
+    A d.o.f. corresponds to a floated parameter in the model.
 
     Parameters
     ----------
-    pull : numpy.array
-        Array
+    model: zfit.pdf.BasePDF
+        Model (PDF)
 
     Returns
     -------
-    mean_pull: float
-        mean of the array
+    n_dof: int
+        number of d.o.f. in the model
     """
-    return np.mean(pull[np.isfinite(pull)])
+    n_dof = 0
+    for param in model.get_params(): # loop over all the parameters
+        n_dof += param.floating
+    
+    return n_dof    
 
-
-def get_std(pull):
-    """ Get the standard deviation of an array, excluding non-valid values.
-
-    Parameters
-    ----------
-    pull : numpy.array
-        Array
-
-    Returns
-    -------
-    mean_pull: float
-        Standard deviation of the array
-    """
-    return np.std(pull[np.isfinite(pull)])

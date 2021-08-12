@@ -32,3 +32,10 @@ HEA.fit.params module
    :show-inheritance:
 
 
+HEA.fit.root module
+-------------------
+
+.. automodule:: HEA.fit.root
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -10,6 +10,22 @@
     * branches
     * tuple ``(raw_branch, name_function)``, where ``name_function`` is the name of the function applied to the branch
     * tuple ``(raw_branch, name_function)``, where ``raw_branches`` is a tuple of raw branches and ``name_function`` is the name of the function applied to the raw branches.
+
+Variables
+---------
+
+latex_params: dict[str: dict[str:str]]
+    Associates a parameter name with
+    another dictionnary, that gives
+    its latex label (key ``'latex'``)
+    and its ``'cat'`` (``'yield'``, ``'main'`` or ``'others'``)
+    for the print format
+definition_functions: dict[str: callable]
+    Associates a label of function with the actual function
+latex_functions: dict[str:callable]
+    Associates a label of function with a function
+    that returns the function that returns its latex label
+    given its arguments
 """
 
 from numpy import log
@@ -31,11 +47,135 @@ except FileNotFoundError:
     definition_quantities = {}
     latex_particles = {}
 
-import HEA.tools.assertion as assertion
+from HEA.tools import assertion
 from HEA.tools.da import el_to_list
 from HEA.tools.string import add_text, _latex_format, string_between_brackets
 from HEA.tools.serial import get_latex_column_table
 
+# Fit parameters ========================================================
+
+latex_params = {
+    'n_sig': {
+        'latex':r'$n_{sig}$',
+        'cat'  :'yield'
+    },
+    'mu': {
+        'latex': '$\mu$',
+        'cat'  : 'main'
+    },
+    'muL':{
+        'latex':'$\\mu_L$',
+        'cat'  :'main'
+    },
+    'muR':{
+        'latex':'$\\mu_R$',
+        'cat'  :'main'
+    },
+    'sigma':{
+        'latex':'$\\sigma$',
+        'cat'  :'main'
+    },
+    'sigmaL':{
+        'latex':'$\\sigma_L$',
+        'cat'  :'main'
+    },
+    'sigmaR':{
+        'latex':'$\\sigma_R$',
+        'cat'  :'main'
+    },
+    'alphaL': {
+        'latex':'$\\alpha_L$',
+        'cat'  :'other'
+    },
+    'alphaR': {
+        'latex':'$\\alpha_R$',
+        'cat'  :'other'
+    },
+    'nL': {
+        'latex':'$n_L$',
+        'cat'  :'other'
+    },
+    'nR': {
+        'latex':'$n_R$',
+        'cat'  :'other'
+    },
+    'frac': {
+        'latex':r'$\mathrm{frac}_{L}$',
+        'cat'  :'other'
+    },
+    'frac_L': {
+        'latex':r'$\mathrm{frac}_{L}$',
+        'cat'  :'other'
+    },
+    'frac_R': {
+        'latex':r'{\mathrm{frac}_{L}$',
+        'cat'  :'other'
+    },
+    'n_bkg': {
+        'latex':'$n_{\mathrm{bkg}}$',
+        'cat'  :'yield'
+    },
+    'lambda': {
+        'latex':'$\\lambda_{\mathrm{bkg}}$',
+        'cat'  :'other'
+    },
+    'c1': {
+        'latex':r'$c_1$',
+        'cat'  :'other'
+    },
+    'k': {
+        'latex':r'k',
+        'cat'  :'other'
+    }
+}
+latex_params_HH = {
+    'a': {
+        'latex': '$a$',
+        'cat': 'other'
+    },
+    'b': {
+        'latex': '$b$',
+        'cat': 'other'
+    },
+    'csi': {
+        'latex': '$\\xi$',
+        'cat': 'other'
+    },  
+    'sigma': {
+        'latex': '$\\sigma$',
+        'cat': 'main'
+    },
+    'r': {
+        'latex': '$r$',
+        'cat': 'other'
+    },
+    'f': {
+        'latex': '$f$',
+        'cat': 'other'
+    },
+}
+latex_params_HH_PDF = {}
+for key, value in latex_params_HH.items():
+    for PDF in ['HORNS', 'HILL']:  
+        latex_params_HH_PDF[key+f'_{PDF.lower()}'] = value.copy()
+        latex = value['latex']
+        
+        latex_add_PDF = '_{' + PDF + '}'
+        latex_param = f"${latex.replace('$', '')}{latex_add_PDF}$"
+        
+        latex_params_HH_PDF[key+f'_{PDF.lower()}']['latex'] = latex_param
+
+latex_params_HH_PDF['frac_hill'] = {
+        'latex': r'${\mathrm{frac}}_{\mathrm{hill}}$',
+        'cat': 'other'
+}
+
+latex_params_HH_PDF['frac_horn'] = {
+        'latex': r'${\mathrm{frac}}_{\mathrm{horns}}$',
+        'cat': 'other'
+}
+        
+latex_params = {**latex_params, **latex_params_HH, **latex_params_HH_PDF}
 
 # Name of the functions and functions ====================================
 
@@ -299,7 +439,7 @@ class RVariable():
             * if ``self.latex_quantity`` is a tuple of quantities, returns a tuple of latex names of variables.
         """
         return self.get_latex_raw_branch(
-            self.latex_particle, self.latex_raw_quantity)
+            self.latex_particle, self.latex_raw_quantity, self.raw_branch)
 
     @property
     def latex_branch(self):
@@ -364,7 +504,7 @@ class RVariable():
             return tuple(RVariable.get_raw_branch(sub_particle, sub_raw_quantity)
                          for sub_particle, sub_raw_quantity in zip(particle, raw_variable))
 
-        return add_text(particle, raw_variable)
+        return add_text(particle, raw_variable, sep='_')
 
     @staticmethod
     def get_latex_particle(particle):
@@ -427,7 +567,7 @@ class RVariable():
             return _latex_format(raw_quantity)
 
     @staticmethod
-    def get_latex_raw_branch(latex_particle, latex_raw_quantity):
+    def get_latex_raw_branch(latex_particle, latex_raw_quantity, raw_branch):
         """ Return the latex name of the raw branches (i.e., quantity and particle), without including the function in the label
 
         Parameters
@@ -436,11 +576,18 @@ class RVariable():
             latex name of particle or list of latex names of particles
         latex_raw_quantity: str or list(str)
             latex name of a raw quantity or list of latex names of raw quantities
-        
+        raw_branch: str or list(str)
+            raw branches
         Returns
         -------
         latex_raw_branch: str or tuple(str)
-            * if ``self.raw_branch`` is one branch, returns ``"{self.latex_quantity}({self.latex_particle})"`` or just ``self.latex_quantity`` if no the rVariable has no particle.
+        
+            * if ``self.raw_branch`` is one branch, returns 
+                
+                * if ``self.raw_branch`` is in ``definition_quantities`` and its latex name is not None, just return its latex name directly from there
+                * else ``"{self.latex_quantity}({self.latex_particle})"``
+                * or just ``self.latex_quantity`` if no the rVariable has no particle.
+                
             * if ``self.latex_quantity`` is a tuple of quantities, returns a tuple of latex names of variables.
         """
 
@@ -450,10 +597,12 @@ class RVariable():
             # there is one particle specified but several quantities)
             latex_particles = tuple(el_to_list(
                 latex_particle, len(latex_raw_quantity)))
-            return tuple(RVariable.get_latex_raw_branch(sub_latex_particle, sub_latex_raw_quantity)
-                         for sub_latex_particle, sub_latex_raw_quantity in zip(latex_particles, latex_raw_quantity))
+            return tuple(RVariable.get_latex_raw_branch(sub_latex_particle, sub_latex_raw_quantity, sub_raw_branch)
+                         for sub_latex_particle, sub_latex_raw_quantity, sub_raw_branch in zip(latex_particles, latex_raw_quantity, raw_branch))
 
-        if latex_particle is None:
+        if  raw_branch in definition_quantities and definition_quantities[raw_branch]['latex'] is not None:
+            return definition_quantities[raw_branch]['latex']
+        elif latex_particle is None:
             return latex_raw_quantity
         else:
             return f"{latex_raw_quantity}({latex_particle})"
@@ -571,56 +720,56 @@ class RVariable():
             raw_quantities = raw_quantities[0]
         return particles, raw_quantities, name_function
 
-    @staticmethod
-    def get_latex_raw_variable_unit_from_particle_raw_quantity(
-            particle, raw_quantity):
-        """ Get the latex label of the particle, the variable and its unit, from the couple ``(particle, raw_quantity)``
+    # @staticmethod
+    # def get_latex_raw_variable_unit_from_particle_raw_quantity(
+    #         particle, raw_quantity):
+    #     """ Get the latex label of the particle, the variable and its unit, from the couple ``(particle, raw_quantity)``
 
-        Parameters
-        ----------
-        particle     : str or None
-            name of the particle
-        raw_quantity : str or None
-            name of the raw quantity
+    #     Parameters
+    #     ----------
+    #     particle     : str or None
+    #         name of the particle
+    #     raw_quantity : str or None
+    #         name of the raw quantity
 
-        Returns
-        -------
-        latex_particle     : str
-            Latex label of the particle (is returned only if get_particle is ``True``)
-        latex_raw_variable : str
-            Latex label of the raw variable
-        unit : str
-            unit of the raw quantity
-        """
-        if particle is not None and particle in latex_particles:
-            name_particle = latex_particles[particle]
-        else:
-            name_particle = None
+    #     Returns
+    #     -------
+    #     latex_particle     : str
+    #         Latex label of the particle (is returned only if get_particle is ``True``)
+    #     latex_raw_variable : str
+    #         Latex label of the raw variable
+    #     unit : str
+    #         unit of the raw quantity
+    #     """
+    #     if particle is not None and particle in latex_particles:
+    #         name_particle = latex_particles[particle]
+    #     else:
+    #         name_particle = None
 
-        if raw_quantity is not None:
+    #     if raw_quantity is not None:
 
-            if variable in variables_params:
-                latex_raw_variable = definition_variables[variable]['name']
-                unit = definition_variables[variable]['unit']
-            else:
-                latex_raw_variable = None
-                unit = None
+    #         if variable in variables_params:
+    #             latex_raw_variable = definition_variables[variable]['name']
+    #             unit = definition_variables[variable]['unit']
+    #         else:
+    #             latex_raw_variable = None
+    #             unit = None
 
-            if name_var is None:
-                latex_raw_variable = _latex_format(variable)
-            if name_particle is None:
-                latex_raw_variable = _latex_format(variable)
-            else:
-                if get_particle:
-                    latex_raw_variable = name_variable
-                else:
-                    latex_raw_variable = f"{name_variable}({name_particle})"
+    #         if name_var is None:
+    #             latex_raw_variable = _latex_format(variable)
+    #         if name_particle is None:
+    #             latex_raw_variable = _latex_format(variable)
+    #         else:
+    #             if get_particle:
+    #                 latex_raw_variable = name_variable
+    #             else:
+    #                 latex_raw_variable = f"{name_variable}({name_particle})"
 
-        else:  # variable is None
-            name_variable = branch
-            unit = None
+    #     else:  # variable is None
+    #         name_variable = branch
+    #         unit = None
 
-        return latex_raw_variable, unit
+    #     return latex_raw_variable, unit
 
     @staticmethod
     def __get_latex_variable(variable, latex_raw_variable, name_function):
@@ -768,7 +917,7 @@ def print_used_branches_per_particles(branches):
                 if not isinstance(saved_particle, tuple):
                     saved_particle_tuple = tuple([saved_particle])
                 else:
-                    particle_saved_tuple = particle_saved
+                    particle_saved_tuple = saved_particle
                 branches_per_particles_short[particle_saved_tuple +
                                              tuple([particle])] = particle_branches
                 del branches_per_particles_short[saved_particle]

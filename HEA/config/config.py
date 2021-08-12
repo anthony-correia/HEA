@@ -11,12 +11,14 @@ Load the configuration file ``config.ini``.
     * ``"definition"`` : python file with the definitions of:
         * ``latex_particles``
         * ``definition_quantities``
+
 * The dictionnary `default_fontsize` contains the default fontsizee of:
     * ``"ticks"``
     * ``"legend"``
     * ``"label"``
     * ``"text"``
     * ``"annotation"``
+    
 * The dictionnary `default_project` contains:
     * ``'name'``: the name of the project
     * ``'text_plot'``: what is written in the plot for the report (e.g., ``LHCb preliminary \\n 2fb$^-1$``)

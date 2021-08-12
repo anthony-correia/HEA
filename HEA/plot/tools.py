@@ -17,6 +17,12 @@ from HEA.tools import string
 from HEA.definition import RVariable
 from HEA.tools import assertion
 
+# Gives us nice LaTeX fonts in the plots
+from matplotlib import rc, rcParams
+rc('font', **{'family': 'serif', 'serif': ['Roman']})
+rc('text', usetex=True)
+rcParams['axes.unicode_minus'] = False
+
 
 ##########################################################################
 ########################################### Saving #######################
@@ -60,45 +66,6 @@ def save_fig(fig, fig_name, folder_name=None,
 ##########################################################################
 ############################### Tool functions for plotting ##############
 ##########################################################################
-
-# Computation ------------------------------------------------------------
-def _redefine_low_high(low, high, data):
-    """ if low or high is not None, return global min (``low``) or max (``high``) of all the data in data, respectively.
-
-    Parameters
-    ----------
-    low    : float or None
-        low value of the range
-    high   : float or None
-        high value of the range
-    data   : pandas.Series or list of pandas.Series
-        for which we want to define the ``low``/``high`` value
-
-    Returns
-    -------
-    low  : float
-        low  if the parameter ``low`` was not None, else minimum of all the data in ``data``
-    high : float
-        high if the parameter ``high`` was not None, else maximum of all the data in ``data``
-    """
-    # Transform data into a list of data (if it is not already the case)
-    l_data = [data] if isinstance(data, Series) else data
-
-    define_low = low is None
-    define_high = high is None
-
-    if define_low or define_high:
-        if define_low:
-            low = np.inf
-        if define_high:
-            high = - np.inf
-        for el_data in l_data:
-            if define_low:
-                low = min(low, el_data.min())
-            if define_high:
-                high = max(high, el_data.max())
-
-    return low, high
 
 # Text formatting --------------------------------------------------------
 
@@ -174,6 +141,34 @@ def _get_title_given_BDT_cut(title, cut_BDT):
 
 
 # Core of the plot -------------------------------------------------------
+
+def draw_vline(ax, x, label=None, color='b', fontsize=20,
+               va='bottom', ha='center', offsetx=0, offsety=.01,
+               **kwargs):
+    """ Draw a vertical line and its label (at the top of the figure)
+    
+    Parameters
+    ----------
+    ax    : matplotlib.axes.Axes
+        axis where to plot the line
+    x     : float
+        location of the vertical line
+    label : str
+        name of the line to show in the plot
+    **kwgs: dict
+        passed to ``ax.axvline()``
+    
+    """
+    
+    low, high = ax.get_xlim()
+    
+    ax.axvline(x, color=color, **kwargs)
+    
+    ax.text((x - low) / (high - low) + offsetx, 1 + offsety, label,
+        verticalalignment=va, horizontalalignment=ha,
+        transform=ax.transAxes,
+        color=color, fontsize=fontsize)
+
 def show_grid(ax, which='major', axis='both'):
     """show grid
 
@@ -221,17 +216,17 @@ def change_range_axis(ax, factor_max=1.1, min_to_0=True, axis='y'):  # previousl
     axis      : 'x', 'y' or 'both'
         Axis where to change the range limits
     """
-    if axis == 'x' or axis == 'both':
-        xmin, xmax = ax.get_xlim()
-        if min_to_0:
-            xmin = 0
-        ax.set_xlim(xmin, xmax * factor_max)
-
-    if axis == 'y' or axis == 'both':
-        ymin, ymax = ax.get_ylim()
-        if min_to_0:
-            ymin = 0
-        ax.set_ylim(ymin, ymax * factor_max)
+    if factor_max!=False:
+        if axis == 'x' or axis == 'both':
+            xmin, xmax = ax.get_xlim()
+            if min_to_0:
+                xmin = 0
+            ax.set_xlim(xmin, xmax * factor_max)
+        if axis == 'y' or axis == 'both':
+            ymin, ymax = ax.get_ylim()
+            if min_to_0:
+                ymin = 0
+            ax.set_ylim(ymin, ymax * factor_max)
 
 
 def set_label_ticks(ax, labelsize=default_fontsize['ticks'], axis='both'):
@@ -266,7 +261,8 @@ def set_log_scale(ax, axis='both'):
 
 
 def set_text_LHCb(
-        ax, text=default_project['text_plot'], fontsize=default_fontsize['text'], pos=None):
+        ax, text=default_project['text_plot_data'], 
+        fontsize=default_fontsize['text'], pos=None):
     """ Put a text on a plot
 
     Parameters
@@ -280,20 +276,25 @@ def set_text_LHCb(
     pos      : dict, list or str
         Three possibilities
 
-        - dictionnary with these keys
+        * dictionnary with these keys
 
-            - ``'x'``: position of the text along the x-axis
-            - ``'y'``: position of the text along the y-axis
-            - ``'ha'``: horizontal alignment
-            - ``fontsize``: fontsize of the text
-            - ``text`` : text to plot
+            * ``'x'``: position of the text along the x-axis
+            * ``'y'``: position of the text along the y-axis
+            * ``'ha'``: horizontal alignment
+            * ``fontsize``: fontsize of the text
+            * ``text`` : text to plot
+            * ``type``: if ``text`` is ``None``, ``type`` might decide the text to put, taking the value from the *config.ini* file.
+            
+                * if ``'data'``: ``default_project['text_plot_data']``
+                * if ``'MC'``: ``default_project['text_plot_data']``
+                * if ``'data_MC'`` or ``'MC_data'`` : ``default_project['text_plot_data_MC']``
+                
+        * list: ``[x, y, ha]``
 
-        - list: ``[x, y, ha]``
+        * str: alignment ``'left'`` or ``'right'``.
 
-        - str: alignment ``'left'`` or ``'right'``.
-
-            - if 'left', ``x = 0.02`` and ``y = 0.95``
-            - if 'right', ``x = 0.98`` and ``y = 0.95``.
+            * if 'left', ``x = 0.02`` and ``y = 0.95``
+            * if 'right', ``x = 0.98`` and ``y = 0.95``.
 
         These values are also the default values for the dictionnary input mode.
         These parameters are passed to ``ax.text()``.
@@ -313,7 +314,15 @@ def set_text_LHCb(
             elif ha == 'right':
                 x = 0.98 if 'x' not in info else info['x']
                 y = 0.95 if 'y' not in info else info['y']
-
+            
+            if 'type' in pos:
+                if pos['type']=='data':
+                    text = default_project['text_plot_data']
+                elif pos['type']=='MC':
+                    text = default_project['text_plot_MC']
+                elif pos['type']=='data_MC' or pos['type']=='MC_data':
+                    text = default_project['text_plot_data_MC']
+                    
             add_in_dic('fontsize', pos, fontsize)
             add_in_dic('text', pos, text)
 
@@ -334,12 +343,16 @@ def set_text_LHCb(
             y = pos[1]
             ha = pos[2]
 
-        return ax.text(x, y, text, verticalalignment='top', horizontalalignment=ha,
-                       transform=ax.transAxes, fontsize=fontsize)
+        return ax.text(x, y, text, verticalalignment='top', 
+                       horizontalalignment=ha,
+                       transform=ax.transAxes, 
+                       fontsize=fontsize)
 
 
-def fix_plot(ax, factor_ymax=1.1, show_leg=True, fontsize_ticks=default_fontsize['ticks'],
-             fontsize_leg=default_fontsize['legend'], loc_leg='best', ymin_to_0=True, pos_text_LHC=None, axis='y'):
+def fix_plot(ax, factor_ymax=1.1, show_leg=True, 
+             fontsize_leg=default_fontsize['legend'], 
+             loc_leg='best', ymin_to_0=True, 
+             pos_text_LHC=None, axis='y'):
     """ Some fixing of plot parameters (fontsize, ymax, legend)
 
     Parameters
@@ -364,7 +377,9 @@ def fix_plot(ax, factor_ymax=1.1, show_leg=True, fontsize_ticks=default_fontsize
     axis            : 'y' or 'x'
         if ``axis`` is ``'x'``, ``ymin_to_0`` and ``factor_ymax`` acts on the x-axis
     """
-
+    
+    set_text_LHCb(ax, pos=pos_text_LHC)
+    
     if factor_ymax is not None:
         change_range_axis(ax, factor_ymax, ymin_to_0, axis)
 
@@ -372,7 +387,7 @@ def fix_plot(ax, factor_ymax=1.1, show_leg=True, fontsize_ticks=default_fontsize
     if show_leg:
         ax.legend(fontsize=fontsize_leg, loc=loc_leg)
 
-    set_text_LHCb(ax, pos=pos_text_LHC)
+    
 
 
 def get_latex_branches_units(branches):
@@ -390,6 +405,7 @@ def get_latex_branches_units(branches):
     units: str or list(str)
         unit of the branch or list of units of the branches
     """
+
     if assertion.is_list_tuple(branches):
         latex_branches = [None, None]
         units = [None, None]
@@ -444,6 +460,31 @@ def _unit_between_brackets(unit, show_bracket=True):  # previously: redefine_uni
     return string.string_between_brackets(unit, bracket=bracket)
 
 
+def get_label_branch(latex_branch, unit=None, data_name=None):
+    """ Get- the label branch ``(data_name) [unit]``
+
+    Parameters
+    ----------
+    latex_branch  : str
+        latex name of the branch that was plotted
+    unit          : str
+        unit of the branch that was plotted
+    data_name     : str or None
+        Name of the data, in case it needs to be specified 
+        in the label of the axis between parentheses
+       
+    Returns
+    -------
+    label: str
+        label of the branch to put in the axis of a plot
+    """
+    unit_text = _unit_between_brackets(unit)
+    data_name_text = string.string_between_brackets(data_name, bracket='(')
+
+    label = "%s%s%s" % (latex_branch, data_name_text, unit_text)
+    
+    return label
+
 def set_label_branch(ax, latex_branch, unit=None, data_name=None,
                      fontsize=default_fontsize['label'], axis='x'):
     """ set the label branch ``(data_name) [unit]`` for the axis specified by ``'axis'``
@@ -467,6 +508,9 @@ def set_label_branch(ax, latex_branch, unit=None, data_name=None,
     data_name_text = string.string_between_brackets(data_name, bracket='(')
 
     label = "%s%s%s" % (latex_branch, data_name_text, unit_text)
+    
+    label = get_label_branch(latex_branch, unit=unit, data_name=data_name)
+    
     if axis == 'x' or axis == 'both':
         ax.set_xlabel(label, fontsize=fontsize)
     if axis == 'y' or axis == 'both':
